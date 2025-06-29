@@ -1,5 +1,7 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import * as PDF from '@react-pdf/renderer';
+// Compat: versão ESM do renderer exporta default; aqui extraímos manualmente
+const { Document, Page, Text, View, StyleSheet } = PDF as any;
 import { QuoteInput, QuoteResult } from './pricingEngine';
 
 const styles = StyleSheet.create({
