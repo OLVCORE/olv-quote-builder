@@ -73,7 +73,9 @@ export default function ServiceForm({ config }: Props) {
   // Currency conversion state & rate
   const [currency, setCurrency] = useState<Currency>('BRL');
   const { rates } = useRates('BRL');
-  const conversionRate = currency === 'BRL' ? 1 : rates[currency] || 1;
+  const [manualRate, setManualRate] = useState<number | ''>('');
+  const autoRate = rates[currency] || 1;
+  const conversionRate = currency === 'BRL' ? 1 : (manualRate || autoRate);
 
   const extrasTotal = extras.reduce((sum, l) => {
     const lineTotal = l.qty * l.unit * (1 - l.discount / 100);
@@ -260,6 +262,19 @@ export default function ServiceForm({ config }: Props) {
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
           </select>
+          {currency !== 'BRL' && (
+            <>
+              <span className="text-sm">Taxa:</span>
+              <input
+                type="number"
+                step="0.0001"
+                value={manualRate === '' ? autoRate.toFixed(4) : manualRate}
+                onChange={(e) => setManualRate(e.target.value === '' ? '' : Number(e.target.value))}
+                className="border px-2 py-1 w-24 text-sm"
+                title="Taxa de conversão manual. Deixe em branco para usar a automática."
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -273,6 +288,11 @@ export default function ServiceForm({ config }: Props) {
               <tr key={k} className="odd:bg-white even:bg-slate-50">
                 <td className="border p-1 capitalize">{k}</td>
                 <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
+                {currency !== 'BRL' && (
+                  <td className="border p-1 text-right">
+                    {(v * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </td>
+                )}
               </tr>
             ))}
             {/* Extras */}
