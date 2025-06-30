@@ -73,9 +73,13 @@ export default function ServiceForm({ config }: Props) {
   // Currency conversion state & rate
   const [currency, setCurrency] = useState<Currency>('BRL');
   const { rates } = useRates('BRL');
-  const [manualRate, setManualRate] = useState<number | ''>('');
-  const autoRate = rates[currency] || 1;
-  const conversionRate = currency === 'BRL' ? 1 : (manualRate || autoRate);
+  const defaultRate = currency === 'BRL' ? 1 : rates[currency] || 1;
+  const [customRate, setCustomRate] = useState<number | null>(null);
+  const conversionRate = customRate || defaultRate;
+
+  const handleRateChange = (val:number) => {
+    setCustomRate(val > 0 ? val : null);
+  };
 
   const extrasTotal = extras.reduce((sum, l) => {
     const lineTotal = l.qty * l.unit * (1 - l.discount / 100);
@@ -250,12 +254,15 @@ export default function ServiceForm({ config }: Props) {
           />
         </div>
 
-        {/* Currency selector */}
+        {/* Currency selector & rate */}
         <div className="flex items-center gap-3">
           <label className="text-sm">Moeda:</label>
           <select
             value={currency}
-            onChange={(e) => setCurrency(e.target.value as Currency)}
+            onChange={(e) => {
+              setCurrency(e.target.value as Currency);
+              setCustomRate(null); // reset custom rate on change
+            }}
             className="border px-2 py-1 rounded text-sm"
           >
             <option value="BRL">BRL</option>
@@ -264,15 +271,23 @@ export default function ServiceForm({ config }: Props) {
           </select>
           {currency !== 'BRL' && (
             <>
-              <span className="text-sm">Taxa:</span>
+              <label className="text-sm">Câmbio</label>
               <input
                 type="number"
                 step="0.0001"
-                value={manualRate === '' ? autoRate.toFixed(4) : manualRate}
-                onChange={(e) => setManualRate(e.target.value === '' ? '' : Number(e.target.value))}
                 className="border px-2 py-1 w-24 text-sm"
-                title="Taxa de conversão manual. Deixe em branco para usar a automática."
+                value={conversionRate}
+                onChange={(e) => handleRateChange(Number(e.target.value))}
               />
+              {customRate && (
+                <button
+                  type="button"
+                  className="text-xs text-emerald-700 underline"
+                  onClick={() => setCustomRate(null)}
+                >
+                  reset ↺
+                </button>
+              )}
             </>
           )}
         </div>
@@ -284,17 +299,15 @@ export default function ServiceForm({ config }: Props) {
         <table className="w-full text-sm border">
           <tbody>
             {/* Breakdown items from service calculate */}
-            {Object.entries(baseResult.breakdown).map(([k, v]) => (
-              <tr key={k} className="odd:bg-white even:bg-slate-50">
-                <td className="border p-1 capitalize">{k}</td>
-                <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
-                {currency !== 'BRL' && (
-                  <td className="border p-1 text-right">
-                    {(v * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </td>
-                )}
-              </tr>
-            ))}
+            {Object.entries(baseResult.breakdown).map(([k, v]) => {
+              const perc = (v / subtotal) * 100;
+              return (
+                <tr key={k} className="odd:bg-white even:bg-slate-50" title={`${perc.toFixed(1)}% do total`}>
+                  <td className="border p-1 capitalize">{k}</td>
+                  <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
+                </tr>
+              );
+            })}
             {/* Extras */}
             {extras.map((l) => (
               <tr key={l.id} className="odd:bg-white even:bg-slate-50">
