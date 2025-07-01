@@ -437,11 +437,11 @@ export default function ServiceForm({ config }: Props) {
         </section>
       </div>
 
-      {/* NOVO RODAPÉ: Tabelas 2 e 5 sempre lado a lado */}
-      <div className="w-full flex flex-col lg:flex-row gap-8 mt-8 sticky bottom-0 z-20 bg-transparent">
+      {/* NOVO RODAPÉ: Tabelas 2 e 5 sempre lado a lado, alinhadas, sem sticky/z-index */}
+      <div className="w-full flex flex-col lg:flex-row gap-8 mt-8">
         {/* 2. Serviços Adicionais */}
-        <section className="flex-1 min-w-0 max-w-full overflow-hidden relative z-0">
-          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+        <section className="flex-1 min-w-0 max-w-full overflow-visible">
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 h-full flex flex-col">
             <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
               2. Serviços Adicionais
               <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
@@ -486,8 +486,8 @@ export default function ServiceForm({ config }: Props) {
           </section>
         </section>
         {/* 5. Tabela de Tarifas e Condições */}
-        <section className="flex-1 min-w-0 max-w-full overflow-hidden relative z-0">
-          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+        <section className="flex-1 min-w-0 max-w-full overflow-visible">
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 h-full flex flex-col">
             <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
               5. Tabela de Tarifas e Condições
               <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
