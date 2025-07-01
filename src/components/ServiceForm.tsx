@@ -3,7 +3,6 @@ import React, { useState, useMemo } from 'react';
 import { ServiceConfig, InputField } from '@/lib/services';
 import { useAdmin } from './AdminContext';
 import { useRates, Currency } from '@/lib/useRates';
-import { allServices } from '@/lib/services';
 
 type ExtraCost = {
   id: string;
@@ -120,371 +119,286 @@ export default function ServiceForm({ config }: Props) {
     return config.description || key;
   }
 
-  // Tabela visual explicativa dos serviços
-  function ServiceTable() {
-    return (
-      <div className="mb-8">
-        <h3 className="text-xl font-bold mb-2 text-[#d4af37]">Serviços OLV – Escopo e Descritivo</h3>
-        <table className="w-full text-sm border rounded-xl overflow-hidden shadow">
-          <thead className="bg-slate-100 dark:bg-[#1a2338]">
-            <tr>
-              <th className="border p-2">Serviço</th>
-              <th className="border p-2">Descrição</th>
-              <th className="border p-2">Principais Componentes</th>
-            </tr>
-          </thead>
+  return (
+    <div className="grid lg:grid-cols-2 gap-8">
+      {/* LEFT – Inputs */}
+      <div className="space-y-6">
+        {/* Inputs */}
+        {config.inputs.map((field) => {
+          if (field.type === 'number')
+            return (
+              <div key={field.key}>
+                <label className="block text-sm font-semibold mb-1">{field.label}</label>
+                <input
+                  type="number"
+                  className="w-full border px-3 py-2 rounded"
+                  value={values[field.key]}
+                  onChange={(e) => handleChange(field, Number(e.target.value))}
+                />
+              </div>
+            );
+          if (field.type === 'select')
+            return (
+              <div key={field.key}>
+                <label className="block text-sm font-semibold mb-1">{field.label}</label>
+                <select
+                  className="w-full border px-3 py-2 rounded"
+                  value={values[field.key]}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                >
+                  {field.options!.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          if (field.type === 'checkbox')
+            return (
+              <label key={field.key} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="accent-emerald-600"
+                  checked={values[field.key] as boolean}
+                  onChange={(e) => handleChange(field, e.target.checked)}
+                />
+                {field.label}
+              </label>
+            );
+        })}
+
+        {/* Outros custos */}
+        <div className="border-t pt-4">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold">Outros custos</h3>
+            <button
+              type="button"
+              onClick={addExtra}
+              className="text-sm text-emerald-600 underline"
+            >
+              + Adicionar linha
+            </button>
+          </div>
+          {extras.length > 0 && (
+            <table className="w-full text-sm border">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="border p-1">Descrição</th>
+                  <th className="border p-1 w-16">Qtd</th>
+                  <th className="border p-1 w-24">Unit (BRL)</th>
+                  <th className="border p-1 w-24">Unit ({currency})</th>
+                  <th className="border p-1 w-20">Desc. %</th>
+                  <th className="border p-1 w-24">Subtotal (BRL)</th>
+                  <th className="border p-1 w-28">Subtotal ({currency})</th>
+                  <th className="border p-1 w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {extras.map((l) => {
+                  const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+                  return (
+                    <tr key={l.id} className="odd:bg-white even:bg-slate-50">
+                      <td className="border p-1">
+                        <input
+                          type="text"
+                          className="w-full px-1"
+                          value={l.description}
+                          onChange={(e) => updateExtra(l.id, 'description', e.target.value)}
+                        />
+                      </td>
+                      <td className="border p-1">
+                        <input
+                          type="number"
+                          className="w-full px-1"
+                          value={l.qty === 0 ? '' : l.qty}
+                          min={0}
+                          onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))}
+                        />
+                      </td>
+                      <td className="border p-1">
+                        <input
+                          type="number"
+                          className="w-full px-1 disabled:opacity-70"
+                          value={l.unit === 0 ? '' : l.unit}
+                          min={0}
+                          step={0.01}
+                          onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))}
+                          readOnly={!admin}
+                        />
+                      </td>
+                      {/* Unit FX read-only */}
+                      <td className="border p-1 text-right">
+                        {convertToForeign(l.unit)}
+                      </td>
+                      <td className="border p-1">
+                        <input
+                          type="number"
+                          className="w-full px-1"
+                          value={l.discount === 0 ? '' : l.discount}
+                          min={0}
+                          max={100}
+                          onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))}
+                        />
+                      </td>
+                      <td className="border p-1 text-right">
+                        {isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}
+                      </td>
+                      <td className="border p-1 text-right">
+                        {convertToForeign(subtotal)}
+                      </td>
+                      <td className="border p-1 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeExtra(l.id)}
+                          className="text-xs text-red-600"
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Global discount */}
+        <div className="flex items-center gap-4">
+          <label className="font-semibold">Desconto global (%)</label>
+          <input
+            type="number"
+            className="border px-2 py-1 w-24"
+            value={globalDiscount}
+            min={0}
+            onChange={(e) => handleGlobalDiscount(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Currency selector & rate */}
+        <div className="flex items-center gap-3">
+          <label className="text-sm">Moeda:</label>
+          <select
+            value={currency}
+            onChange={(e) => {
+              setCurrency(e.target.value as Currency);
+              setCustomRate(null); // reset custom rate on change
+            }}
+            className="border px-2 py-1 rounded text-sm"
+          >
+            <option value="BRL">BRL</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
+          <label className="text-sm">Câmbio</label>
+          <input
+            type="number"
+            step="0.0001"
+            className="border px-2 py-1 w-24 text-sm"
+            value={conversionRate}
+            onChange={(e) => handleRateChange(Number(e.target.value))}
+            readOnly={currency === 'BRL'}
+            min={0.0001}
+          />
+          {customRate && currency !== 'BRL' && (
+            <button
+              type="button"
+              className="text-xs text-emerald-700 underline"
+              onClick={() => setCustomRate(null)}
+            >
+              reset ↺
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* RIGHT – Memória de cálculo */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Memória de Cálculo</h3>
+        <table className="w-full text-sm border">
           <tbody>
-            {allServices.map(svc => (
-              <tr key={svc.slug} className="odd:bg-white even:bg-slate-50 dark:odd:bg-[#141c2f] dark:even:bg-[#1a2338]">
-                <td className="border p-2 font-semibold text-[#d4af37]">{svc.name}</td>
-                <td className="border p-2">{svc.description}</td>
-                <td className="border p-2">
-                  <ul className="list-disc ml-4">
-                    {svc.inputs.map(i => (
-                      <li key={i.key}>{i.label}</li>
-                    ))}
-                  </ul>
-                </td>
-              </tr>
-            ))}
+            {/* Breakdown items from service calculate */}
+            {Object.entries(baseResult.breakdown).map(([k, v]) => {
+              const perc = (v / subtotal) * 100;
+              // Buscar descrição real do item k
+              const description = getBreakdownDescription(config, k);
+              return (
+                <tr key={k} className="odd:bg-white even:bg-slate-50">
+                  <td className="border p-1 capitalize">
+                    <span title={description}>{k}</span>
+                  </td>
+                  <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
+                  <td className="border p-1 text-right">{convertToForeign(v)}</td>
+                  <td className="border p-1 text-xs text-slate-400">{perc.toFixed(1)}%</td>
+                </tr>
+              );
+            })}
+            {/* Extras */}
+            {extras.map((l) => {
+              const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+              return (
+                <tr key={l.id} className="odd:bg-white even:bg-slate-50">
+                  <td className="border p-1">{l.description || 'Outro custo'}</td>
+                  <td className="border p-1 text-right">R$ {(subtotal).toLocaleString('pt-BR')}</td>
+                  <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
+                  <td className="border p-1 text-xs text-slate-400"></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
-      </div>
-    );
-  }
 
-  return (
-    <>
-      <ServiceTable />
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* LEFT – Inputs */}
-        <div className="space-y-6">
-          {/* Inputs */}
-          {config.inputs.map((field) => {
-            if (field.type === 'number')
-              return (
-                <div key={field.key}>
-                  <label className="block text-sm font-semibold mb-1">{field.label}</label>
-                  <input
-                    type="number"
-                    className="w-full border px-3 py-2 rounded"
-                    value={values[field.key]}
-                    onChange={(e) => handleChange(field, Number(e.target.value))}
-                  />
-                </div>
-              );
-            if (field.type === 'select')
-              return (
-                <div key={field.key}>
-                  <label className="block text-sm font-semibold mb-1">{field.label}</label>
-                  <select
-                    className="w-full border px-3 py-2 rounded"
-                    value={values[field.key]}
-                    onChange={(e) => handleChange(field, e.target.value)}
-                  >
-                    {field.options!.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              );
-            if (field.type === 'checkbox')
-              return (
-                <label key={field.key} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="accent-emerald-600"
-                    checked={values[field.key] as boolean}
-                    onChange={(e) => handleChange(field, e.target.checked)}
-                  />
-                  {field.label}
-                </label>
-              );
-          })}
-
-          {/* Outros custos */}
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Outros custos</h3>
-              <button
-                type="button"
-                onClick={addExtra}
-                className="text-sm text-emerald-600 underline"
-              >
-                + Adicionar linha
-              </button>
-            </div>
-            {extras.length > 0 && (
-              <table className="w-full text-sm border">
-                <thead className="bg-slate-100">
-                  <tr>
-                    <th className="border p-1">Descrição</th>
-                    <th className="border p-1 w-16">Qtd</th>
-                    <th className="border p-1 w-24">Unit (BRL)</th>
-                    <th className="border p-1 w-24">Unit ({currency})</th>
-                    <th className="border p-1 w-20">Desc. %</th>
-                    <th className="border p-1 w-24">Subtotal (BRL)</th>
-                    <th className="border p-1 w-28">Subtotal ({currency})</th>
-                    <th className="border p-1 w-10"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {extras.map((l) => {
-                    const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                    return (
-                      <tr key={l.id} className="odd:bg-white even:bg-slate-50">
-                        <td className="border p-1">
-                          <input
-                            type="text"
-                            className="w-full px-1"
-                            value={l.description}
-                            onChange={(e) => updateExtra(l.id, 'description', e.target.value)}
-                          />
-                        </td>
-                        <td className="border p-1">
-                          <input
-                            type="number"
-                            className="w-full px-1"
-                            value={l.qty === 0 ? '' : l.qty}
-                            min={0}
-                            onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))}
-                          />
-                        </td>
-                        <td className="border p-1">
-                          <input
-                            type="number"
-                            className="w-full px-1 disabled:opacity-70"
-                            value={l.unit === 0 ? '' : l.unit}
-                            min={0}
-                            step={0.01}
-                            onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))}
-                            readOnly={!admin}
-                          />
-                        </td>
-                        {/* Unit FX read-only */}
-                        <td className="border p-1 text-right">
-                          {convertToForeign(l.unit)}
-                        </td>
-                        <td className="border p-1">
-                          <input
-                            type="number"
-                            className="w-full px-1"
-                            value={l.discount === 0 ? '' : l.discount}
-                            min={0}
-                            max={100}
-                            onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))}
-                          />
-                        </td>
-                        <td className="border p-1 text-right">
-                          {isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}
-                        </td>
-                        <td className="border p-1 text-right">
-                          {convertToForeign(subtotal)}
-                        </td>
-                        <td className="border p-1 text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeExtra(l.id)}
-                            className="text-xs text-red-600"
-                          >
-                            ✕
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
+        {/* Totais */}
+        <div className="bg-white p-4 rounded shadow">
+          <div className="text-sm mb-1 flex justify-between">
+            <span>Subtotal</span>
+            <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
           </div>
-
-          {/* Global discount */}
-          <div className="flex items-center gap-4">
-            <label className="font-semibold">Desconto global (%)</label>
-            <input
-              type="number"
-              className="border px-2 py-1 w-24"
-              value={globalDiscount}
-              min={0}
-              onChange={(e) => handleGlobalDiscount(Number(e.target.value))}
-            />
-          </div>
-
-          {/* Currency selector & rate */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm">Moeda:</label>
-            <select
-              value={currency}
-              onChange={(e) => {
-                setCurrency(e.target.value as Currency);
-                setCustomRate(null); // reset custom rate on change
-              }}
-              className="border px-2 py-1 rounded text-sm"
-            >
-              <option value="BRL">BRL</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
-            <label className="text-sm">Câmbio</label>
-            <input
-              type="number"
-              step="0.0001"
-              className="border px-2 py-1 w-24 text-sm"
-              value={conversionRate}
-              onChange={(e) => handleRateChange(Number(e.target.value))}
-              readOnly={currency === 'BRL'}
-              min={0.0001}
-            />
-            {customRate && currency !== 'BRL' && (
-              <button
-                type="button"
-                className="text-xs text-emerald-700 underline"
-                onClick={() => setCustomRate(null)}
-              >
-                reset ↺
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT – Memória de cálculo */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Memória de Cálculo</h3>
-          <table className="w-full text-sm border">
-            <tbody>
-              {/* Breakdown items from service calculate */}
-              {Object.entries(baseResult.breakdown).map(([k, v]) => {
-                const perc = (v / subtotal) * 100;
-                // Buscar descrição real do item k
-                const description = getBreakdownDescription(config, k);
-                return (
-                  <tr key={k} className="odd:bg-white even:bg-slate-50">
-                    <td className="border p-1 capitalize">
-                      <span title={description}>{k}</span>
-                    </td>
-                    <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
-                    <td className="border p-1 text-right">{convertToForeign(v)}</td>
-                    <td className="border p-1 text-xs text-slate-400">{perc.toFixed(1)}%</td>
-                  </tr>
-                );
-              })}
-              {/* Extras */}
-              {extras.map((l) => {
-                const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                return (
-                  <tr key={l.id} className="odd:bg-white even:bg-slate-50">
-                    <td className="border p-1">{l.description || 'Outro custo'}</td>
-                    <td className="border p-1 text-right">R$ {(subtotal).toLocaleString('pt-BR')}</td>
-                    <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
-                    <td className="border p-1 text-xs text-slate-400"></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* Totais */}
-          <div className="bg-white p-4 rounded shadow">
+          {currency !== 'BRL' && (
             <div className="text-sm mb-1 flex justify-between">
-              <span>Subtotal</span>
-              <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
-            </div>
-            {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between">
-                <span>Subtotal ({currency})</span>
-                <span>
-                  { convertToForeign(subtotal) }
-                </span>
-              </div>
-            )}
-            <div className="text-sm mb-1 flex justify-between">
-              <span>Descontos</span>
-              <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
-            </div>
-            {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between">
-                <span>Descontos ({currency})</span>
-                <span>
-                  - { convertToForeign(discountAmount) }
-                </span>
-              </div>
-            )}
-            <div className="font-bold text-lg flex justify-between">
-              <span>Total Final</span>
+              <span>Subtotal ({currency})</span>
               <span>
-                {currency === 'BRL' ? 'R$' : currency + ' '} {convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                { convertToForeign(subtotal) }
               </span>
             </div>
+          )}
+          <div className="text-sm mb-1 flex justify-between">
+            <span>Descontos</span>
+            <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
           </div>
-
-          {/* PDF */}
-          <button
-            type="button"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded"
-            onClick={() => alert('PDF preview em desenvolvimento')}
-          >
-            Visualizar PDF
-          </button>
-
-          {/* Área textual explicando o serviço */}
-          <div className="mt-6 p-4 bg-slate-100 dark:bg-[#141c2f] border-l-4 border-yellow-400 rounded shadow text-slate-700 dark:text-slate-200">
-            <h4 className="font-bold mb-1">Sobre este serviço</h4>
-            <div className="text-sm whitespace-pre-line">{config.description}</div>
-            <div className="text-xs mt-2 text-slate-500">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
+          {currency !== 'BRL' && (
+            <div className="text-sm mb-1 flex justify-between">
+              <span>Descontos ({currency})</span>
+              <span>
+                - { convertToForeign(discountAmount) }
+              </span>
+            </div>
+          )}
+          <div className="font-bold text-lg flex justify-between">
+            <span>Total Final</span>
+            <span>
+              {currency === 'BRL' ? 'R$' : currency + ' '} {convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </span>
           </div>
+        </div>
+
+        {/* PDF */}
+        <button
+          type="button"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded"
+          onClick={() => alert('PDF preview em desenvolvimento')}
+        >
+          Visualizar PDF
+        </button>
+
+        {/* Área textual explicando o serviço */}
+        <div className="mt-6 p-4 bg-slate-100 dark:bg-[#141c2f] border-l-4 border-yellow-400 rounded shadow text-slate-700 dark:text-slate-200">
+          <h4 className="font-bold mb-1">Sobre este serviço</h4>
+          <div className="text-sm whitespace-pre-line">{config.description}</div>
+          <div className="text-xs mt-2 text-slate-500">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
         </div>
       </div>
-      {/* Proposta completa após resultado */}
-      {finalTotal > 0 && (
-        <div className="mt-8 p-6 bg-white dark:bg-[#141c2f] border-l-4 border-[#d4af37] rounded shadow-xl">
-          <h3 className="text-lg font-bold mb-2 text-[#d4af37]">Proposta Completa – OLV Internacional</h3>
-          <div className="mb-2 text-slate-700 dark:text-slate-200">
-            Prezado cliente,
-            <br />
-            Segue abaixo a proposta detalhada para o serviço <b>{config.name}</b>.
-            <br />
-            <span className="italic">{config.description}</span>
-          </div>
-          <table className="w-full text-sm border rounded-xl overflow-hidden shadow mb-4">
-            <thead className="bg-slate-100 dark:bg-[#1a2338]">
-              <tr>
-                <th className="border p-2">Item</th>
-                <th className="border p-2">Valor (BRL)</th>
-                <th className="border p-2">Valor ({currency})</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(baseResult.breakdown).map(([k, v]) => (
-                <tr key={k}>
-                  <td className="border p-2">{getBreakdownDescription(config, k)}</td>
-                  <td className="border p-2 text-right">R$ {v.toLocaleString('pt-BR')}</td>
-                  <td className="border p-2 text-right">{convertToForeign(v)}</td>
-                </tr>
-              ))}
-              {extras.map((l) => {
-                const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                return (
-                  <tr key={l.id}>
-                    <td className="border p-2">{l.description || 'Outro custo'}</td>
-                    <td className="border p-2 text-right">R$ {subtotal.toLocaleString('pt-BR')}</td>
-                    <td className="border p-2 text-right">{convertToForeign(subtotal)}</td>
-                  </tr>
-                );
-              })}
-              <tr className="font-bold">
-                <td className="border p-2">Total Final</td>
-                <td className="border p-2 text-right">R$ {finalTotal.toLocaleString('pt-BR')}</td>
-                <td className="border p-2 text-right">{convertToForeign(finalTotal)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            Condições: Valores sujeitos a análise detalhada. Consulte a ficha técnica do serviço para condições completas. Proposta válida por 7 dias.
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 } 
