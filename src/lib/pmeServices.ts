@@ -127,4 +127,150 @@ export const pmeServices: ServiceConfig[] = [
       return { total, breakdown: { setup, fee12m, extras } };
     },
   },
+  {
+    slug: 'modelo-olv-01',
+    name: '01 - Diagnóstico Estratégico',
+    description: 'Análise de viabilidade e oportunidade comercial do seu segmento',
+    inputs: [
+      makeNumber('segmento_mercado', 'Segmentos de mercado analisados', 3, 1),
+      { key: 'analise_concorrencia', label: 'Análise de concorrência detalhada', type: 'checkbox', default: false, multiplier: 2500 },
+      { key: 'estudo_viabilidade', label: 'Estudo de viabilidade econômica', type: 'checkbox', default: false, multiplier: 3500 },
+      { key: 'relatorio_executivo', label: 'Relatório executivo com roadmap', type: 'checkbox', default: true, multiplier: 1500 },
+    ],
+    calculate(v) {
+      const base = 4500; // Diagnóstico base
+      const segmentos = (v.segmento_mercado || 3) * 800;
+      const extras = ['analise_concorrencia', 'estudo_viabilidade', 'relatorio_executivo']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + segmentos + extras;
+      return { total, breakdown: { base, segmentos, extras } };
+    },
+  },
+  {
+    slug: 'modelo-olv-02',
+    name: '02 - Modelagem da Cadeia Logística',
+    description: 'Definição de agente, base, modais e cobertura fiscal otimizada',
+    inputs: [
+      {
+        key: 'modal_principal',
+        label: 'Modal principal',
+        type: 'select',
+        default: 'maritimo',
+        options: [
+          { value: 'maritimo', label: 'Marítimo (FCL/LCL)' },
+          { value: 'aereo', label: 'Aéreo' },
+          { value: 'multimodal', label: 'Multimodal' },
+        ],
+      },
+      makeNumber('volume_mensal', 'Volume mensal estimado (TEU/ton)', 20),
+      { key: 'cobertura_fiscal', label: 'Cobertura fiscal otimizada (SC/SP/CE)', type: 'checkbox', default: true, multiplier: 3200 },
+      { key: 'agente_exclusivo', label: 'Definição de agente exclusivo', type: 'checkbox', default: true, multiplier: 2800 },
+      { key: 'base_logistica', label: 'Definição de base logística', type: 'checkbox', default: true, multiplier: 2200 },
+    ],
+    calculate(v) {
+      const base = 3800; // Modelagem base
+      const volume = (v.volume_mensal || 20) * 150;
+      const extras = ['cobertura_fiscal', 'agente_exclusivo', 'base_logistica']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + volume + extras;
+      return { total, breakdown: { base, volume, extras } };
+    },
+  },
+  {
+    slug: 'modelo-olv-03',
+    name: '03 - Abertura de Canal na Origem',
+    description: 'Interação com parceiros locais via OLV Connecta',
+    inputs: [
+      makeNumber('fornecedores_origem', 'Fornecedores na origem', 5, 2),
+      { key: 'olv_connecta', label: 'Ativação OLV Connecta', type: 'checkbox', default: true, multiplier: 4200 },
+      { key: 'negociacao_direta', label: 'Negociação direta com agentes', type: 'checkbox', default: true, multiplier: 3800 },
+      { key: 'curadoria_produtos', label: 'Curadoria de produtos', type: 'checkbox', default: false, multiplier: 2900 },
+      makeNumber('visitas_origem', 'Visitas à origem (opcional)', 0, 0),
+    ],
+    calculate(v) {
+      const base = 5200; // Abertura de canal base
+      const fornecedores = (v.fornecedores_origem || 5) * 600;
+      const visitas = (v.visitas_origem || 0) * 3500;
+      const extras = ['olv_connecta', 'negociacao_direta', 'curadoria_produtos']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + fornecedores + visitas + extras;
+      return { total, breakdown: { base, fornecedores, visitas, extras } };
+    },
+  },
+  {
+    slug: 'modelo-olv-04',
+    name: '04 - Execução e Proteção da Carga',
+    description: 'Embarque protegido, documentação blindada e controle total',
+    inputs: [
+      makeNumber('embarques_mensais', 'Embarques mensais', 3, 1),
+      { key: 'documentacao_blindada', label: 'Documentação blindada', type: 'checkbox', default: true, multiplier: 2800 },
+      { key: 'controle_total', label: 'Controle total da operação', type: 'checkbox', default: true, multiplier: 3200 },
+      { key: 'protecao_carga', label: 'Proteção da carga (seguro)', type: 'checkbox', default: true, multiplier: 1800 },
+      { key: 'identidade_exclusiva', label: 'Embarque sob identidade exclusiva', type: 'checkbox', default: true, multiplier: 2500 },
+    ],
+    calculate(v) {
+      const base = 4200; // Execução base
+      const embarques = (v.embarques_mensais || 3) * 1200;
+      const extras = ['documentacao_blindada', 'controle_total', 'protecao_carga', 'identidade_exclusiva']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + embarques + extras;
+      return { total, breakdown: { base, embarques, extras } };
+    },
+  },
+  {
+    slug: 'modelo-olv-05',
+    name: '05 - Recepção e Distribuição no Brasil',
+    description: 'SC, SP ou CE conforme mercado-alvo com estrutura fiscal otimizada',
+    inputs: [
+      {
+        key: 'estado_principal',
+        label: 'Estado principal',
+        type: 'select',
+        default: 'sc',
+        options: [
+          { value: 'sc', label: 'Santa Catarina (SC)' },
+          { value: 'sp', label: 'São Paulo (SP)' },
+          { value: 'ce', label: 'Ceará (CE)' },
+        ],
+      },
+      makeNumber('volume_distribuicao', 'Volume de distribuição mensal', 50),
+      { key: 'estrutura_fiscal', label: 'Estrutura fiscal otimizada', type: 'checkbox', default: true, multiplier: 3800 },
+      { key: 'armazenagem_exclusiva', label: 'Armazenagem exclusiva', type: 'checkbox', default: true, multiplier: 4200 },
+      { key: 'distribuicao_b2b', label: 'Distribuição B2B', type: 'checkbox', default: true, multiplier: 2900 },
+    ],
+    calculate(v) {
+      const base = 4800; // Recepção base
+      const volume = (v.volume_distribuicao || 50) * 80;
+      const extras = ['estrutura_fiscal', 'armazenagem_exclusiva', 'distribuicao_b2b']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + volume + extras;
+      return { total, breakdown: { base, volume, extras } };
+    },
+  },
+  {
+    slug: 'modelo-olv-06',
+    name: '06 - Aceleração Comercial',
+    description: 'Venda B2B, marketplaces e marketing digital para escala',
+    inputs: [
+      makeNumber('canais_venda', 'Canais de venda ativados', 3, 1),
+      { key: 'marketplaces', label: 'Integração marketplaces', type: 'checkbox', default: true, multiplier: 3200 },
+      { key: 'marketing_digital', label: 'Marketing digital integrado', type: 'checkbox', default: true, multiplier: 2800 },
+      { key: 'venda_b2b', label: 'Venda B2B', type: 'checkbox', default: true, multiplier: 2500 },
+      { key: 'acompanhamento_estrategico', label: 'Acompanhamento estratégico contínuo', type: 'checkbox', default: true, multiplier: 3500 },
+    ],
+    calculate(v) {
+      const base = 3800; // Aceleração base
+      const canais = (v.canais_venda || 3) * 800;
+      const extras = ['marketplaces', 'marketing_digital', 'venda_b2b', 'acompanhamento_estrategico']
+        .filter((k) => v[k])
+        .reduce((sum, k) => sum + (Number(this.inputs.find((i) => i.key === k)?.multiplier) || 0), 0);
+      const total = base + canais + extras;
+      return { total, breakdown: { base, canais, extras } };
+    },
+  },
 ]; 
