@@ -3,13 +3,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import React from 'react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
+import { Header } from '@/components/Simulator/Header';
 
 const inter = Inter({ subsets: ['latin'] });
 
 const PreviewBanner = dynamic(() => import('@/components/PreviewBanner'), { ssr: false });
-
-const LanguageSwitcher = dynamic(() => import('@/components/LanguageSwitcher'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'OLV Quote Builder',
@@ -22,21 +20,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="pt-BR">
-      <body className={inter.className + ' bg-slate-50 min-h-screen'}>
-        {/* Header */}
-        <header className="flex items-center justify-between px-4 py-2 bg-slate-800 text-white sticky top-0 z-40 shadow">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full border-4 border-yellow-400 transition-shadow duration-200 hover:shadow-[0_0_0_4px_rgba(255,215,0,0.5)] w-12 h-12 flex items-center justify-center bg-white">
-              <Image src="/logo-olv.svg" alt="OLV" width={40} height={40} className="rounded-full" />
-            </div>
-            <span className="font-semibold text-xl tracking-tight text-slate-900 ml-2">OLV Quote Builder</span>
-          </div>
-          <LanguageSwitcher />
-        </header>
-
-        <div className="pt-4">{children}</div>
+      <body className={inter.className + ' bg-slate-50 min-h-screen dark:bg-slate-900'}>
+        {/* Novo Header OLV Internacional */}
+        <Header />
+        <div className="pt-4 pb-16 max-w-7xl mx-auto">{children}</div>
         {/* Commit info */}
-        <footer className="fixed bottom-0 right-0 m-2 text-xs text-slate-400 select-none">
+        <footer className="fixed bottom-0 right-0 m-2 text-xs text-slate-400 select-none z-50">
           versão: {commit} • {env}
         </footer>
         <PreviewBanner />
