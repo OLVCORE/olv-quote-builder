@@ -220,21 +220,21 @@ export default function ServiceForm({ config }: Props) {
       {/* COLUNA 1: FLUXO DE PREENCHIMENTO */}
       <div className="space-y-8">
         {/* 1. Serviços Principais */}
-        <section className="bg-white dark:bg-bg-dark-secondary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             1. Serviços Principais
             <Tooltip text="Preencha os dados essenciais do serviço principal selecionado. Cada campo impacta diretamente o cálculo da proposta.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
           {config.inputs.filter(f => !f.key.startsWith('extra') && !f.key.startsWith('add') && !f.key.startsWith('custom')).map((field) => {
             if (field.type === 'number')
               return (
                 <div key={field.key} className="mb-3">
-                  <label className="block text-sm font-semibold mb-1 text-olvblue dark:text-ourovelho">{field.label}</label>
+                  <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
                   <input
                     type="number"
-                    className="w-full border border-accent-light dark:border-accent-dark px-3 py-2 rounded bg-gray-50 dark:bg-bg-dark-tertiary text-olvblue dark:text-slate-200"
+                    className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                     value={values[field.key]}
                     onChange={(e) => handleChange(field, Number(e.target.value))}
                   />
@@ -243,14 +243,14 @@ export default function ServiceForm({ config }: Props) {
             if (field.type === 'select')
               return (
                 <div key={field.key} className="mb-3">
-                  <label className="block text-sm font-semibold mb-1 text-olvblue dark:text-ourovelho">{field.label}</label>
+                  <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
                   <select
-                    className="w-full border border-accent-light dark:border-accent-dark px-3 py-2 rounded bg-gray-50 dark:bg-bg-dark-tertiary text-olvblue dark:text-slate-200"
+                    className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                     value={values[field.key]}
                     onChange={(e) => handleChange(field, e.target.value)}
                   >
                     {field.options!.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="text-olvblue dark:text-slate-200">
+                      <option key={opt.value} value={opt.value} className="text-white dark:text-ourovelho">
                         {opt.label}
                       </option>
                     ))}
@@ -259,7 +259,7 @@ export default function ServiceForm({ config }: Props) {
               );
             if (field.type === 'checkbox')
               return (
-                <label key={field.key} className="flex items-center gap-2 mb-2 text-olvblue dark:text-ourovelho">
+                <label key={field.key} className="flex items-center gap-2 mb-2 text-white dark:text-ourovelho">
                   <input
                     type="checkbox"
                     className="accent-emerald-600"
@@ -273,27 +273,27 @@ export default function ServiceForm({ config }: Props) {
         </section>
 
         {/* 2. Serviços Adicionais */}
-        <section className="bg-white dark:bg-bg-dark-secondary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             2. Serviços Adicionais
             <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
           <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-olvblue dark:text-ourovelho">Outros custos</span>
+            <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
             <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
           </div>
-          <table className="w-full text-sm border border-accent-light dark:border-accent-dark rounded overflow-hidden">
-            <thead className="bg-gray-100 dark:bg-bg-dark-tertiary">
+          <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+            <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
               <tr>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Descrição</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Qtd</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Unit (BRL)</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Unit ({currency})</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Desc. %</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Subtotal (BRL)</th>
-                <th className="border p-2 text-olvblue dark:text-ourovelho">Subtotal ({currency})</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Qtd</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Unit (BRL)</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Unit ({currency})</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Desc. %</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Subtotal (BRL)</th>
+                <th className="border p-2 text-white dark:text-ourovelho">Subtotal ({currency})</th>
                 <th className="border p-2"></th>
               </tr>
             </thead>
@@ -301,12 +301,12 @@ export default function ServiceForm({ config }: Props) {
               {extras.map((l) => {
                 const subtotal = l.qty * l.unit * (1 - l.discount / 100);
                 return (
-                  <tr key={l.id} className="odd:bg-gray-50 dark:odd:bg-bg-dark-tertiary even:bg-white dark:even:bg-bg-dark-secondary">
-                    <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-olvblue dark:text-slate-200" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-olvblue dark:text-slate-200" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-olvblue dark:text-slate-200" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
+                  <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                    <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
+                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
+                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
                     <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-olvblue dark:text-slate-200" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
+                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
                     <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
                     <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
                     <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
@@ -318,31 +318,31 @@ export default function ServiceForm({ config }: Props) {
         </section>
 
         {/* 3. Impostos */}
-        <section className="bg-white dark:bg-bg-dark-secondary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             3. Impostos
             <Tooltip text="Selecione e edite as taxas de impostos aplicáveis à proposta. Os valores são calculados automaticamente.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
           <div className="flex justify-between items-center mb-3">
-            <span className="font-semibold text-olvblue dark:text-ourovelho">Impostos e Taxas</span>
+            <span className="font-semibold text-white dark:text-ourovelho">Impostos e Taxas</span>
             <button type="button" onClick={addCustomTax} className="text-xs bg-accent-light dark:bg-accent-dark text-white px-2 py-1 rounded hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">+ Custom</button>
           </div>
           <div className="space-y-2">
             {taxRates.map((tax, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-bg-dark-tertiary rounded border border-accent-light dark:border-accent-dark">
+              <div key={idx} className="flex items-center gap-2 p-2 bg-olvblue/80 dark:bg-bg-dark-tertiary rounded border border-ourovelho dark:border-ourovelho">
                 <input type="checkbox" checked={tax.enabled} onChange={(e) => updateTaxRate(tax.type, 'enabled', e.target.checked)} className="accent-accent-dark" />
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-olvblue dark:text-ourovelho">{tax.type}</div>
-                  <div className="text-xs text-olvblue dark:text-slate-200 opacity-75">{tax.description}</div>
+                  <div className="text-sm font-medium text-white dark:text-ourovelho">{tax.type}</div>
+                  <div className="text-xs text-white dark:text-ourovelho opacity-75">{tax.description}</div>
                 </div>
-                <input type="number" value={tax.rate} onChange={(e) => updateTaxRate(tax.type, 'rate', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 text-sm border rounded bg-white dark:bg-bg-dark-tertiary text-olvblue dark:text-slate-200" min={0} max={100} step={0.01} disabled={!tax.enabled} />
-                <span className="text-xs text-olvblue dark:text-slate-200">%</span>
+                <input type="number" value={tax.rate} onChange={(e) => updateTaxRate(tax.type, 'rate', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 text-sm border rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" min={0} max={100} step={0.01} disabled={!tax.enabled} />
+                <span className="text-xs text-white dark:text-ourovelho">%</span>
               </div>
             ))}
           </div>
-          <div className="mt-3 p-2 bg-accent-light/20 dark:bg-accent-dark/20 text-olvblue dark:text-ourovelho rounded text-sm font-semibold flex justify-between">
+          <div className="mt-3 p-2 bg-accent-light/20 dark:bg-accent-dark/20 text-white dark:text-ourovelho rounded text-sm font-semibold flex justify-between">
             <span>Total Impostos:</span>
             <span>R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           </div>
@@ -352,22 +352,22 @@ export default function ServiceForm({ config }: Props) {
       {/* COLUNA 2: RESULTADOS E TABELAS */}
       <div className="space-y-8">
         {/* 4. Resultados */}
-        <section className="bg-white dark:bg-bg-dark-secondary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             4. Resultados
             <Tooltip text="Veja o detalhamento do cálculo, totais, descontos e impostos da proposta.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
           <div className="mb-4">
-            <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-2">Memória de Cálculo</h3>
-            <table className="w-full text-sm border border-accent-light dark:border-accent-dark rounded overflow-hidden">
-              <thead className="bg-gray-100 dark:bg-bg-dark-tertiary">
+            <h3 className="text-base font-semibold text-white dark:text-ourovelho mb-2">Memória de Cálculo</h3>
+            <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+              <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
                 <tr>
-                  <th className="border p-2 text-olvblue dark:text-ourovelho">Item</th>
-                  <th className="border p-2 text-olvblue dark:text-ourovelho">Valor (BRL)</th>
-                  <th className="border p-2 text-olvblue dark:text-ourovelho">Valor ({currency})</th>
-                  <th className="border p-2 text-olvblue dark:text-ourovelho">%</th>
+                  <th className="border p-2 text-white dark:text-ourovelho">Item</th>
+                  <th className="border p-2 text-white dark:text-ourovelho">Valor (BRL)</th>
+                  <th className="border p-2 text-white dark:text-ourovelho">Valor ({currency})</th>
+                  <th className="border p-2 text-white dark:text-ourovelho">%</th>
                 </tr>
               </thead>
               <tbody>
@@ -375,29 +375,29 @@ export default function ServiceForm({ config }: Props) {
                   const perc = (v / subtotal) * 100;
                   const description = getBreakdownDescription(config, k);
                   return (
-                    <tr key={k} className="odd:bg-gray-50 dark:odd:bg-bg-dark-tertiary even:bg-white dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-olvblue dark:text-ourovelho" title={description}>{k}</td>
-                      <td className="border p-1 text-right text-olvblue dark:text-ourovelho">R$ {v.toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-olvblue dark:text-ourovelho">{convertToForeign(v)}</td>
-                      <td className="border p-1 text-xs text-olvblue dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                    <tr key={k} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                      <td className="border p-1 text-white dark:text-ourovelho" title={description}>{k}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {v.toLocaleString('pt-BR')}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(v)}</td>
+                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
                 {extras.map((l) => {
                   const subtotal = l.qty * l.unit * (1 - l.discount / 100);
                   return (
-                    <tr key={l.id} className="odd:bg-gray-50 dark:odd:bg-bg-dark-tertiary even:bg-white dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-olvblue dark:text-ourovelho">{l.description || 'Outro custo'}</td>
-                      <td className="border p-1 text-right text-olvblue dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-olvblue dark:text-ourovelho">{convertToForeign(subtotal)}</td>
-                      <td className="border p-1 text-xs text-olvblue dark:text-ourovelho"></td>
+                    <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                      <td className="border p-1 text-white dark:text-ourovelho">{l.description || 'Outro custo'}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(subtotal)}</td>
+                      <td className="border p-1 text-xs text-white dark:text-ourovelho"></td>
                     </tr>
                   );
                 })}
                 {taxRates.filter(tax => tax.enabled).map((tax, idx) => {
                   const taxAmount = subtotalAfterDiscount * (tax.rate / 100);
                   return (
-                    <tr key={idx} className="odd:bg-gray-50 dark:odd:bg-bg-dark-tertiary even:bg-white dark:even:bg-bg-dark-secondary">
+                    <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                       <td className="border p-1 text-yellow-800 dark:text-ourovelho">{tax.type} ({tax.rate}%)</td>
                       <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">{convertToForeign(taxAmount)}</td>
@@ -408,23 +408,23 @@ export default function ServiceForm({ config }: Props) {
               </tbody>
             </table>
           </div>
-          <div className="bg-gray-50 dark:bg-bg-dark-tertiary p-4 rounded-lg mb-4">
-            <div className="text-sm mb-1 flex justify-between text-olvblue dark:text-ourovelho">
+          <div className="bg-olvblue/80 dark:bg-bg-dark-tertiary p-4 rounded-lg mb-4">
+            <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
               <span>Subtotal</span>
               <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
             </div>
             {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between text-olvblue dark:text-ourovelho">
+              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
                 <span>Subtotal ({currency})</span>
                 <span>{convertToForeign(subtotal)}</span>
               </div>
             )}
-            <div className="text-sm mb-1 flex justify-between text-olvblue dark:text-ourovelho">
+            <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
               <span>Descontos</span>
               <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
             </div>
             {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between text-olvblue dark:text-ourovelho">
+              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
                 <span>Descontos ({currency})</span>
                 <span>- {convertToForeign(discountAmount)}</span>
               </div>
@@ -439,7 +439,7 @@ export default function ServiceForm({ config }: Props) {
                 <span>+ {convertToForeign(taxesTotal)}</span>
               </div>
             )}
-            <div className="font-bold text-lg flex justify-between border-t pt-2 text-olvblue dark:text-ourovelho">
+            <div className="font-bold text-lg flex justify-between border-t pt-2 text-white dark:text-ourovelho">
               <span>Total Final</span>
               <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
@@ -448,11 +448,11 @@ export default function ServiceForm({ config }: Props) {
         </section>
 
         {/* 5. Tabela de Tarifas e Condições */}
-        <section className="bg-white dark:bg-bg-dark-secondary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             5. Tabela de Tarifas e Condições
             <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
           {(() => {
@@ -461,20 +461,20 @@ export default function ServiceForm({ config }: Props) {
               return <TabelaTarifasComponent tabela={tabelaTarifas} />;
             }
             return (
-              <div className="p-4 text-olvblue dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
+              <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
             );
           })()}
         </section>
 
         {/* 6. Observações Gerais */}
-        <section className="bg-gray-50 dark:bg-bg-dark-tertiary rounded-xl border border-accent-light dark:border-accent-dark shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <section className="bg-olvblue/80 dark:bg-bg-dark-tertiary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
             6. Observações Gerais
             <Tooltip text="Informações complementares, condições comerciais e observações importantes.">
-              <svg className="w-4 h-4 text-olvblue dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
             </Tooltip>
           </h2>
-          <div className="text-sm text-olvblue dark:text-slate-200">
+          <div className="text-sm text-white dark:text-ourovelho">
             Consulte a ficha técnica do serviço para detalhes completos, condições comerciais, prazos e garantias. Valores sujeitos a reajuste conforme mercado e inflação.
           </div>
         </section>
