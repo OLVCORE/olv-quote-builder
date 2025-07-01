@@ -9,29 +9,32 @@ export const ThemeToggle: React.FC = () => {
     // Verificar tema inicial
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    setIsDark(savedTheme === 'dark' || (!savedTheme && prefersDark));
+    const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    setIsDark(initialDark);
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(initialDark ? 'theme-dark' : 'theme-light');
   }, []);
 
   useEffect(() => {
     // Aplicar tema ao documento
+    document.body.classList.remove('theme-light', 'theme-dark');
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.body.classList.add('theme-dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.body.classList.add('theme-light');
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
+    setIsDark((prev) => !prev);
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="relative w-12 h-6 bg-slate-600 rounded-full transition-colors duration-300 hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+      className="relative w-12 h-6 bg-olvblue rounded-full transition-colors duration-300 hover:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent-dark focus:ring-offset-2 focus:ring-offset-bg-dark"
       aria-label={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
     >
       {/* Slider */}

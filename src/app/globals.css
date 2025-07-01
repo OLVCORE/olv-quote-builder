@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+:root {
+  --bg-light: #ffffff;
+  --txt-light: #003366;
+  --accent-light: #0080cc;
+  --accent-light-hover: #006fa1;
+  --bg-light-secondary: #f5f7fa;
+  --bg-light-tertiary: #e9eef5;
+  --shadow-light: rgba(0,0,0,0.1);
+
+  --bg-dark: #0a0f1d;
+  --txt-dark: #e6f2ff;
+  --accent-dark: #d4af37;
+  --accent-dark-hover: #b9952e;
+  --bg-dark-secondary: #12161f;
+  --bg-dark-tertiary: rgba(255,255,255,0.05);
+  --shadow-dark: rgba(0,0,0,0.5);
+
+  --sidebar-dark: #0e1425;
+  --sidebar-text: #e1e9f0;
+  --sidebar-hover-bg: #b9952e;
+  --sidebar-active-bg: #d4af37;
+}
+
+body.theme-light {
+  background: var(--bg-light);
+  color: var(--txt-light);
+}
+body.theme-dark {
+  background: var(--bg-dark);
+  color: var(--txt-dark);
+}
+
+a {
+  color: var(--accent-light);
+}
+a:hover {
+  color: var(--accent-light-hover);
+}
+body.theme-dark a {
+  color: var(--accent-dark);
+}
+body.theme-dark a:hover {
+  color: var(--accent-dark-hover);
+}
+
+.card {
+  background: var(--bg-light-secondary);
+  border: 1px solid var(--accent-light);
+  box-shadow: var(--shadow-light);
+}
+body.theme-dark .card {
+  background: var(--bg-dark-secondary);
+  border: 1px solid var(--accent-dark);
+  box-shadow: var(--shadow-dark);
+} 
