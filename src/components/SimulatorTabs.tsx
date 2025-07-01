@@ -36,12 +36,12 @@ function TabsWithAdmin() {
         )}
       </div>
       <Tabs.Root defaultValue={tabList[0].value} className="w-full">
-        <Tabs.List className="flex flex-wrap gap-2 bg-slate-100 dark:bg-[#1a2338] p-2 rounded-xl mb-6 shadow-inner">
+        <Tabs.List className="flex flex-wrap gap-2 bg-slate-100 dark:bg-olvblue p-2 rounded-xl mb-6 shadow-inner">
           {tabList.map(tab => (
             <Tabs.Trigger
               key={tab.value}
               value={tab.value}
-              className="flex-1 min-w-[120px] px-4 py-2 text-base font-semibold rounded-lg shadow-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#181f33] text-slate-700 dark:text-slate-200 transition-all duration-200 data-[state=active]:bg-yellow-400 data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:border-yellow-400 data-[state=active]:scale-105 hover:bg-yellow-100 dark:hover:bg-yellow-900/20 cursor-pointer"
+              className="flex-1 min-w-[120px] px-4 py-2 text-base font-semibold rounded-lg shadow-md border border-ourovelho-dark bg-white dark:bg-[#181f33] text-slate-700 dark:text-slate-200 transition-all duration-200 data-[state=active]:bg-olvblue data-[state=active]:text-ourovelho data-[state=active]:shadow-lg data-[state=active]:border-ourovelho-dark data-[state=active]:scale-105 hover:bg-ourovelho/10 dark:hover:bg-ourovelho/20 cursor-pointer"
             >
               {tab.label}
             </Tabs.Trigger>

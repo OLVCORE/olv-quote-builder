@@ -7,73 +7,62 @@ import { LanguageSwitcher } from '../UI/LanguageSwitcher';
 
 export const Header: React.FC = () => {
   return (
-    <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg border-b-4 border-yellow-400 relative">
-      {/* Banner OLV */}
-      <div className="absolute left-0 right-0 top-0 z-0 h-2 bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-400" />
-      <div className="container mx-auto px-4 py-4 relative z-10">
-        <div className="flex items-center justify-between">
-          {/* Logo OLV */}
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-full border-4 border-yellow-400 bg-white flex items-center justify-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,215,0,0.6)] hover:scale-110">
-                <Image 
-                  src="/olv-logo.jpeg" 
-                  alt="OLV Internacional" 
-                  width={40} 
-                  height={40}
-                  className="rounded-full"
-                  priority
-                />
-              </div>
-              {/* Efeito de brilho */}
-              <div className="absolute inset-0 rounded-full border-4 border-transparent bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 animate-pulse"></div>
-            </div>
-            
-            <div className="ml-3">
-              <h1 className="text-xl font-bold text-yellow-400 tracking-tight">
-                OLV Internacional
-              </h1>
-              <p className="text-sm text-slate-300 font-medium">
-                Simulador de Propostas
-              </p>
-            </div>
+    <header className="bg-olvblue text-white shadow-lg border-b-2 border-ourovelho-dark backdrop-blur-md bg-opacity-80">
+      <div className="container mx-auto px-6 py-2 flex items-center justify-between min-h-[72px]">
+        {/* Logo OLV com efeito glass e borda ouro velho escura */}
+        <div className="flex items-center space-x-4">
+          <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-white/60 backdrop-blur-lg border-4 border-ourovelho-dark shadow-lg" style={{ boxShadow: '0 4px 24px 0 rgba(191,161,74,0.15)' }}>
+            <Image 
+              src="/olv-logo.jpeg" 
+              alt="OLV Internacional" 
+              width={56} 
+              height={56}
+              className="rounded-full object-contain p-2"
+              priority
+            />
+            {/* Efeito de brilho sutil */}
+            <div className="absolute inset-0 rounded-full border-2 border-ourovelho/60 pointer-events-none" />
           </div>
-          
-          {/* Menu Superior */}
-          <nav className="flex items-center space-x-6">
-            {/* Links de navegação */}
-            <div className="hidden md:flex items-center space-x-6">
-              <a 
-                href="#servicos" 
-                className="text-slate-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
-              >
-                Serviços
-              </a>
-              <a 
-                href="#sobre" 
-                className="text-slate-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
-              >
-                Sobre
-              </a>
-              <a 
-                href="#contato" 
-                className="text-slate-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
-              >
-                Contato
-              </a>
-            </div>
-            
-            {/* Controles */}
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <AuthButton />
-              <LanguageSwitcher />
-            </div>
-          </nav>
+          <div className="ml-2">
+            <h1 className="text-2xl font-extrabold text-ourovelho tracking-tight leading-tight drop-shadow-sm">
+              OLV Internacional
+            </h1>
+            <p className="text-sm text-slate-200 font-medium opacity-80">
+              Simulador de Propostas
+            </p>
+          </div>
         </div>
+        {/* Menu Superior */}
+        <nav className="flex items-center space-x-6">
+          {/* Links de navegação */}
+          <div className="hidden md:flex items-center space-x-6">
+            <a 
+              href="#servicos" 
+              className="text-slate-200 hover:text-ourovelho transition-colors duration-200 font-medium"
+            >
+              Serviços
+            </a>
+            <a 
+              href="#sobre" 
+              className="text-slate-200 hover:text-ourovelho transition-colors duration-200 font-medium"
+            >
+              Sobre
+            </a>
+            <a 
+              href="#contato" 
+              className="text-slate-200 hover:text-ourovelho transition-colors duration-200 font-medium"
+            >
+              Contato
+            </a>
+          </div>
+          {/* Controles */}
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <AuthButton />
+            <LanguageSwitcher />
+          </div>
+        </nav>
       </div>
-      {/* Barra de progresso sutil */}
-      <div className="h-1 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 animate-pulse" />
     </header>
   );
 }; 
