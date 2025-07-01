@@ -3,6 +3,8 @@ import React, { useState, useMemo } from 'react';
 import { ServiceConfig, InputField } from '@/lib/services';
 import { useAdmin } from './AdminContext';
 import { useRates, Currency } from '@/lib/useRates';
+import { getTabelaTarifas } from '@/lib/tarifas';
+import TabelaTarifasComponent from './TabelaTarifas';
 
 type ExtraCost = {
   id: string;
@@ -566,12 +568,20 @@ export default function ServiceForm({ config }: Props) {
           Visualizar PDF
         </button>
 
-        {/* Área textual explicando o serviço */}
-        <div className="mt-6 p-4 bg-slate-100 dark:bg-[#141c2f] border-l-4 border-yellow-400 rounded shadow text-slate-700 dark:text-slate-200">
-          <h4 className="font-bold mb-1">Sobre este serviço</h4>
-          <div className="text-sm whitespace-pre-line">{config.description}</div>
-          <div className="text-xs mt-2 text-slate-500">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
-        </div>
+        {/* Tabela de Tarifas Específica */}
+        {(() => {
+          const tabelaTarifas = getTabelaTarifas(config.slug);
+          if (tabelaTarifas) {
+            return <TabelaTarifasComponent tabela={tabelaTarifas} />;
+          }
+          return (
+            <div className="mt-6 p-4 bg-slate-100 dark:bg-[#141c2f] border-l-4 border-yellow-400 rounded shadow text-slate-700 dark:text-slate-200">
+              <h4 className="font-bold mb-1">Sobre este serviço</h4>
+              <div className="text-sm whitespace-pre-line">{config.description}</div>
+              <div className="text-xs mt-2 text-slate-500">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

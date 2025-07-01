@@ -1,4 +1,4 @@
-import { ServiceConfig, CalculationResult, CalculationItem, Currency, ExchangeRates } from '../types/simulator';
+import { ServiceConfig, CalculationResult, CalculationItem, Currency, ExchangeRates, UF, TaxConfig, SelectedTax, ProposalTaxes, UniversalItem, ProposalUniversal } from '../types/simulator';
 import { comeServices } from '../services/comeServices';
 import { novaRotaImportacaoServices, servicosAdicionais } from '../services/novaRotaImportacao';
 
@@ -212,4 +212,99 @@ export const calculateSavings = (
     savings: Math.max(0, savings),
     percentage: Math.max(0, percentage)
   };
-}; 
+};
+
+// Impostos padrão Brasil
+export const defaultTaxes: TaxConfig[] = [
+  {
+    name: 'ISS',
+    code: 'ISS',
+    description: 'Imposto Sobre Serviços (municipal)',
+    defaultRate: 5,
+    ufRates: { SP: 5, RJ: 5, MG: 5, RS: 5 },
+    enabled: false,
+  },
+  {
+    name: 'ICMS',
+    code: 'ICMS',
+    description: 'Imposto sobre Circulação de Mercadorias e Serviços (estadual)',
+    defaultRate: 18,
+    ufRates: { SP: 18, RJ: 20, MG: 18, RS: 17 },
+    enabled: false,
+  },
+  {
+    name: 'PIS',
+    code: 'PIS',
+    description: 'Programa de Integração Social (federal)',
+    defaultRate: 1.65,
+    enabled: false,
+  },
+  {
+    name: 'COFINS',
+    code: 'COFINS',
+    description: 'Contribuição para o Financiamento da Seguridade Social (federal)',
+    defaultRate: 7.6,
+    enabled: false,
+  },
+  {
+    name: 'IRPJ',
+    code: 'IRPJ',
+    description: 'Imposto de Renda Pessoa Jurídica (federal)',
+    defaultRate: 15,
+    enabled: false,
+  },
+  {
+    name: 'CSLL',
+    code: 'CSLL',
+    description: 'Contribuição Social sobre o Lucro Líquido (federal)',
+    defaultRate: 9,
+    enabled: false,
+  },
+  {
+    name: 'INSS',
+    code: 'INSS',
+    description: 'Contribuição Previdenciária Patronal (federal)',
+    defaultRate: 20,
+    enabled: false,
+  },
+];
+
+// Calcula subtotal de impostos
+export function calculateTaxes(
+  base: number,
+  uf: UF,
+  selected: SelectedTax[]
+): ProposalTaxes {
+  let subtotal = 0;
+  const taxes = selected.map((tax) => {
+    if (!tax.enabled) return { ...tax, value: 0 };
+    const value = base * (tax.rate / 100);
+    subtotal += value;
+    return { ...tax, value };
+  });
+  return {
+    uf,
+    taxes,
+    subtotal,
+    total: subtotal,
+  };
+}
+
+// Calcula subtotal de itens universais
+export function calculateUniversal(
+  base: number,
+  items: UniversalItem[]
+): ProposalUniversal {
+  let subtotal = 0;
+  items.forEach((item) => {
+    if (item.type === 'percent') {
+      subtotal += base * (item.value / 100);
+    } else {
+      subtotal += item.value;
+    }
+  });
+  return {
+    items,
+    subtotal,
+  };
+} 

@@ -96,4 +96,44 @@ export interface SimulatorState {
   clientData: Partial<ClientData>;
   isLoading: boolean;
   error: string | null;
+}
+
+export type UF =
+  | 'AC' | 'AL' | 'AP' | 'AM' | 'BA' | 'CE' | 'DF' | 'ES' | 'GO' | 'MA'
+  | 'MT' | 'MS' | 'MG' | 'PA' | 'PB' | 'PR' | 'PE' | 'PI' | 'RJ' | 'RN'
+  | 'RS' | 'RO' | 'RR' | 'SC' | 'SP' | 'SE' | 'TO';
+
+export interface TaxConfig {
+  name: string;
+  code: string;
+  description: string;
+  defaultRate: number;
+  ufRates?: Partial<Record<UF, number>>;
+  enabled: boolean;
+}
+
+export interface SelectedTax {
+  code: string;
+  rate: number;
+  enabled: boolean;
+}
+
+export interface UniversalItem {
+  id: string;
+  label: string;
+  value: number;
+  type: 'percent' | 'fixed';
+  description?: string;
+}
+
+export interface ProposalTaxes {
+  uf: UF;
+  taxes: SelectedTax[];
+  subtotal: number;
+  total: number;
+}
+
+export interface ProposalUniversal {
+  items: UniversalItem[];
+  subtotal: number;
 } 
