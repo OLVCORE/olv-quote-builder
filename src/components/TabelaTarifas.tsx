@@ -46,19 +46,9 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
     return (val / conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   }
 
-  // Exportação PDF
-  const exportToPDF = async () => {
-    const element = document.getElementById('tabela-tarifas-pdf');
-    if (!element) return;
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth - 40;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-    pdf.save('tabela_tarifas.pdf');
+  // Exportação PDF (print preview)
+  const exportToPDF = () => {
+    window.print();
   };
 
   // Exportação XLSX
@@ -81,39 +71,42 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
   };
 
   return (
-    <div id="tabela-tarifas-pdf" className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
-      <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
-          {tabela.subtitulo && (
-            <p className="text-sm text-white dark:text-slate-200 opacity-80">{tabela.subtitulo}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-white dark:text-ourovelho text-sm font-semibold">Moeda:</label>
-          <select
-            className="border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
-            value={currency}
-            onChange={handleCurrencyChange}
-          >
-            <option value="BRL">BRL</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-          </select>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="w-24 border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho ml-2"
-            placeholder="Cotação"
-            value={customRate ?? ''}
-            onChange={e => setCustomRate(e.target.value ? Number(e.target.value) : null)}
-            min={0}
-            step={0.0001}
-            disabled={currency === 'BRL'}
-          />
-          {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
-          <button onClick={exportToPDF} className="ml-4 text-ourovelho hover:text-accent-light" title="Exportar PDF"><FaFilePdf size={20} /></button>
-          <button onClick={exportToExcel} className="ml-2 text-ourovelho hover:text-accent-light" title="Exportar Excel"><FaFileExcel size={20} /></button>
+    <div className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
+      <div className="mb-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h3 className="text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
+            {tabela.subtitulo && (
+              <p className="text-sm text-white dark:text-slate-200 opacity-80 mb-2">{tabela.subtitulo}</p>
+            )}
+          </div>
+          {/* Bloco de câmbio e exportação junto ao título do serviço */}
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <label className="text-white dark:text-ourovelho text-sm font-semibold">Moeda:</label>
+            <select
+              className="border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              value={currency}
+              onChange={handleCurrencyChange}
+            >
+              <option value="BRL">BRL</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+            </select>
+            <input
+              type="number"
+              inputMode="numeric"
+              className="w-24 border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              placeholder="Cotação"
+              value={customRate ?? ''}
+              onChange={e => setCustomRate(e.target.value ? Number(e.target.value) : null)}
+              min={0}
+              step={0.0001}
+              disabled={currency === 'BRL'}
+            />
+            {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
+            <button onClick={exportToPDF} className="ml-4 text-ourovelho hover:text-accent-light" title="Visualizar/Imprimir PDF"><FaFilePdf size={20} /></button>
+            <button onClick={exportToExcel} className="ml-2 text-ourovelho hover:text-accent-light" title="Exportar Excel"><FaFileExcel size={20} /></button>
+          </div>
         </div>
       </div>
       <div className="overflow-x-auto">
