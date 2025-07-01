@@ -273,49 +273,73 @@ export default function ServiceForm({ config }: Props) {
         </section>
 
         {/* 2. Serviços Adicionais */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            2. Serviços Adicionais
-            <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
-            <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
-          </div>
-          <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
-            <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
-              <tr>
-                <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Qtd</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Unit (BRL)</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Unit ({currency})</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Desc. %</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Subtotal (BRL)</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Subtotal ({currency})</th>
-                <th className="border p-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {extras.map((l) => {
-                const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                return (
-                  <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                    <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
-                    <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
-                    <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
-                    <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
-                    <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
+        <div className="flex flex-col lg:flex-row gap-8 w-full">
+          <section className="flex-1 min-w-[340px] max-w-full">
+            <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+              <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+                2. Serviços Adicionais
+                <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
+                  <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+                </Tooltip>
+              </h2>
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
+                <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
+              </div>
+              <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+                <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
+                  <tr>
+                    <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Qtd</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Unit (BRL)</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Unit ({currency})</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Desc. %</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Subtotal (BRL)</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Subtotal ({currency})</th>
+                    <th className="border p-2"></th>
                   </tr>
+                </thead>
+                <tbody>
+                  {extras.map((l) => {
+                    const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+                    return (
+                      <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                        <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
+                        <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
+                        <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
+                        <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
+                        <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
+                        <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
+                        <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
+                        <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </section>
+          </section>
+          <section className="flex-1 min-w-[340px] max-w-full">
+            {/* 5. Tabela de Tarifas e Condições */}
+            <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+              <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+                5. Tabela de Tarifas e Condições
+                <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
+                  <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+                </Tooltip>
+              </h2>
+              {(() => {
+                const tabelaTarifas = getTabelaTarifas(config.slug);
+                if (tabelaTarifas) {
+                  return <TabelaTarifasComponent tabela={tabelaTarifas} />;
+                }
+                return (
+                  <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
                 );
-              })}
-            </tbody>
-          </table>
-        </section>
+              })()}
+            </section>
+          </section>
+        </div>
 
         {/* 3. Impostos */}
         <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
@@ -466,25 +490,6 @@ export default function ServiceForm({ config }: Props) {
             </div>
           </div>
           <button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold">Visualizar PDF</button>
-        </section>
-
-        {/* 5. Tabela de Tarifas e Condições */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            5. Tabela de Tarifas e Condições
-            <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          {(() => {
-            const tabelaTarifas = getTabelaTarifas(config.slug);
-            if (tabelaTarifas) {
-              return <TabelaTarifasComponent tabela={tabelaTarifas} />;
-            }
-            return (
-              <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
-            );
-          })()}
         </section>
 
         {/* 6. Observações Gerais */}
