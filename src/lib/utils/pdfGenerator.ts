@@ -5,8 +5,21 @@ import { formatCurrency } from './currency';
 interface PDFOptions {
   title?: string;
   includeLogo?: boolean;
+  includeBanner?: boolean;
   includeBreakdown?: boolean;
   includeTerms?: boolean;
+}
+
+// Função para carregar imagem como base64
+async function getImageBase64(url: string): Promise<string> {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 export const generateProposalPDF = async (
@@ -17,6 +30,7 @@ export const generateProposalPDF = async (
   const {
     title = 'Proposta Comercial OLV Internacional',
     includeLogo = true,
+    includeBanner = true,
     includeBreakdown = true,
     includeTerms = true
   } = options;
@@ -29,6 +43,29 @@ export const generateProposalPDF = async (
   const contentWidth = pageWidth - (margin * 2);
 
   let yPosition = margin;
+
+  // Adicionar banner OLV
+  if (includeBanner) {
+    try {
+      const bannerBase64 = await getImageBase64('/olv-internacional-banner.webp');
+      doc.addImage(bannerBase64, 'WEBP', margin, yPosition, pageWidth - margin * 2, 18);
+      yPosition += 20;
+    } catch (e) {
+      // Se falhar, ignora
+      yPosition += 10;
+    }
+  }
+
+  // Adicionar logo OLV
+  if (includeLogo) {
+    try {
+      const logoBase64 = await getImageBase64('/logo-olv.svg');
+      doc.addImage(logoBase64, 'SVG', margin, yPosition, 18, 18);
+    } catch (e) {
+      // Se falhar, ignora
+    }
+    yPosition += 20;
+  }
 
   // Função para adicionar texto com quebra de linha
   const addText = (text: string, x: number, y: number, maxWidth: number, fontSize: number = 12) => {
@@ -44,24 +81,6 @@ export const generateProposalPDF = async (
     doc.setLineWidth(0.5);
     doc.line(margin, y, pageWidth - margin, y);
   };
-
-  // Cabeçalho
-  if (includeLogo) {
-    // Logo OLV (texto estilizado)
-    doc.setFontSize(24);
-    doc.setTextColor(212, 175, 55); // Dourado OLV
-    doc.setFont('helvetica', 'bold');
-    doc.text('OLV', margin, yPosition);
-    
-    yPosition += 10;
-    
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Internacional', margin, yPosition);
-    
-    yPosition += 15;
-  }
 
   // Título da proposta
   doc.setFontSize(18);
