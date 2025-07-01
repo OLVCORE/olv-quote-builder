@@ -2,6 +2,10 @@
 import React, { useState } from 'react';
 import { TabelaTarifas } from '@/lib/tarifas';
 import { useRates, Currency } from '@/lib/useRates';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import { FaFilePdf, FaFileExcel, FaCoins } from 'react-icons/fa';
 
 interface Props {
   tabela: TabelaTarifas;
@@ -11,15 +15,73 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
   const [currency, setCurrency] = useState<Currency>('BRL');
   const { rates } = useRates('BRL');
   const [customRate, setCustomRate] = useState<number | null>(null);
+  const [liveRate, setLiveRate] = useState<number | null>(null);
+  const [loadingRate, setLoadingRate] = useState(false);
   const defaultRate = currency === 'BRL' ? 1 : rates[currency] || 1;
-  const conversionRate = customRate || defaultRate;
+  const conversionRate = customRate || liveRate || defaultRate;
+
+  async function fetchExchangeRate(from: string, to: string) {
+    setLoadingRate(true);
+    try {
+      const res = await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
+      const data = await res.json();
+      setLiveRate(data.rates[to]);
+    } catch (e) {
+      setLiveRate(null);
+    }
+    setLoadingRate(false);
+  }
+
+  function handleCurrencyChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const newCurrency = e.target.value as Currency;
+    setCurrency(newCurrency);
+    setCustomRate(null);
+    setLiveRate(null);
+    if (newCurrency !== 'BRL') fetchExchangeRate('BRL', newCurrency);
+  }
+
   function convertToForeign(val: number) {
     if (currency === 'BRL') return '-';
     if (!conversionRate || conversionRate === 0) return '-';
     return (val / conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   }
+
+  // Exportação PDF
+  const exportToPDF = async () => {
+    const element = document.getElementById('tabela-tarifas-pdf');
+    if (!element) return;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth - 40;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+    pdf.save('tabela_tarifas.pdf');
+  };
+
+  // Exportação XLSX
+  const exportToExcel = () => {
+    const table = tabela.items.map(item => {
+      const valorNum = typeof item.valor === 'string' ? Number(item.valor.replace(/[^\d,\.]/g, '').replace(',', '.')) : item.valor;
+      return {
+        Item: item.item,
+        Descrição: item.descricao,
+        'Valor (BRL)': item.valor,
+        [`Valor (${currency})`]: currency === 'BRL' ? '-' : (valorNum / conversionRate).toFixed(2),
+        Condições: item.condicoes,
+        Observações: item.observacoes,
+      };
+    });
+    const worksheet = XLSX.utils.json_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Tarifas');
+    XLSX.writeFile(workbook, 'tabela_tarifas.xlsx');
+  };
+
   return (
-    <div className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
+    <div id="tabela-tarifas-pdf" className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
       <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h3 className="text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
@@ -32,7 +94,7 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
           <select
             className="border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
             value={currency}
-            onChange={e => setCurrency(e.target.value as Currency)}
+            onChange={handleCurrencyChange}
           >
             <option value="BRL">BRL</option>
             <option value="USD">USD</option>
@@ -47,7 +109,11 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
             onChange={e => setCustomRate(e.target.value ? Number(e.target.value) : null)}
             min={0}
             step={0.0001}
+            disabled={currency === 'BRL'}
           />
+          {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
+          <button onClick={exportToPDF} className="ml-4 text-ourovelho hover:text-accent-light" title="Exportar PDF"><FaFilePdf size={20} /></button>
+          <button onClick={exportToExcel} className="ml-2 text-ourovelho hover:text-accent-light" title="Exportar Excel"><FaFileExcel size={20} /></button>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -57,21 +123,20 @@ export default function TabelaTarifasComponent({ tabela }: Props) {
               <th className="border border-ourovelho p-3 text-left font-semibold">Item</th>
               <th className="border border-ourovelho p-3 text-left font-semibold">Descrição</th>
               <th className="border border-ourovelho p-3 text-center font-semibold">Valor (BRL)</th>
-              <th className="border border-ourovelho p-3 text-center font-semibold">Valor ({currency})</th>
+              <th className="border border-ourovelho p-3 text-center font-semibold">Valor ({currency}) <FaCoins className="inline ml-1 text-accent-light" /></th>
               <th className="border border-ourovelho p-3 text-center font-semibold">Condições</th>
               <th className="border border-ourovelho p-3 text-left font-semibold">Observações</th>
             </tr>
           </thead>
           <tbody>
             {tabela.items.map((item, idx) => {
-              // Extrair valor numérico do campo valor
               const valorNum = typeof item.valor === 'string' ? Number(item.valor.replace(/[^\d,\.]/g, '').replace(',', '.')) : item.valor;
               return (
                 <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                   <td className="border border-ourovelho p-3 font-medium text-white dark:text-ourovelho">{item.item}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200">{item.descricao}</td>
                   <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{item.valor}</td>
-                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)}</td>
+                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)} {currency !== 'BRL' && <FaCoins className="inline ml-1 text-accent-light" />}</td>
                   <td className="border border-ourovelho p-3 text-center text-white dark:text-slate-200">{item.condicoes}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200 text-sm">{item.observacoes}</td>
                 </tr>
