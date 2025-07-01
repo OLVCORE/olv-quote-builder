@@ -216,7 +216,7 @@ export default function ServiceForm({ config }: Props) {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 px-2 sm:px-4 md:px-6">
+    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 px-2 sm:px-4 md:px-6 relative z-0">
       {/* COLUNA 1: FLUXO DE PREENCHIMENTO */}
       <div className="space-y-8">
         {/* 1. Serviços Principais */}
@@ -273,8 +273,8 @@ export default function ServiceForm({ config }: Props) {
         </section>
 
         {/* 2. Serviços Adicionais */}
-        <div className="flex flex-col lg:flex-row gap-8 w-full">
-          <section className="flex-1 min-w-[340px] max-w-full">
+        <div className="flex flex-col lg:flex-row gap-8 w-full flex-wrap min-w-0 overflow-visible relative z-0">
+          <section className="flex-1 min-w-0 max-w-full overflow-hidden relative z-0">
             <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
               <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
                 2. Serviços Adicionais
@@ -319,7 +319,7 @@ export default function ServiceForm({ config }: Props) {
               </table>
             </section>
           </section>
-          <section className="flex-1 min-w-[340px] max-w-full">
+          <section className="flex-1 min-w-0 max-w-full overflow-hidden relative z-0">
             {/* 5. Tabela de Tarifas e Condições */}
             <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
               <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
