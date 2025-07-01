@@ -13,7 +13,7 @@ export default function ServiceFormPage() {
     <main className="p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-2">{service.name}</h1>
       <p className="text-sm text-slate-600 mb-6 max-w-2xl">{service.description}</p>
-      <ServiceForm config={service} />
+      <ServiceForm config={service} currency="BRL" customRate="" />
     </main>
   );
 } 
