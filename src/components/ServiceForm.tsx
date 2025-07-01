@@ -77,6 +77,12 @@ export default function ServiceForm({ config }: Props) {
   const [customRate, setCustomRate] = useState<number | null>(null);
   const conversionRate = customRate || defaultRate;
 
+  function convertToForeign(val: number) {
+    if (currency === 'BRL') return '-';
+    if (!conversionRate || conversionRate === 0) return '-';
+    return (val / conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
   const handleRateChange = (val:number) => {
     setCustomRate(val > 0 ? val : null);
   };
@@ -223,7 +229,7 @@ export default function ServiceForm({ config }: Props) {
                       </td>
                       {/* Unit FX read-only */}
                       <td className="border p-1 text-right">
-                        {currency === 'BRL' ? '-' : (l.unit * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {convertToForeign(l.unit)}
                       </td>
                       <td className="border p-1">
                         <input
@@ -239,7 +245,7 @@ export default function ServiceForm({ config }: Props) {
                         {isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}
                       </td>
                       <td className="border p-1 text-right">
-                        {currency === 'BRL' ? '-' : (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {convertToForeign(subtotal)}
                       </td>
                       <td className="border p-1 text-center">
                         <button
@@ -323,9 +329,7 @@ export default function ServiceForm({ config }: Props) {
                     <span title={description}>{k}</span>
                   </td>
                   <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
-                  <td className="border p-1 text-right">
-                    {currency === 'BRL' ? '-' : (v * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </td>
+                  <td className="border p-1 text-right">{convertToForeign(v)}</td>
                   <td className="border p-1 text-xs text-slate-400">{perc.toFixed(1)}%</td>
                 </tr>
               );
@@ -337,7 +341,7 @@ export default function ServiceForm({ config }: Props) {
                 <tr key={l.id} className="odd:bg-white even:bg-slate-50">
                   <td className="border p-1">{l.description || 'Outro custo'}</td>
                   <td className="border p-1 text-right">R$ {(subtotal).toLocaleString('pt-BR')}</td>
-                  <td className="border p-1 text-right">{currency === 'BRL' ? '-' : (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                  <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
                   <td className="border p-1 text-xs text-slate-400"></td>
                 </tr>
               );
@@ -355,7 +359,7 @@ export default function ServiceForm({ config }: Props) {
             <div className="text-sm mb-1 flex justify-between">
               <span>Subtotal ({currency})</span>
               <span>
-                { (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }
+                { convertToForeign(subtotal) }
               </span>
             </div>
           )}
@@ -367,7 +371,7 @@ export default function ServiceForm({ config }: Props) {
             <div className="text-sm mb-1 flex justify-between">
               <span>Descontos ({currency})</span>
               <span>
-                - { (discountAmount * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }
+                - { convertToForeign(discountAmount) }
               </span>
             </div>
           )}
@@ -387,6 +391,13 @@ export default function ServiceForm({ config }: Props) {
         >
           Visualizar PDF
         </button>
+
+        {/* Área textual explicando o serviço */}
+        <div className="mt-6 p-4 bg-slate-100 dark:bg-[#141c2f] border-l-4 border-yellow-400 rounded shadow text-slate-700 dark:text-slate-200">
+          <h4 className="font-bold mb-1">Sobre este serviço</h4>
+          <div className="text-sm whitespace-pre-line">{config.description}</div>
+          <div className="text-xs mt-2 text-slate-500">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
+        </div>
       </div>
     </div>
   );
