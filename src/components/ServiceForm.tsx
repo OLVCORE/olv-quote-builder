@@ -216,284 +216,286 @@ export default function ServiceForm({ config }: Props) {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 px-2 sm:px-4 md:px-6 relative z-0">
-      {/* COLUNA 1: FLUXO DE PREENCHIMENTO */}
-      <div className="space-y-8">
-        {/* 1. Serviços Principais */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            1. Serviços Principais
-            <Tooltip text="Preencha os dados essenciais do serviço principal selecionado. Cada campo impacta diretamente o cálculo da proposta.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          {config.inputs.filter(f => !f.key.startsWith('extra') && !f.key.startsWith('add') && !f.key.startsWith('custom')).map((field) => {
-            if (field.type === 'number')
-              return (
-                <div key={field.key} className="mb-3">
-                  <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
-                  <input
-                    type="number"
-                    className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
-                    value={values[field.key]}
-                    onChange={(e) => handleChange(field, Number(e.target.value))}
-                  />
-                </div>
-              );
-            if (field.type === 'select')
-              return (
-                <div key={field.key} className="mb-3">
-                  <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
-                  <select
-                    className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
-                    value={values[field.key]}
-                    onChange={(e) => handleChange(field, e.target.value)}
-                  >
-                    {field.options!.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="text-white dark:text-ourovelho">
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              );
-            if (field.type === 'checkbox')
-              return (
-                <label key={field.key} className="flex items-center gap-2 mb-2 text-white dark:text-ourovelho">
-                  <input
-                    type="checkbox"
-                    className="accent-emerald-600"
-                    checked={values[field.key] as boolean}
-                    onChange={(e) => handleChange(field, e.target.checked)}
-                  />
-                  {field.label}
-                </label>
-              );
-          })}
-        </section>
-        {/* 2. Serviços Adicionais */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            2. Serviços Adicionais
-            <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
-            <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
-          </div>
-          <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
-            <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
-              <tr>
-                <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Qtd</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Unit (BRL)</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Unit ({currency})</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Desc. %</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Subtotal (BRL)</th>
-                <th className="border p-2 text-white dark:text-ourovelho">Subtotal ({currency})</th>
-                <th className="border p-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {extras.map((l) => {
-                const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+    <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-2 sm:px-4 md:px-6">
+      {/* Linha 1: Serviços Principais (esquerda) + Resultados (direita) */}
+      <div className="flex flex-col lg:flex-row gap-8 w-full">
+        <div className="flex-1 flex flex-col gap-8 min-w-0">
+          {/* 1. Serviços Principais */}
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+            <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+              1. Serviços Principais
+              <Tooltip text="Preencha os dados essenciais do serviço principal selecionado. Cada campo impacta diretamente o cálculo da proposta.">
+                <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              </Tooltip>
+            </h2>
+            {config.inputs.filter(f => !f.key.startsWith('extra') && !f.key.startsWith('add') && !f.key.startsWith('custom')).map((field) => {
+              if (field.type === 'number')
                 return (
-                  <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                    <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
-                    <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
-                    <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
-                    <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
-                    <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
-                    <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
-                  </tr>
+                  <div key={field.key} className="mb-3">
+                    <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
+                    <input
+                      type="number"
+                      className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                      value={values[field.key]}
+                      onChange={(e) => handleChange(field, Number(e.target.value))}
+                    />
+                  </div>
                 );
-              })}
-            </tbody>
-          </table>
-        </section>
-        {/* 3. Impostos */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            3. Impostos
-            <Tooltip text="Selecione e edite as taxas de impostos aplicáveis à proposta. Os valores são calculados automaticamente.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          <div className="flex justify-between items-center mb-3">
-            <span className="font-semibold text-white dark:text-ourovelho">Impostos e Taxas</span>
-            <button type="button" onClick={addCustomTax} className="text-xs bg-accent-light dark:bg-accent-dark text-white px-2 py-1 rounded hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">+ Custom</button>
-          </div>
-          <div className="space-y-2">
-            {taxRates.map((tax, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-olvblue/80 dark:bg-bg-dark-tertiary rounded border border-ourovelho dark:border-ourovelho">
-                <input type="checkbox" checked={tax.enabled} onChange={(e) => updateTaxRate(tax.type, 'enabled', e.target.checked)} className="accent-accent-dark" />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-white dark:text-ourovelho">{tax.type}</div>
-                  <div className="text-xs text-white dark:text-ourovelho opacity-75">{tax.description}</div>
+              if (field.type === 'select')
+                return (
+                  <div key={field.key} className="mb-3">
+                    <label className="block text-sm font-semibold mb-1 text-white dark:text-ourovelho">{field.label}</label>
+                    <select
+                      className="w-full border border-ourovelho dark:border-ourovelho px-3 py-2 rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                      value={values[field.key]}
+                      onChange={(e) => handleChange(field, e.target.value)}
+                    >
+                      {field.options!.map((opt) => (
+                        <option key={opt.value} value={opt.value} className="text-white dark:text-ourovelho">
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              if (field.type === 'checkbox')
+                return (
+                  <label key={field.key} className="flex items-center gap-2 mb-2 text-white dark:text-ourovelho">
+                    <input
+                      type="checkbox"
+                      className="accent-emerald-600"
+                      checked={values[field.key] as boolean}
+                      onChange={(e) => handleChange(field, e.target.checked)}
+                    />
+                    {field.label}
+                  </label>
+                );
+            })}
+          </section>
+        </div>
+        <div className="flex-1 flex flex-col gap-8 min-w-0">
+          {/* 4. Resultados */}
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+            <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+              4. Resultados
+              <Tooltip text="Veja o detalhamento do cálculo, totais, descontos e impostos da proposta.">
+                <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+              </Tooltip>
+            </h2>
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-white dark:text-ourovelho mb-2">Memória de Cálculo</h3>
+              <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+                <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
+                  <tr>
+                    <th className="border p-2 text-white dark:text-ourovelho">Item</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Valor (BRL)</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">Valor ({currency})</th>
+                    <th className="border p-2 text-white dark:text-ourovelho">%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Serviços principais flagados (checkbox marcados) */}
+                  {config.inputs.filter(f => f.type === 'checkbox' && values[f.key]).map((field) => {
+                    const value = baseResult.breakdown[field.key] || 0;
+                    const perc = finalTotal ? (value / finalTotal) * 100 : 0;
+                    return (
+                      <tr key={field.key} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                        <td className="border p-1 text-white dark:text-ourovelho">{field.label}</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
+                        <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })}
+                  {/* Especialistas On-Demand: múltiplos SLAs */}
+                  {config.slug === 'comex-on-demand' && ['start','pro','critical'].map(sla => {
+                    const hours = values['hours'] && values['service_level'] === sla ? values['hours'] : 0;
+                    if (!hours) return null;
+                    const rates: Record<string, number> = { start: 390, pro: 490, critical: 650 };
+                    const value = rates[sla] * hours;
+                    const perc = finalTotal ? (value / finalTotal) * 100 : 0;
+                    return (
+                      <tr key={sla} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                        <td className="border p-1 text-white dark:text-ourovelho">{sla.charAt(0).toUpperCase() + sla.slice(1)} (Especialista)</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
+                        <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })}
+                  {/* Serviços adicionais */}
+                  {extras.map((l) => {
+                    const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+                    const perc = finalTotal ? (subtotal / finalTotal) * 100 : 0;
+                    return (
+                      <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                        <td className="border p-1 text-white dark:text-ourovelho">{l.description || 'Outro custo'}</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
+                        <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(subtotal)}</td>
+                        <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })}
+                  {/* Impostos habilitados */}
+                  {taxRates.filter(tax => tax.enabled).map((tax, idx) => {
+                    const taxAmount = subtotalAfterDiscount * (tax.rate / 100);
+                    const perc = finalTotal ? (taxAmount / finalTotal) * 100 : 0;
+                    return (
+                      <tr key={tax.type} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                        <td className="border p-1 text-yellow-800 dark:text-ourovelho">{tax.type} ({tax.rate}%)</td>
+                        <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">{convertToForeign(taxAmount)}</td>
+                        <td className="border p-1 text-xs text-yellow-800 dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="bg-olvblue/80 dark:bg-bg-dark-tertiary p-4 rounded-lg mb-4">
+              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
+                <span>Subtotal</span>
+                <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
+              </div>
+              {currency !== 'BRL' && (
+                <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
+                  <span>Subtotal ({currency})</span>
+                  <span>{convertToForeign(subtotal)}</span>
                 </div>
-                <input type="number" value={tax.rate} onChange={(e) => updateTaxRate(tax.type, 'rate', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 text-sm border rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" min={0} max={100} step={0.01} disabled={!tax.enabled} />
-                <span className="text-xs text-white dark:text-ourovelho">%</span>
+              )}
+              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
+                <span>Descontos</span>
+                <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
               </div>
-            ))}
-          </div>
-          <div className="mt-3 p-2 bg-accent-light/20 dark:bg-accent-dark/20 text-white dark:text-ourovelho rounded text-sm font-semibold flex justify-between">
-            <span>Total Impostos:</span>
-            <span>R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-          </div>
-        </section>
+              {currency !== 'BRL' && (
+                <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
+                  <span>Descontos ({currency})</span>
+                  <span>- {convertToForeign(discountAmount)}</span>
+                </div>
+              )}
+              <div className="text-sm mb-1 flex justify-between text-yellow-800 dark:text-ourovelho font-semibold">
+                <span>Impostos</span>
+                <span>+ R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+              {currency !== 'BRL' && (
+                <div className="text-sm mb-1 flex justify-between text-yellow-800 dark:text-ourovelho">
+                  <span>Impostos ({currency})</span>
+                  <span>+ {convertToForeign(taxesTotal)}</span>
+                </div>
+              )}
+              <div className="font-bold text-lg flex justify-between border-t pt-2 text-white dark:text-ourovelho">
+                <span>Total Final</span>
+                <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+            <button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold">Visualizar PDF</button>
+          </section>
+        </div>
       </div>
-      <div className="space-y-8">
-        {/* 4. Resultados */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            4. Resultados
-            <Tooltip text="Veja o detalhamento do cálculo, totais, descontos e impostos da proposta.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          <div className="mb-4">
-            <h3 className="text-base font-semibold text-white dark:text-ourovelho mb-2">Memória de Cálculo</h3>
-            <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
-              <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
-                <tr>
-                  <th className="border p-2 text-white dark:text-ourovelho">Item</th>
-                  <th className="border p-2 text-white dark:text-ourovelho">Valor (BRL)</th>
-                  <th className="border p-2 text-white dark:text-ourovelho">Valor ({currency})</th>
-                  <th className="border p-2 text-white dark:text-ourovelho">%</th>
+      {/* Linha 2: Serviços Adicionais (paisagem, card horizontal largura total) */}
+      <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
+        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+          2. Serviços Adicionais
+          <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
+            <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+          </Tooltip>
+        </h2>
+        <div className="flex justify-between items-center mb-2">
+          <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
+          <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
+        </div>
+        <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+          <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
+            <tr>
+              <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Qtd</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Unit (BRL)</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Unit ({currency})</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Desc. %</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Subtotal (BRL)</th>
+              <th className="border p-2 text-white dark:text-ourovelho">Subtotal ({currency})</th>
+              <th className="border p-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {extras.map((l) => {
+              const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+              return (
+                <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                  <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
+                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
+                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
+                  <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
+                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
+                  <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
+                  <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
+                  <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
                 </tr>
-              </thead>
-              <tbody>
-                {/* Serviços principais flagados (checkbox marcados) */}
-                {config.inputs.filter(f => f.type === 'checkbox' && values[f.key]).map((field) => {
-                  const value = baseResult.breakdown[field.key] || 0;
-                  const perc = finalTotal ? (value / finalTotal) * 100 : 0;
-                  return (
-                    <tr key={field.key} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-white dark:text-ourovelho">{field.label}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
-                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })}
-                {/* Especialistas On-Demand: múltiplos SLAs */}
-                {config.slug === 'comex-on-demand' && ['start','pro','critical'].map(sla => {
-                  const hours = values['hours'] && values['service_level'] === sla ? values['hours'] : 0;
-                  if (!hours) return null;
-                  const rates: Record<string, number> = { start: 390, pro: 490, critical: 650 };
-                  const value = rates[sla] * hours;
-                  const perc = finalTotal ? (value / finalTotal) * 100 : 0;
-                  return (
-                    <tr key={sla} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-white dark:text-ourovelho">{sla.charAt(0).toUpperCase() + sla.slice(1)} (Especialista)</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
-                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })}
-                {/* Serviços adicionais */}
-                {extras.map((l) => {
-                  const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                  const perc = finalTotal ? (subtotal / finalTotal) * 100 : 0;
-                  return (
-                    <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-white dark:text-ourovelho">{l.description || 'Outro custo'}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(subtotal)}</td>
-                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })}
-                {/* Impostos habilitados */}
-                {taxRates.filter(tax => tax.enabled).map((tax, idx) => {
-                  const taxAmount = subtotalAfterDiscount * (tax.rate / 100);
-                  const perc = finalTotal ? (taxAmount / finalTotal) * 100 : 0;
-                  return (
-                    <tr key={tax.type} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-yellow-800 dark:text-ourovelho">{tax.type} ({tax.rate}%)</td>
-                      <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">{convertToForeign(taxAmount)}</td>
-                      <td className="border p-1 text-xs text-yellow-800 dark:text-ourovelho">{perc.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="bg-olvblue/80 dark:bg-bg-dark-tertiary p-4 rounded-lg mb-4">
-            <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
-              <span>Subtotal</span>
-              <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
-            </div>
-            {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
-                <span>Subtotal ({currency})</span>
-                <span>{convertToForeign(subtotal)}</span>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+      {/* Linha 3: Impostos (vertical, à esquerda) */}
+      <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col lg:w-1/2">
+        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+          3. Impostos
+          <Tooltip text="Selecione e edite as taxas de impostos aplicáveis à proposta. Os valores são calculados automaticamente.">
+            <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+          </Tooltip>
+        </h2>
+        <div className="flex justify-between items-center mb-3">
+          <span className="font-semibold text-white dark:text-ourovelho">Impostos e Taxas</span>
+          <button type="button" onClick={addCustomTax} className="text-xs bg-accent-light dark:bg-accent-dark text-white px-2 py-1 rounded hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">+ Custom</button>
+        </div>
+        <div className="space-y-2">
+          {taxRates.map((tax, idx) => (
+            <div key={idx} className="flex items-center gap-2 p-2 bg-olvblue/80 dark:bg-bg-dark-tertiary rounded border border-ourovelho dark:border-ourovelho">
+              <input type="checkbox" checked={tax.enabled} onChange={(e) => updateTaxRate(tax.type, 'enabled', e.target.checked)} className="accent-accent-dark" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-white dark:text-ourovelho">{tax.type}</div>
+                <div className="text-xs text-white dark:text-ourovelho opacity-75">{tax.description}</div>
               </div>
-            )}
-            <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
-              <span>Descontos</span>
-              <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
+              <input type="number" value={tax.rate} onChange={(e) => updateTaxRate(tax.type, 'rate', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 text-sm border rounded bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" min={0} max={100} step={0.01} disabled={!tax.enabled} />
+              <span className="text-xs text-white dark:text-ourovelho">%</span>
             </div>
-            {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between text-white dark:text-ourovelho">
-                <span>Descontos ({currency})</span>
-                <span>- {convertToForeign(discountAmount)}</span>
-              </div>
-            )}
-            <div className="text-sm mb-1 flex justify-between text-yellow-800 dark:text-ourovelho font-semibold">
-              <span>Impostos</span>
-              <span>+ R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            </div>
-            {currency !== 'BRL' && (
-              <div className="text-sm mb-1 flex justify-between text-yellow-800 dark:text-ourovelho">
-                <span>Impostos ({currency})</span>
-                <span>+ {convertToForeign(taxesTotal)}</span>
-              </div>
-            )}
-            <div className="font-bold text-lg flex justify-between border-t pt-2 text-white dark:text-ourovelho">
-              <span>Total Final</span>
-              <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            </div>
-          </div>
-          <button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold">Visualizar PDF</button>
-        </section>
-        {/* 5. Tabela de Tarifas e Condições */}
-        <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            5. Tabela de Tarifas e Condições
-            <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          {(() => {
-            const tabelaTarifas = getTabelaTarifas(config.slug);
-            if (tabelaTarifas) {
-              return <TabelaTarifasComponent tabela={tabelaTarifas} />;
-            }
-            return (
-              <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
-            );
-          })()}
-        </section>
-        {/* 6. Observações Gerais */}
-        <section className="bg-olvblue/80 dark:bg-bg-dark-tertiary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
-          <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-            6. Observações Gerais
-            <Tooltip text="Informações complementares, condições comerciais e observações importantes.">
-              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-            </Tooltip>
-          </h2>
-          <div className="text-sm text-white dark:text-ourovelho">
-            Consulte a ficha técnica do serviço para detalhes completos, condições comerciais, prazos e garantias. Valores sujeitos a reajuste conforme mercado e inflação.
-          </div>
-        </section>
-      </div>
+          ))}
+        </div>
+        <div className="mt-3 p-2 bg-accent-light/20 dark:bg-accent-dark/20 text-white dark:text-ourovelho rounded text-sm font-semibold flex justify-between">
+          <span>Total Impostos:</span>
+          <span>R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+        </div>
+      </section>
+      {/* Linha 4: Tabela de Tarifas (paisagem, card horizontal largura total) */}
+      <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
+        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+          5. Tabela de Tarifas e Condições
+          <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
+            <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+          </Tooltip>
+        </h2>
+        {(() => {
+          const tabelaTarifas = getTabelaTarifas(config.slug);
+          if (tabelaTarifas) {
+            return <TabelaTarifasComponent tabela={tabelaTarifas} />;
+          }
+          return (
+            <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
+          );
+        })()}
+      </section>
+      {/* Linha 5: Observações Gerais (paisagem, card horizontal largura total) */}
+      <section className="w-full bg-olvblue/80 dark:bg-bg-dark-tertiary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
+        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+          6. Observações Gerais
+          <Tooltip text="Informações complementares, condições comerciais e observações importantes.">
+            <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+          </Tooltip>
+        </h2>
+        <div className="text-sm text-white dark:text-ourovelho">
+          Consulte a ficha técnica do serviço para detalhes completos, condições comerciais, prazos e garantias. Valores sujeitos a reajuste conforme mercado e inflação.
+        </div>
+      </section>
     </div>
   );
 } 
