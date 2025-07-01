@@ -5,6 +5,7 @@ import { useAdmin } from './AdminContext';
 import { useRates, Currency } from '@/lib/useRates';
 import { getTabelaTarifas } from '@/lib/tarifas';
 import TabelaTarifasComponent from './TabelaTarifas';
+import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
 
 type ExtraCost = {
   id: string;
@@ -214,6 +215,18 @@ export default function ServiceForm({ config }: Props) {
     if (key === 'fee12m') return 'Fee anualizado (12 meses)';
     return config.description || key;
   }
+
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrency(e.target.value as Currency);
+  };
+
+  const loadingRate = false;
+  const exportToPDF = () => {
+    // Implementation of exportToPDF
+  };
+  const exportToExcel = () => {
+    // Implementation of exportToExcel
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-2 sm:px-4 md:px-6">
@@ -467,13 +480,42 @@ export default function ServiceForm({ config }: Props) {
         </div>
       </section>
       {/* Linha 4: Tabela de Tarifas (paisagem, card horizontal largura total) */}
-      <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
-        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
+      <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between mb-2">
+        <h2 className="text-lg font-bold text-white dark:text-ourovelho flex items-center gap-2">
           5. Tabela de Tarifas e Condições
           <Tooltip text="Confira todos os itens, valores e condições detalhadas do serviço.">
             <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
           </Tooltip>
         </h2>
+        {/* Bloco de câmbio/ícones ao lado do título */}
+        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
+          <label className="text-white dark:text-ourovelho text-sm font-semibold">Moeda:</label>
+          <select
+            className="border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+            value={currency}
+            onChange={handleCurrencyChange}
+          >
+            <option value="BRL">BRL</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
+          <input
+            type="number"
+            inputMode="numeric"
+            className="w-24 border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+            placeholder="Cotação"
+            value={customRate ?? ''}
+            onChange={e => setCustomRate(e.target.value ? Number(e.target.value) : null)}
+            min={0}
+            step={0.0001}
+            disabled={currency === 'BRL'}
+          />
+          {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
+          <button onClick={exportToPDF} className="ml-4 text-ourovelho hover:text-accent-light" title="Visualizar/Imprimir PDF"><FaFilePdf size={20} /></button>
+          <button onClick={exportToExcel} className="ml-2 text-ourovelho hover:text-accent-light" title="Exportar Excel"><FaFileExcel size={20} /></button>
+        </div>
+      </div>
+      <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
         {(() => {
           const tabelaTarifas = getTabelaTarifas(config.slug);
           if (tabelaTarifas) {
