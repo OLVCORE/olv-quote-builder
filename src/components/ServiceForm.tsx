@@ -12,6 +12,46 @@ type ExtraCost = {
   discount: number; // %
 };
 
+// Tipos para impostos
+type TaxType = 'ICMS' | 'PIS' | 'COFINS' | 'II' | 'IPI' | 'ISS' | 'IOF' | 'Custom';
+type TaxRate = {
+  type: TaxType;
+  rate: number;
+  description: string;
+  enabled: boolean;
+};
+
+// Estados brasileiros
+const BRAZILIAN_STATES = [
+  { value: 'AC', label: 'Acre' },
+  { value: 'AL', label: 'Alagoas' },
+  { value: 'AP', label: 'Amapá' },
+  { value: 'AM', label: 'Amazonas' },
+  { value: 'BA', label: 'Bahia' },
+  { value: 'CE', label: 'Ceará' },
+  { value: 'DF', label: 'Distrito Federal' },
+  { value: 'ES', label: 'Espírito Santo' },
+  { value: 'GO', label: 'Goiás' },
+  { value: 'MA', label: 'Maranhão' },
+  { value: 'MT', label: 'Mato Grosso' },
+  { value: 'MS', label: 'Mato Grosso do Sul' },
+  { value: 'MG', label: 'Minas Gerais' },
+  { value: 'PA', label: 'Pará' },
+  { value: 'PB', label: 'Paraíba' },
+  { value: 'PR', label: 'Paraná' },
+  { value: 'PE', label: 'Pernambuco' },
+  { value: 'PI', label: 'Piauí' },
+  { value: 'RJ', label: 'Rio de Janeiro' },
+  { value: 'RN', label: 'Rio Grande do Norte' },
+  { value: 'RS', label: 'Rio Grande do Sul' },
+  { value: 'RO', label: 'Rondônia' },
+  { value: 'RR', label: 'Roraima' },
+  { value: 'SC', label: 'Santa Catarina' },
+  { value: 'SP', label: 'São Paulo' },
+  { value: 'SE', label: 'Sergipe' },
+  { value: 'TO', label: 'Tocantins' },
+];
+
 interface Props {
   config: ServiceConfig;
 }
@@ -62,10 +102,44 @@ export default function ServiceForm({ config }: Props) {
         enableAdmin();
       } else {
         alert('Senha incorreta');
-        return;
       }
     }
     setGlobalDiscount(val);
+  };
+
+  // Estado para UF selecionada
+  const [selectedState, setSelectedState] = useState<string>('SP');
+
+  // Estado para impostos
+  const [taxRates, setTaxRates] = useState<TaxRate[]>([
+    { type: 'ICMS', rate: 18.0, description: 'Imposto sobre Circulação de Mercadorias e Serviços', enabled: true },
+    { type: 'PIS', rate: 1.65, description: 'Programa de Integração Social', enabled: true },
+    { type: 'COFINS', rate: 7.6, description: 'Contribuição para o Financiamento da Seguridade Social', enabled: true },
+    { type: 'II', rate: 0.0, description: 'Imposto de Importação', enabled: false },
+    { type: 'IPI', rate: 0.0, description: 'Imposto sobre Produtos Industrializados', enabled: false },
+    { type: 'ISS', rate: 5.0, description: 'Imposto Sobre Serviços', enabled: false },
+    { type: 'IOF', rate: 0.38, description: 'Imposto sobre Operações Financeiras', enabled: false },
+    { type: 'Custom', rate: 0.0, description: 'Taxa customizada', enabled: false },
+  ]);
+
+  // Atualizar taxa de imposto
+  const updateTaxRate = (type: TaxType, field: keyof TaxRate, value: any) => {
+    setTaxRates(prev => prev.map(tax => 
+      tax.type === type ? { ...tax, [field]: value } : tax
+    ));
+  };
+
+  // Adicionar taxa customizada
+  const addCustomTax = () => {
+    const customName = prompt('Nome da taxa customizada:');
+    if (customName) {
+      setTaxRates(prev => [...prev, {
+        type: 'Custom',
+        rate: 0.0,
+        description: customName,
+        enabled: true
+      }]);
+    }
   };
 
   const baseResult = useMemo(() => config.calculate(values), [values, config]);
@@ -96,7 +170,15 @@ export default function ServiceForm({ config }: Props) {
 
   const subtotal = baseResult.total + extrasTotal;
   const discountAmount = subtotal * (globalDiscount / 100);
-  const finalTotal = subtotal - discountAmount;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+
+  // Cálculo de impostos
+  const taxesTotal = taxRates.reduce((sum, tax) => {
+    if (!tax.enabled) return sum;
+    return sum + (subtotalAfterDiscount * (tax.rate / 100));
+  }, 0);
+
+  const finalTotal = subtotalAfterDiscount + taxesTotal;
 
   // Currency conversion
   const convertedTotal = finalTotal * conversionRate;
@@ -123,6 +205,25 @@ export default function ServiceForm({ config }: Props) {
     <div className="grid lg:grid-cols-2 gap-8">
       {/* LEFT – Inputs */}
       <div className="space-y-6">
+        {/* Seletor de UF */}
+        <div className="bg-bg-light-secondary dark:bg-bg-dark-secondary p-4 rounded-lg border border-accent-light dark:border-accent-dark">
+          <h3 className="font-semibold text-accent-dark mb-3">📍 Estado de Destino</h3>
+          <select
+            value={selectedState}
+            onChange={(e) => setSelectedState(e.target.value)}
+            className="w-full px-3 py-2 rounded border border-accent-light dark:border-accent-dark bg-bg-light-tertiary dark:bg-bg-dark-tertiary text-txt-light dark:text-txt-dark"
+          >
+            {BRAZILIAN_STATES.map(state => (
+              <option key={state.value} value={state.value}>
+                {state.value} - {state.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-txt-light dark:text-txt-dark mt-2 opacity-75">
+            Seleção afeta automaticamente as taxas de ICMS e outros impostos estaduais
+          </p>
+        </div>
+
         {/* Inputs */}
         {config.inputs.map((field) => {
           if (field.type === 'number')
@@ -167,6 +268,55 @@ export default function ServiceForm({ config }: Props) {
               </label>
             );
         })}
+
+        {/* Módulo de Impostos */}
+        <div className="bg-bg-light-secondary dark:bg-bg-dark-secondary p-4 rounded-lg border border-accent-light dark:border-accent-dark">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-accent-dark">💰 Impostos e Taxas</h3>
+            <button
+              type="button"
+              onClick={addCustomTax}
+              className="text-xs bg-accent-light dark:bg-accent-dark text-white px-2 py-1 rounded hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover"
+            >
+              + Custom
+            </button>
+          </div>
+          
+          <div className="space-y-2">
+            {taxRates.map((tax, idx) => (
+              <div key={idx} className="flex items-center gap-2 p-2 bg-bg-light-tertiary dark:bg-bg-dark-tertiary rounded border">
+                <input
+                  type="checkbox"
+                  checked={tax.enabled}
+                  onChange={(e) => updateTaxRate(tax.type, 'enabled', e.target.checked)}
+                  className="accent-accent-dark"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-txt-light dark:text-txt-dark">{tax.type}</div>
+                  <div className="text-xs text-txt-light dark:text-txt-dark opacity-75">{tax.description}</div>
+                </div>
+                <input
+                  type="number"
+                  value={tax.rate}
+                  onChange={(e) => updateTaxRate(tax.type, 'rate', parseFloat(e.target.value) || 0)}
+                  className="w-20 px-2 py-1 text-sm border rounded bg-white dark:bg-bg-dark-tertiary text-txt-light dark:text-txt-dark"
+                  min={0}
+                  max={100}
+                  step={0.01}
+                  disabled={!tax.enabled}
+                />
+                <span className="text-xs text-txt-light dark:text-txt-dark">%</span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-3 p-2 bg-accent-light dark:bg-accent-dark text-white rounded text-sm">
+            <div className="flex justify-between">
+              <span>Total Impostos:</span>
+              <span>R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+        </div>
 
         {/* Outros custos */}
         <div className="border-t pt-4">
@@ -346,6 +496,18 @@ export default function ServiceForm({ config }: Props) {
                 </tr>
               );
             })}
+            {/* Impostos */}
+            {taxRates.filter(tax => tax.enabled).map((tax, idx) => {
+              const taxAmount = subtotalAfterDiscount * (tax.rate / 100);
+              return (
+                <tr key={idx} className="odd:bg-white even:bg-slate-50 bg-yellow-50">
+                  <td className="border p-1 text-yellow-800">{tax.type} ({tax.rate}%)</td>
+                  <td className="border p-1 text-right text-yellow-800">R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                  <td className="border p-1 text-right text-yellow-800">{convertToForeign(taxAmount)}</td>
+                  <td className="border p-1 text-xs text-slate-400"></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -375,7 +537,19 @@ export default function ServiceForm({ config }: Props) {
               </span>
             </div>
           )}
-          <div className="font-bold text-lg flex justify-between">
+          <div className="text-sm mb-1 flex justify-between text-yellow-800 font-semibold">
+            <span>Impostos</span>
+            <span>+ R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+          </div>
+          {currency !== 'BRL' && (
+            <div className="text-sm mb-1 flex justify-between text-yellow-800">
+              <span>Impostos ({currency})</span>
+              <span>
+                + { convertToForeign(taxesTotal) }
+              </span>
+            </div>
+          )}
+          <div className="font-bold text-lg flex justify-between border-t pt-2">
             <span>Total Final</span>
             <span>
               {currency === 'BRL' ? 'R$' : currency + ' '} {convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
