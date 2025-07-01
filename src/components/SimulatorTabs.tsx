@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -25,6 +25,11 @@ function TabsWithAdmin() {
     { value: 'servicos-adicionais', label: 'Serviços Adicionais' },
   ];
 
+  // Estado para aba selecionada
+  const [selectedTab, setSelectedTab] = useState(tabList[0].value);
+  const selectedServiceIdx = tabList.findIndex(tab => tab.value === selectedTab);
+  const selectedService = allServices[selectedServiceIdx];
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -35,7 +40,7 @@ function TabsWithAdmin() {
           </button>
         )}
       </div>
-      <Tabs.Root defaultValue={tabList[0].value} className="w-full">
+      <Tabs.Root value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <Tabs.List className="flex flex-wrap gap-2 bg-slate-100 dark:bg-olvblue p-2 rounded-xl mb-6 shadow-inner">
           {tabList.map(tab => (
             <Tabs.Trigger
@@ -47,6 +52,13 @@ function TabsWithAdmin() {
             </Tabs.Trigger>
           ))}
         </Tabs.List>
+        {/* Título e descrição do serviço selecionado */}
+        {selectedService && (
+          <div className="mb-6 p-4 rounded-xl bg-bg-light-secondary dark:bg-bg-dark-secondary border-l-4 border-accent-dark shadow-sm">
+            <h2 className="text-2xl font-extrabold text-accent-dark mb-1">{selectedService.name}</h2>
+            <p className="text-base text-txt-light dark:text-txt-dark opacity-90">{selectedService.description}</p>
+          </div>
+        )}
         {/* Conteúdo das abas - exemplo para 8 abas, ajuste conforme necessário */}
         <Tabs.Content value="pme-comex" className="pt-4">
           <ServiceForm config={allServices[0]} />
