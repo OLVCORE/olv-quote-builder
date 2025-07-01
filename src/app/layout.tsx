@@ -26,8 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-2 bg-slate-800 text-white sticky top-0 z-40 shadow">
           <div className="flex items-center gap-2">
-            <Image src="/logo-olv.svg" alt="OLV" width={32} height={32} />
-            <span className="font-semibold">OLV Quote Builder</span>
+            <div className="rounded-full border-4 border-yellow-400 transition-shadow duration-200 hover:shadow-[0_0_0_4px_rgba(255,215,0,0.5)] w-12 h-12 flex items-center justify-center bg-white">
+              <Image src="/logo-olv.svg" alt="OLV" width={40} height={40} className="rounded-full" />
+            </div>
+            <span className="font-semibold text-xl tracking-tight text-slate-900 ml-2">OLV Quote Builder</span>
           </div>
           <LanguageSwitcher />
         </header>

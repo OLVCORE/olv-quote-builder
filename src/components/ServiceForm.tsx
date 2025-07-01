@@ -95,6 +95,24 @@ export default function ServiceForm({ config }: Props) {
   // Currency conversion
   const convertedTotal = finalTotal * conversionRate;
 
+  // Função utilitária para buscar descrição real do breakdown
+  function getBreakdownDescription(config: ServiceConfig, key: string): string {
+    // Busca por label do input ou descrição do serviço
+    const input = config.inputs.find(i => i.key.toLowerCase() === key.toLowerCase());
+    if (input) return input.label;
+    // Fallback para descrições conhecidas
+    if (key === 'base') return 'Valor base do serviço (setup, book, diagnóstico, etc)';
+    if (key === 'retainer') return 'Retainer mensal ou anual conforme serviço';
+    if (key === 'extras') return 'Custos adicionais selecionados';
+    if (key === 'pmeGrowth') return 'Plano PME Growth (mensal)';
+    if (key === 'adhoc') return 'Plano Ad-hoc (horas avulsas)';
+    if (key === 'assisted') return 'Embarques assistidos';
+    if (key === 'setup') return 'Setup inicial ou diagnóstico';
+    if (key === 'variable') return 'Componente variável (ex: % sobre CIF)';
+    if (key === 'fee12m') return 'Fee anualizado (12 meses)';
+    return config.description || key;
+  }
+
   return (
     <div className="grid lg:grid-cols-2 gap-8">
       {/* LEFT – Inputs */}
@@ -221,9 +239,7 @@ export default function ServiceForm({ config }: Props) {
                         {isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}
                       </td>
                       <td className="border p-1 text-right">
-                        {currency === 'BRL'
-                          ? '-'
-                          : (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {currency === 'BRL' ? '-' : (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="border p-1 text-center">
                         <button
@@ -269,26 +285,24 @@ export default function ServiceForm({ config }: Props) {
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
           </select>
-          {currency !== 'BRL' && (
-            <>
-              <label className="text-sm">Câmbio</label>
-              <input
-                type="number"
-                step="0.0001"
-                className="border px-2 py-1 w-24 text-sm"
-                value={conversionRate}
-                onChange={(e) => handleRateChange(Number(e.target.value))}
-              />
-              {customRate && (
-                <button
-                  type="button"
-                  className="text-xs text-emerald-700 underline"
-                  onClick={() => setCustomRate(null)}
-                >
-                  reset ↺
-                </button>
-              )}
-            </>
+          <label className="text-sm">Câmbio</label>
+          <input
+            type="number"
+            step="0.0001"
+            className="border px-2 py-1 w-24 text-sm"
+            value={conversionRate}
+            onChange={(e) => handleRateChange(Number(e.target.value))}
+            readOnly={currency === 'BRL'}
+            min={0.0001}
+          />
+          {customRate && currency !== 'BRL' && (
+            <button
+              type="button"
+              className="text-xs text-emerald-700 underline"
+              onClick={() => setCustomRate(null)}
+            >
+              reset ↺
+            </button>
           )}
         </div>
       </div>
@@ -301,22 +315,33 @@ export default function ServiceForm({ config }: Props) {
             {/* Breakdown items from service calculate */}
             {Object.entries(baseResult.breakdown).map(([k, v]) => {
               const perc = (v / subtotal) * 100;
+              // Buscar descrição real do item k
+              const description = getBreakdownDescription(config, k);
               return (
-                <tr key={k} className="odd:bg-white even:bg-slate-50" title={`${perc.toFixed(1)}% do total`}>
-                  <td className="border p-1 capitalize">{k}</td>
+                <tr key={k} className="odd:bg-white even:bg-slate-50">
+                  <td className="border p-1 capitalize">
+                    <span title={description}>{k}</span>
+                  </td>
                   <td className="border p-1 text-right">R$ {v.toLocaleString('pt-BR')}</td>
+                  <td className="border p-1 text-right">
+                    {currency === 'BRL' ? '-' : (v * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="border p-1 text-xs text-slate-400">{perc.toFixed(1)}%</td>
                 </tr>
               );
             })}
             {/* Extras */}
-            {extras.map((l) => (
-              <tr key={l.id} className="odd:bg-white even:bg-slate-50">
-                <td className="border p-1">{l.description || 'Outro custo'}</td>
-                <td className="border p-1 text-right">
-                  R$ {(l.qty * l.unit * (1 - l.discount / 100)).toLocaleString('pt-BR')}
-                </td>
-              </tr>
-            ))}
+            {extras.map((l) => {
+              const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+              return (
+                <tr key={l.id} className="odd:bg-white even:bg-slate-50">
+                  <td className="border p-1">{l.description || 'Outro custo'}</td>
+                  <td className="border p-1 text-right">R$ {(subtotal).toLocaleString('pt-BR')}</td>
+                  <td className="border p-1 text-right">{currency === 'BRL' ? '-' : (subtotal * conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                  <td className="border p-1 text-xs text-slate-400"></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
