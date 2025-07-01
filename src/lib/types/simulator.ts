@@ -18,7 +18,7 @@ export interface InputField {
   options?: InputFieldOption[];
 }
 
-export type ServiceType = 'fixed' | 'variable' | 'mixed' | 'hourly' | 'setup_monthly' | 'tiered';
+export type ServiceType = 'fixed' | 'variable' | 'mixed' | 'hourly' | 'setup_monthly' | 'tiered' | 'monthly';
 
 export interface ServiceConfig {
   id: string;

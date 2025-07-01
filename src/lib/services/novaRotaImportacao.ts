@@ -559,6 +559,6 @@ export const servicosAdicionais: ServiceConfig[] = [
     calculate: (values: Record<string, any>) => ({
       total: 1150,
       breakdown: { contrato: 1150 }
-    }))
+    })
   }
 ]; 
