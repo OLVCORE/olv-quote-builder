@@ -9,36 +9,14 @@ import { FaFilePdf, FaFileExcel, FaCoins } from 'react-icons/fa';
 
 interface Props {
   tabela: TabelaTarifas;
+  currency: string;
+  customRate: string;
 }
 
-export default function TabelaTarifasComponent({ tabela }: Props) {
-  const [currency, setCurrency] = useState<Currency>('BRL');
+export default function TabelaTarifasComponent({ tabela, currency, customRate }: Props) {
   const { rates } = useRates('BRL');
-  const [customRate, setCustomRate] = useState<number | null>(null);
-  const [liveRate, setLiveRate] = useState<number | null>(null);
-  const [loadingRate, setLoadingRate] = useState(false);
   const defaultRate = currency === 'BRL' ? 1 : rates[currency] || 1;
-  const conversionRate = customRate || liveRate || defaultRate;
-
-  async function fetchExchangeRate(from: string, to: string) {
-    setLoadingRate(true);
-    try {
-      const res = await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
-      const data = await res.json();
-      setLiveRate(data.rates[to]);
-    } catch (e) {
-      setLiveRate(null);
-    }
-    setLoadingRate(false);
-  }
-
-  function handleCurrencyChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newCurrency = e.target.value as Currency;
-    setCurrency(newCurrency);
-    setCustomRate(null);
-    setLiveRate(null);
-    if (newCurrency !== 'BRL') fetchExchangeRate('BRL', newCurrency);
-  }
+  const conversionRate = customRate ? Number(customRate) : defaultRate;
 
   function convertToForeign(val: number) {
     if (currency === 'BRL') return '-';

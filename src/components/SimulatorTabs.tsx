@@ -4,6 +4,7 @@ import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
 import { AdminProvider, useAdmin } from './AdminContext';
+import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
 
 function TabsWithAdmin() {
   const { admin, enableAdmin } = useAdmin();
@@ -30,6 +31,12 @@ function TabsWithAdmin() {
   const selectedServiceIdx = tabList.findIndex(tab => tab.value === selectedTab);
   const selectedService = allServices[selectedServiceIdx];
 
+  // Estado global de moeda/cotação
+  const [currency, setCurrency] = useState('BRL');
+  const [customRate, setCustomRate] = useState('');
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => setCurrency(e.target.value);
+  const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => setCustomRate(e.target.value);
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -52,37 +59,66 @@ function TabsWithAdmin() {
             </Tabs.Trigger>
           ))}
         </Tabs.List>
-        {/* Título e descrição do serviço selecionado */}
-        {selectedService && (
-          <div className="mb-6 p-4 rounded-xl bg-bg-light-secondary dark:bg-bg-dark-secondary border-l-4 border-accent-dark shadow-sm">
-            <h2 className="text-2xl font-extrabold text-accent-dark mb-1">{selectedService.name}</h2>
-            <p className="text-base text-txt-light dark:text-txt-dark opacity-90">{selectedService.description}</p>
+        {/* Bloco global de câmbio/ícones ao lado do nome do serviço */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          {selectedService && (
+            <div className="flex-1">
+              <h2 className="text-2xl font-extrabold text-accent-dark mb-1">{selectedService.name}</h2>
+              <p className="text-base text-txt-light dark:text-txt-dark opacity-90">{selectedService.description}</p>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-2 bg-olvblue/80 dark:bg-bg-dark-tertiary border border-ourovelho dark:border-ourovelho rounded-lg px-4 py-2">
+            <label className="text-white dark:text-ourovelho text-sm font-semibold">Moeda:</label>
+            <select
+              className="border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              value={currency}
+              onChange={handleCurrencyChange}
+            >
+              <option value="BRL">BRL</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="CNY">CNY</option>
+            </select>
+            <input
+              type="number"
+              inputMode="numeric"
+              className="w-24 border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              placeholder="Cotação"
+              value={customRate}
+              onChange={handleRateChange}
+              min={0}
+              step={0.0001}
+              disabled={currency === 'BRL'}
+            />
+            <button className="ml-4" title="Visualizar/Imprimir PDF"><FaFilePdf size={20} color="#E53935" /></button>
+            <button className="ml-2" title="Exportar Excel"><FaFileExcel size={20} color="#43A047" /></button>
           </div>
-        )}
+        </div>
         {/* Conteúdo das abas - exemplo para 8 abas, ajuste conforme necessário */}
         <Tabs.Content value="pme-comex" className="pt-4">
-          <ServiceForm config={allServices[0]} />
+          <ServiceForm config={allServices[0]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="comex-on-demand" className="pt-4">
-          <ServiceForm config={allServices[1]} />
+          <ServiceForm config={allServices[1]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="3pl-turnkey" className="pt-4">
-          <ServiceForm config={allServices[2]} />
+          <ServiceForm config={allServices[2]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="end-to-end" className="pt-4">
-          <ServiceForm config={allServices[3]} />
+          <ServiceForm config={allServices[3]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="in-house" className="pt-4">
-          <ServiceForm config={allServices[4]} />
+          <ServiceForm config={allServices[4]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="nova-rota-importacao" className="pt-4">
-          <ServiceForm config={allServices[5]} />
+          <ServiceForm config={allServices[5]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="consultoria" className="pt-4">
-          <ServiceForm config={allServices[6]} />
+          <ServiceForm config={allServices[6]} currency={currency} customRate={customRate} />
         </Tabs.Content>
         <Tabs.Content value="servicos-adicionais" className="pt-4">
-          <ServiceForm config={allServices[7]} />
+          <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />
         </Tabs.Content>
       </Tabs.Root>
     </>

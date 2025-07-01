@@ -57,6 +57,8 @@ const BRAZILIAN_STATES = [
 
 interface Props {
   config: ServiceConfig;
+  currency: string;
+  customRate: string;
 }
 
 // Exemplo de tooltip simples
@@ -71,7 +73,7 @@ function Tooltip({ text, children }: { text: string, children: React.ReactNode }
   );
 }
 
-export default function ServiceForm({ config }: Props) {
+export default function ServiceForm({ config, currency, customRate }: Props) {
   const [values, setValues] = useState<Record<string, any>>(
     Object.fromEntries(config.inputs.map((i) => [i.key, i.default]))
   );
@@ -160,11 +162,9 @@ export default function ServiceForm({ config }: Props) {
   const baseResult = useMemo(() => config.calculate(values), [values, config]);
 
   // Currency conversion state & rate
-  const [currency, setCurrency] = useState<Currency>('BRL');
   const { rates } = useRates('BRL');
   const defaultRate = currency === 'BRL' ? 1 : rates[currency] || 1;
-  const [customRate, setCustomRate] = useState<number | null>(null);
-  const conversionRate = customRate || defaultRate;
+  const conversionRate = customRate ? Number(customRate) : defaultRate;
 
   function convertToForeign(val: number) {
     if (currency === 'BRL') return '-';
@@ -173,7 +173,7 @@ export default function ServiceForm({ config }: Props) {
   }
 
   const handleRateChange = (val:number) => {
-    setCustomRate(val > 0 ? val : null);
+    // This function is now empty as the conversionRate is managed by the props
   };
 
   const extrasTotal = extras.reduce((sum, l) => {
@@ -217,7 +217,7 @@ export default function ServiceForm({ config }: Props) {
   }
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrency(e.target.value as Currency);
+    // This function is now empty as the currency is managed by the props
   };
 
   const loadingRate = false;
@@ -505,7 +505,7 @@ export default function ServiceForm({ config }: Props) {
             className="w-24 border border-ourovelho dark:border-ourovelho rounded px-2 py-1 bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
             placeholder="Cotação"
             value={customRate ?? ''}
-            onChange={e => setCustomRate(e.target.value ? Number(e.target.value) : null)}
+            onChange={e => handleRateChange(e.target.value ? Number(e.target.value) : 0)}
             min={0}
             step={0.0001}
             disabled={currency === 'BRL'}
@@ -519,7 +519,7 @@ export default function ServiceForm({ config }: Props) {
         {(() => {
           const tabelaTarifas = getTabelaTarifas(config.slug);
           if (tabelaTarifas) {
-            return <TabelaTarifasComponent tabela={tabelaTarifas} />;
+            return <TabelaTarifasComponent tabela={tabelaTarifas} currency={currency} customRate={customRate} />;
           }
           return (
             <div className="p-4 text-white dark:text-ourovelho">Tabela de tarifas e condições: consulte a ficha técnica do serviço para detalhes completos.</div>
