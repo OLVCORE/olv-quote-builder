@@ -114,7 +114,10 @@ export const services: ServiceConfig[] = [
     calculate(v) {
       const setup = 6500;
       const retainer = 2900 * 12; // anualizado
-      const extras = ['erp', 'esg'].filter((k) => v[k]).reduce((s, k) => s + (this.inputs.find(i=>i.key===k)?.multiplier||0), 0);
+      const extras = ['erp', 'esg'].filter((k) => v[k]).reduce((s, k) => {
+        const input = this.inputs.find(i => i.key === k);
+        return s + (input?.multiplier || 0);
+      }, 0);
       return { total: setup + retainer + extras, breakdown: { setup, retainer, extras } };
     },
   },
@@ -130,7 +133,10 @@ export const services: ServiceConfig[] = [
     calculate(v) {
       const setup = 35000;
       const fee12m = 9500 * 12;
-      const extras = ['treinamento', 'custom_erp'].filter((k)=>v[k]).reduce((s,k)=> s + (this.inputs.find(i=>i.key===k)?.multiplier||0),0);
+      const extras = ['treinamento', 'custom_erp'].filter((k) => v[k]).reduce((s, k) => {
+        const input = this.inputs.find(i => i.key === k);
+        return s + (input?.multiplier || 0);
+      }, 0);
       const total = setup + fee12m + extras;
       return { total, breakdown: { setup, fee12m, extras } };
     },
@@ -149,8 +155,18 @@ export const services: ServiceConfig[] = [
     ],
     calculate(v) {
       const etapas = ['etapa1','etapa2','etapa3','etapa4','etapa5','etapa6'];
-      const total = etapas.reduce((sum, k) => sum + (v[k] ? (this.inputs.find(i=>i.key===k)?.multiplier||0) : 0), 0);
-      return { total, breakdown: etapas.reduce((acc, k) => { acc[k] = v[k] ? (this.inputs.find(i=>i.key===k)?.multiplier||0) : 0; return acc; }, {}) };
+      const total = etapas.reduce((sum, k) => {
+        const input = this.inputs.find(i => i.key === k);
+        return sum + (v[k as keyof typeof v] ? (input?.multiplier || 0) : 0);
+      }, 0);
+      return { 
+        total, 
+        breakdown: etapas.reduce((acc: Record<string, number>, k) => { 
+          const input = this.inputs.find(i => i.key === k);
+          acc[k] = v[k as keyof typeof v] ? (input?.multiplier || 0) : 0; 
+          return acc; 
+        }, {} as Record<string, number>) 
+      };
     },
   },
   {
