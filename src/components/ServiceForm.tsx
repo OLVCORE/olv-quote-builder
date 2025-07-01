@@ -371,37 +371,58 @@ export default function ServiceForm({ config }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(baseResult.breakdown).map(([k, v]) => {
-                  const perc = (v / subtotal) * 100;
-                  const description = getBreakdownDescription(config, k);
+                {/* Serviços principais flagados (checkbox marcados) */}
+                {config.inputs.filter(f => f.type === 'checkbox' && values[f.key]).map((field) => {
+                  const value = baseResult.breakdown[field.key] || 0;
+                  const perc = finalTotal ? (value / finalTotal) * 100 : 0;
                   return (
-                    <tr key={k} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                      <td className="border p-1 text-white dark:text-ourovelho" title={description}>{k}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {v.toLocaleString('pt-BR')}</td>
-                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(v)}</td>
+                    <tr key={field.key} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                      <td className="border p-1 text-white dark:text-ourovelho">{field.label}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
                       <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
+                {/* Especialistas On-Demand: múltiplos SLAs */}
+                {config.slug === 'comex-on-demand' && ['start','pro','critical'].map(sla => {
+                  const hours = values['hours'] && values['service_level'] === sla ? values['hours'] : 0;
+                  if (!hours) return null;
+                  const rates: Record<string, number> = { start: 390, pro: 490, critical: 650 };
+                  const value = rates[sla] * hours;
+                  const perc = finalTotal ? (value / finalTotal) * 100 : 0;
+                  return (
+                    <tr key={sla} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                      <td className="border p-1 text-white dark:text-ourovelho">{sla.charAt(0).toUpperCase() + sla.slice(1)} (Especialista)</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {value.toLocaleString('pt-BR')}</td>
+                      <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(value)}</td>
+                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                    </tr>
+                  );
+                })}
+                {/* Serviços adicionais */}
                 {extras.map((l) => {
                   const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+                  const perc = finalTotal ? (subtotal / finalTotal) * 100 : 0;
                   return (
                     <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                       <td className="border p-1 text-white dark:text-ourovelho">{l.description || 'Outro custo'}</td>
                       <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
                       <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(subtotal)}</td>
-                      <td className="border p-1 text-xs text-white dark:text-ourovelho"></td>
+                      <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
+                {/* Impostos habilitados */}
                 {taxRates.filter(tax => tax.enabled).map((tax, idx) => {
                   const taxAmount = subtotalAfterDiscount * (tax.rate / 100);
+                  const perc = finalTotal ? (taxAmount / finalTotal) * 100 : 0;
                   return (
-                    <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
+                    <tr key={tax.type} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                       <td className="border p-1 text-yellow-800 dark:text-ourovelho">{tax.type} ({tax.rate}%)</td>
                       <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td className="border p-1 text-right text-yellow-800 dark:text-ourovelho">{convertToForeign(taxAmount)}</td>
-                      <td className="border p-1 text-xs text-yellow-800 dark:text-ourovelho"></td>
+                      <td className="border p-1 text-xs text-yellow-800 dark:text-ourovelho">{perc.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
