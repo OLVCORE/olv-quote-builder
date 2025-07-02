@@ -4,6 +4,7 @@ import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
+import { AdminProvider } from './AdminContext';
 
 function TabsWithAdmin() {
   // Lista de abas (garantir espaço para 8 serviços)
@@ -136,6 +137,8 @@ function TabsWithAdmin() {
 
 export default function SimulatorTabs() {
   return (
-    <TabsWithAdmin />
+    <AdminProvider>
+      <TabsWithAdmin />
+    </AdminProvider>
   );
 } 
