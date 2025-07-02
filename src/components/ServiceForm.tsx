@@ -426,7 +426,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                 <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                   <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
                   <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
-                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} readOnly={!admin} /></td>
+                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} /></td>
                   <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
                   <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
                   <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
