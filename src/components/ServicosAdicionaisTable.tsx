@@ -3,7 +3,7 @@ import { FaPlus, FaTrash } from 'react-icons/fa';
 
 interface LinhaAdicional {
   descricao: string;
-  valor: number;
+  valor: string;
 }
 
 interface Props {
@@ -14,14 +14,14 @@ interface Props {
 export default function ServicosAdicionaisTable({ values, setValues }: Props) {
   // Inicializa linhas adicionais se não existir
   const linhas: LinhaAdicional[] = values.linhasAdicionais || [
-    { descricao: '', valor: 0 }
+    { descricao: '', valor: '' }
   ];
 
   // Adiciona nova linha
   const adicionarLinha = () => {
     setValues((prev) => ({
       ...prev,
-      linhasAdicionais: [...linhas, { descricao: '', valor: 0 }]
+      linhasAdicionais: [...linhas, { descricao: '', valor: '' }]
     }));
   };
 
@@ -38,7 +38,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
     setValues((prev) => ({
       ...prev,
       linhasAdicionais: linhas.map((linha, i) =>
-        i === idx ? { ...linha, [campo]: campo === 'valor' ? Number(valor) : valor } : linha
+        i === idx ? { ...linha, [campo]: valor } : linha
       )
     }));
   };
@@ -51,8 +51,8 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
       <table className="w-full text-sm mb-2">
         <thead>
           <tr className="bg-ourovelho/20">
-            <th className="p-2 text-left">Descrição <span title='Descreva o serviço adicional' className='text-xs text-ourovelho'>🛈</span></th>
-            <th className="p-2 text-left">Valor (BRL) <span title='Valor do serviço adicional' className='text-xs text-ourovelho'>🛈</span></th>
+            <th className="p-2 text-left">Descrição <span title='Descreva o serviço adicional. Exemplo: "Despacho aduaneiro".' className='text-xs text-ourovelho'>🛈</span></th>
+            <th className="p-2 text-left">Valor (BRL) <span title='Informe o valor do serviço adicional em reais.' className='text-xs text-ourovelho'>🛈</span></th>
             <th className="p-2"></th>
           </tr>
         </thead>
@@ -66,7 +66,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   onChange={e => atualizarLinha(idx, 'descricao', e.target.value)}
                   className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   placeholder="Descrição do serviço"
-                  title="Descreva o serviço adicional"
+                  title="Descreva o serviço adicional. Exemplo: 'Despacho aduaneiro'."
                 />
               </td>
               <td className="p-2">
@@ -77,7 +77,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   placeholder="0,00"
                   min={0}
-                  title="Valor do serviço adicional"
+                  title="Informe o valor do serviço adicional em reais."
                 />
               </td>
               <td className="p-2 text-center">
