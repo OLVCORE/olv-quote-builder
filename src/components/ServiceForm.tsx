@@ -6,6 +6,8 @@ import { useRates, Currency } from '@/lib/useRates';
 import { getTabelaTarifas } from '@/lib/tarifas';
 import TabelaTarifasComponent from './TabelaTarifas';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
+import { generateProposalPDF } from '@/lib/utils/pdfGenerator';
+import { CalculationResult, ClientData, ServiceType } from '@/lib/types/simulator';
 
 type ExtraCost = {
   id: string;
@@ -83,6 +85,27 @@ function getTemplates(key = 'quote_templates'): any[] {
 }
 function saveTemplates(templates: any[], key = 'quote_templates') {
   localStorage.setItem(key, JSON.stringify(templates));
+}
+
+// Adicionar componente para preview do PDF
+function PdfPreviewer({ calculations, clientData }: { calculations: CalculationResult, clientData: ClientData }) {
+  const [url, setUrl] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    let revoked = false;
+    generateProposalPDF(calculations, clientData).then(blob => {
+      if (!revoked) {
+        const objectUrl = URL.createObjectURL(blob);
+        setUrl(objectUrl);
+      }
+    });
+    return () => {
+      revoked = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculations, clientData]);
+  if (!url) return <div className="text-center text-gray-500">Gerando prévia do PDF...</div>;
+  return <iframe src={url} title="Prévia PDF" className="w-full h-full min-h-[60vh] rounded border" />;
 }
 
 export default function ServiceForm({ config, currency, customRate }: Props) {
@@ -288,11 +311,304 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     saveTemplates(updated);
   }
 
+  // Estado para preview do PDF
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  // Estado para envio por e-mail
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailData, setEmailData] = useState({ to: '', subject: '', message: '' });
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  // Estado para histórico de versões
+  const [versions, setVersions] = useState<any[]>([]);
+  const [showVersionsModal, setShowVersionsModal] = useState(false);
+  // Estado para comentários internos
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  // Estado para personalização visual
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [themeConfig, setThemeConfig] = useState({
+    primaryColor: '#1e3a8a', // olvblue
+    secondaryColor: '#d4af37', // ourovelho
+    accentColor: '#059669', // emerald
+    backgroundColor: '#ffffff',
+    textColor: '#1f2937',
+    borderRadius: '12px',
+    fontFamily: 'Inter'
+  });
+  const [previewTheme, setPreviewTheme] = useState(themeConfig);
+
+  // Função para enviar PDF por e-mail
+  const sendEmail = async () => {
+    if (!emailData.to || !emailData.subject) {
+      alert('Preencha o e-mail e assunto obrigatórios.');
+      return;
+    }
+    
+    setEmailStatus('sending');
+    try {
+      const calculations = {
+        items: [
+          {
+            id: config.slug,
+            name: config.name,
+            description: config.description,
+            valueBRL: baseResult.total,
+            valueForeign: baseResult.total * (customRate ? Number(customRate) : 1),
+            duration: '',
+            type: 'fixed' as ServiceType,
+            breakdown: baseResult.breakdown
+          },
+          ...extras.map((l) => ({
+            id: l.id,
+            name: l.description,
+            description: l.description,
+            valueBRL: l.qty * l.unit * (1 - l.discount / 100),
+            valueForeign: (l.qty * l.unit * (1 - l.discount / 100)) * (customRate ? Number(customRate) : 1),
+            duration: '',
+            type: 'fixed' as ServiceType,
+            breakdown: {}
+          }))
+        ],
+        totalBRL: baseResult.total + extrasTotal,
+        totalForeign: (baseResult.total + extrasTotal) * (customRate ? Number(customRate) : 1),
+        totalDuration: '',
+        currency: (['BRL','USD','EUR','CNY'].includes(currency) ? currency : 'BRL') as 'BRL' | 'USD' | 'EUR' | 'CNY',
+        exchangeRate: customRate ? Number(customRate) : 1
+      };
+      
+      const clientData = {
+        nome: values.nome || 'Cliente Exemplo',
+        empresa: values.empresa || 'Empresa Exemplo',
+        cnpj: values.cnpj || '00.000.000/0000-00',
+        email: values.email || 'cliente@exemplo.com',
+        telefone: values.telefone || '',
+      };
+      
+      const response = await fetch('/api/quote/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: emailData.to,
+          subject: emailData.subject,
+          message: emailData.message,
+          calculations,
+          clientData
+        })
+      });
+      
+      if (response.ok) {
+        setEmailStatus('success');
+        setTimeout(() => {
+          setShowEmailModal(false);
+          setEmailStatus('idle');
+          setEmailData({ to: '', subject: '', message: '' });
+        }, 2000);
+      } else {
+        throw new Error('Falha no envio');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      setEmailStatus('error');
+      setTimeout(() => setEmailStatus('idle'), 3000);
+    }
+  };
+
+  // Função para salvar versão atual
+  const saveVersion = () => {
+    const newVersion = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      name: `Versão ${versions.length + 1} - ${new Date().toLocaleString('pt-BR')}`,
+      data: {
+        values,
+        extras,
+        globalDiscount,
+        taxRates,
+        currency,
+        customRate
+      }
+    };
+    
+    const updatedVersions = [...versions, newVersion];
+    setVersions(updatedVersions);
+    localStorage.setItem('quote_versions', JSON.stringify(updatedVersions));
+    
+    alert('Versão salva com sucesso!');
+  };
+  
+  // Função para restaurar versão
+  const restoreVersion = (version: any) => {
+    if (confirm('Deseja restaurar esta versão? Os dados atuais serão perdidos.')) {
+      setValues(version.data.values);
+      setExtras(version.data.extras);
+      setGlobalDiscount(version.data.globalDiscount);
+      setTaxRates(version.data.taxRates);
+      setShowVersionsModal(false);
+      alert('Versão restaurada com sucesso!');
+    }
+  };
+  
+  // Função para remover versão
+  const removeVersion = (versionId: number) => {
+    if (confirm('Deseja remover esta versão?')) {
+      const updatedVersions = versions.filter(v => v.id !== versionId);
+      setVersions(updatedVersions);
+      localStorage.setItem('quote_versions', JSON.stringify(updatedVersions));
+    }
+  };
+  
+  // Carregar versões salvas
+  React.useEffect(() => {
+    const savedVersions = localStorage.getItem('quote_versions');
+    if (savedVersions) {
+      try {
+        setVersions(JSON.parse(savedVersions));
+      } catch (error) {
+        console.error('Erro ao carregar versões:', error);
+      }
+    }
+  }, []);
+
+  // Função para adicionar comentário
+  const addComment = () => {
+    if (!newComment.trim()) return;
+    
+    const comment = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      text: newComment.trim(),
+      author: 'Usuário' // Em produção, usar dados do usuário logado
+    };
+    
+    const updatedComments = [...comments, comment];
+    setComments(updatedComments);
+    localStorage.setItem('quote_comments', JSON.stringify(updatedComments));
+    setNewComment('');
+  };
+  
+  // Função para remover comentário
+  const removeComment = (commentId: number) => {
+    if (confirm('Deseja remover este comentário?')) {
+      const updatedComments = comments.filter(c => c.id !== commentId);
+      setComments(updatedComments);
+      localStorage.setItem('quote_comments', JSON.stringify(updatedComments));
+    }
+  };
+  
+  // Carregar comentários salvos
+  React.useEffect(() => {
+    const savedComments = localStorage.getItem('quote_comments');
+    if (savedComments) {
+      try {
+        setComments(JSON.parse(savedComments));
+      } catch (error) {
+        console.error('Erro ao carregar comentários:', error);
+      }
+    }
+  }, []);
+
+  // Função para aplicar tema
+  const applyTheme = () => {
+    setThemeConfig(previewTheme);
+    localStorage.setItem('quote_theme', JSON.stringify(previewTheme));
+    setShowThemeModal(false);
+  };
+  
+  // Função para resetar tema
+  const resetTheme = () => {
+    const defaultTheme = {
+      primaryColor: '#1e3a8a',
+      secondaryColor: '#d4af37',
+      accentColor: '#059669',
+      backgroundColor: '#ffffff',
+      textColor: '#1f2937',
+      borderRadius: '12px',
+      fontFamily: 'Inter'
+    };
+    setPreviewTheme(defaultTheme);
+  };
+  
+  // Carregar tema salvo
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('quote_theme');
+    if (savedTheme) {
+      try {
+        const theme = JSON.parse(savedTheme);
+        setThemeConfig(theme);
+        setPreviewTheme(theme);
+      } catch (error) {
+        console.error('Erro ao carregar tema:', error);
+      }
+    }
+  }, []);
+  
+  // Aplicar estilos dinâmicos
+  const dynamicStyles = {
+    '--primary-color': themeConfig.primaryColor,
+    '--secondary-color': themeConfig.secondaryColor,
+    '--accent-color': themeConfig.accentColor,
+    '--bg-color': themeConfig.backgroundColor,
+    '--text-color': themeConfig.textColor,
+    '--border-radius': themeConfig.borderRadius,
+    '--font-family': themeConfig.fontFamily
+  } as React.CSSProperties;
+
+  // Estado para simulação rápida
+  const [quickMode, setQuickMode] = useState(false);
+  const [quickData, setQuickData] = useState({
+    serviceType: 'pme-comex',
+    cifValue: 500000,
+    volume: 50,
+    urgency: 'normal'
+  });
+  
+  // Templates de simulação rápida
+  const quickTemplates = {
+    'pme-comex': { base: 15000, retainer: 7000, extras: 5000 },
+    'comex-on-demand': { base: 1950, retainer: 0, extras: 0 }, // 5h * 390
+    '3pl-turnkey': { base: 7000, retainer: 1000, extras: 0 }, // 7k + 1% CIF
+    'end-to-end': { base: 6500, retainer: 34800, extras: 0 }, // setup + 12 meses
+    'in-house': { base: 35000, retainer: 114000, extras: 0 } // setup + 12 meses
+  };
+  
+  // Cálculo rápido
+  const quickCalculation = () => {
+    const template = quickTemplates[quickData.serviceType as keyof typeof quickTemplates];
+    let total = template.base + template.retainer + template.extras;
+    
+    // Ajustes baseados no volume/CIF
+    if (quickData.serviceType === 'pme-comex') {
+      total += quickData.cifValue * 0.02; // 2% sobre CIF
+    } else if (quickData.serviceType === '3pl-turnkey') {
+      total += quickData.cifValue * 0.01; // 1% sobre CIF
+    }
+    
+    // Ajuste por urgência
+    if (quickData.urgency === 'high') total *= 1.2;
+    if (quickData.urgency === 'low') total *= 0.9;
+    
+    return Math.round(total);
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-2 sm:px-4 md:px-6">
       {/* Barra de templates */}
       <div className="flex flex-wrap items-center gap-4 mb-2">
         <button onClick={() => setShowTemplateModal(true)} className="bg-accent-light dark:bg-accent-dark text-white px-4 py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">Salvar como Template</button>
+        <button onClick={saveVersion} className="bg-purple-600 dark:bg-purple-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-purple-700 dark:hover:bg-purple-800">💾 Salvar Versão</button>
+        <button onClick={() => setShowVersionsModal(true)} className="bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-indigo-700 dark:hover:bg-indigo-800">📋 Histórico ({versions.length})</button>
+        <button onClick={() => setShowCommentsModal(true)} className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-orange-700 dark:hover:bg-orange-800">💬 Comentários ({comments.length})</button>
+        <button onClick={() => setShowThemeModal(true)} className="bg-pink-600 dark:bg-pink-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-pink-700 dark:hover:bg-pink-800">🎨 Personalizar</button>
+        <button 
+          onClick={() => setQuickMode(!quickMode)} 
+          className={`px-4 py-2 rounded font-bold shadow transition-colors ${
+            quickMode 
+              ? 'bg-green-600 hover:bg-green-700 text-white' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          {quickMode ? '⚡ Modo Expresso Ativo' : '⚡ Modo Expresso'}
+        </button>
         {templates.length > 0 && (
           <div className="flex items-center gap-2">
             <span className="text-white dark:text-ourovelho font-semibold">Templates:</span>
@@ -316,6 +632,536 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             <div className="flex gap-2 mt-2">
               <button onClick={handleSaveTemplate} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-bold">Salvar</button>
               <button onClick={() => setShowTemplateModal(false)} className="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 rounded font-bold">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de preview do PDF */}
+      {showPdfPreview && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 rounded-xl shadow-2xl max-w-4xl w-full h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Prévia do PDF</h3>
+              <button onClick={() => setShowPdfPreview(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            <div className="flex-1 overflow-auto border rounded bg-slate-100 dark:bg-bg-dark-tertiary p-2">
+              {/* Renderização do PDF em tela */}
+              <PdfPreviewer 
+                calculations={{
+                  items: [
+                    {
+                      id: config.slug,
+                      name: config.name,
+                      description: config.description,
+                      valueBRL: baseResult.total,
+                      valueForeign: baseResult.total * (customRate ? Number(customRate) : 1),
+                      duration: '',
+                      type: 'fixed' as ServiceType,
+                      breakdown: baseResult.breakdown
+                    },
+                    ...extras.map((l) => ({
+                      id: l.id,
+                      name: l.description,
+                      description: l.description,
+                      valueBRL: l.qty * l.unit * (1 - l.discount / 100),
+                      valueForeign: (l.qty * l.unit * (1 - l.discount / 100)) * (customRate ? Number(customRate) : 1),
+                      duration: '',
+                      type: 'fixed' as ServiceType,
+                      breakdown: {}
+                    }))
+                  ],
+                  totalBRL: baseResult.total + extrasTotal,
+                  totalForeign: (baseResult.total + extrasTotal) * (customRate ? Number(customRate) : 1),
+                  totalDuration: '',
+                  currency: (['BRL','USD','EUR','CNY'].includes(currency) ? currency : 'BRL') as 'BRL' | 'USD' | 'EUR' | 'CNY',
+                  exchangeRate: customRate ? Number(customRate) : 1
+                }}
+                clientData={{
+                  nome: values.nome || 'Cliente Exemplo',
+                  empresa: values.empresa || 'Empresa Exemplo',
+                  cnpj: values.cnpj || '00.000.000/0000-00',
+                  email: values.email || 'cliente@exemplo.com',
+                  telefone: values.telefone || '',
+                }}
+              />
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button onClick={exportToPDF} className="flex-1 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFilePdf /> Exportar PDF</button>
+              <button onClick={() => setShowEmailModal(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2">📧 Enviar E-mail</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de envio por e-mail */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Enviar Proposta por E-mail</h3>
+              <button onClick={() => setShowEmailModal(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">E-mail do Destinatário *</label>
+                <input
+                  type="email"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                  value={emailData.to}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, to: e.target.value }))}
+                  placeholder="cliente@empresa.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Assunto *</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                  value={emailData.subject}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Proposta Comercial OLV Internacional"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Mensagem (opcional)</label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                  rows={4}
+                  value={emailData.message}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Prezado cliente, segue em anexo nossa proposta comercial..."
+                />
+              </div>
+              
+              {emailStatus === 'sending' && (
+                <div className="text-center text-blue-600 dark:text-blue-400">Enviando e-mail...</div>
+              )}
+              
+              {emailStatus === 'success' && (
+                <div className="text-center text-green-600 dark:text-green-400 font-semibold">✓ E-mail enviado com sucesso!</div>
+              )}
+              
+              {emailStatus === 'error' && (
+                <div className="text-center text-red-600 dark:text-red-400 font-semibold">✗ Erro ao enviar e-mail. Tente novamente.</div>
+              )}
+              
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={sendEmail}
+                  disabled={emailStatus === 'sending'}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-colors text-white py-2 rounded font-bold"
+                >
+                  {emailStatus === 'sending' ? 'Enviando...' : 'Enviar E-mail'}
+                </button>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 transition-colors text-white py-2 rounded font-bold"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de histórico de versões */}
+      {showVersionsModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Histórico de Versões</h3>
+              <button onClick={() => setShowVersionsModal(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            
+            {versions.length === 0 ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                Nenhuma versão salva ainda.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {versions.map((version) => (
+                  <div key={version.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-bg-dark-tertiary rounded border">
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">{version.name}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {new Date(version.timestamp).toLocaleString('pt-BR')}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => restoreVersion(version)}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+                      >
+                        Restaurar
+                      </button>
+                      <button
+                        onClick={() => removeVersion(version.id)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowVersionsModal(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de comentários internos */}
+      {showCommentsModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Comentários Internos</h3>
+              <button onClick={() => setShowCommentsModal(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            
+            {/* Adicionar novo comentário */}
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-bg-dark-tertiary rounded">
+              <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Novo Comentário</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                rows={3}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Adicione um comentário interno sobre esta proposta..."
+              />
+              <div className="flex justify-end mt-2">
+                <button
+                  onClick={addComment}
+                  disabled={!newComment.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded font-semibold"
+                >
+                  Adicionar Comentário
+                </button>
+              </div>
+            </div>
+            
+            {/* Lista de comentários */}
+            {comments.length === 0 ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                Nenhum comentário ainda.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="p-3 bg-gray-50 dark:bg-bg-dark-tertiary rounded border">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">{comment.author}</div>
+                      <button
+                        onClick={() => removeComment(comment.id)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="text-gray-700 dark:text-gray-300 mb-2">{comment.text}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(comment.timestamp).toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowCommentsModal(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de personalização visual */}
+      {showThemeModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Personalização Visual</h3>
+              <button onClick={() => setShowThemeModal(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Configurações */}
+              <div className="space-y-6">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">Configurações</h4>
+                
+                {/* Cores */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Cor Primária</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={previewTheme.primaryColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
+                        className="w-12 h-10 rounded border"
+                      />
+                      <input
+                        type="text"
+                        value={previewTheme.primaryColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                        placeholder="#1e3a8a"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Cor Secundária</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={previewTheme.secondaryColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                        className="w-12 h-10 rounded border"
+                      />
+                      <input
+                        type="text"
+                        value={previewTheme.secondaryColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                        placeholder="#d4af37"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Cor de Destaque</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={previewTheme.accentColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, accentColor: e.target.value }))}
+                        className="w-12 h-10 rounded border"
+                      />
+                      <input
+                        type="text"
+                        value={previewTheme.accentColor}
+                        onChange={(e) => setPreviewTheme(prev => ({ ...prev, accentColor: e.target.value }))}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                        placeholder="#059669"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Outras configurações */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Raio das Bordas</label>
+                    <select
+                      value={previewTheme.borderRadius}
+                      onChange={(e) => setPreviewTheme(prev => ({ ...prev, borderRadius: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="0px">Sem bordas</option>
+                      <option value="4px">Pequeno</option>
+                      <option value="8px">Médio</option>
+                      <option value="12px">Grande</option>
+                      <option value="16px">Extra Grande</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Fonte</label>
+                    <select
+                      value={previewTheme.fontFamily}
+                      onChange={(e) => setPreviewTheme(prev => ({ ...prev, fontFamily: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="Inter">Inter (Padrão)</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Open Sans">Open Sans</option>
+                      <option value="Lato">Lato</option>
+                      <option value="Poppins">Poppins</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {/* Botões de ação */}
+                <div className="flex gap-2 pt-4">
+                  <button
+                    onClick={applyTheme}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-bold"
+                  >
+                    Aplicar Tema
+                  </button>
+                  <button
+                    onClick={resetTheme}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold"
+                  >
+                    Resetar
+                  </button>
+                </div>
+              </div>
+              
+              {/* Preview */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Preview</h4>
+                <div 
+                  className="p-4 rounded border"
+                  style={{
+                    backgroundColor: previewTheme.backgroundColor,
+                    color: previewTheme.textColor,
+                    borderRadius: previewTheme.borderRadius,
+                    fontFamily: previewTheme.fontFamily
+                  }}
+                >
+                  <div className="space-y-3">
+                    <div 
+                      className="p-3 rounded"
+                      style={{ backgroundColor: previewTheme.primaryColor, color: 'white' }}
+                    >
+                      <h5 className="font-bold">Cabeçalho Principal</h5>
+                      <p className="text-sm opacity-90">Exemplo de área com cor primária</p>
+                    </div>
+                    
+                    <div 
+                      className="p-3 rounded border"
+                      style={{ borderColor: previewTheme.secondaryColor }}
+                    >
+                      <h5 className="font-bold" style={{ color: previewTheme.secondaryColor }}>Área Secundária</h5>
+                      <p className="text-sm">Exemplo de área com cor secundária</p>
+                    </div>
+                    
+                    <button 
+                      className="px-4 py-2 rounded font-bold text-white"
+                      style={{ backgroundColor: previewTheme.accentColor }}
+                    >
+                      Botão de Destaque
+                    </button>
+                    
+                    <div className="text-sm text-gray-600">
+                      <p>Texto secundário para demonstração</p>
+                      <p>Fonte: {previewTheme.fontFamily}</p>
+                      <p>Bordas: {previewTheme.borderRadius}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Interface de simulação rápida */}
+      {quickMode && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">⚡ Simulação Rápida</h3>
+              <button onClick={() => setQuickMode(false)} className="text-red-600 font-bold text-xl">✕</button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Tipo de serviço */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Tipo de Serviço</label>
+                <select
+                  value={quickData.serviceType}
+                  onChange={(e) => setQuickData(prev => ({ ...prev, serviceType: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                >
+                  <option value="pme-comex">PME COMEX Ready</option>
+                  <option value="comex-on-demand">Especialistas On-Demand</option>
+                  <option value="3pl-turnkey">Logística 3PL Turnkey</option>
+                  <option value="end-to-end">Logística End-to-End</option>
+                  <option value="in-house">Implantação In-House</option>
+                </select>
+              </div>
+              
+              {/* Valor CIF/Volume */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                  {quickData.serviceType === 'comex-on-demand' ? 'Horas Estimadas' : 'Valor CIF Anual (R$)'}
+                </label>
+                <input
+                  type="number"
+                  value={quickData.cifValue}
+                  onChange={(e) => setQuickData(prev => ({ ...prev, cifValue: Number(e.target.value) }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                  placeholder={quickData.serviceType === 'comex-on-demand' ? '5' : '500000'}
+                />
+              </div>
+              
+              {/* Volume (se aplicável) */}
+              {quickData.serviceType !== 'comex-on-demand' && (
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Volume (TEU/ton)</label>
+                  <input
+                    type="number"
+                    value={quickData.volume}
+                    onChange={(e) => setQuickData(prev => ({ ...prev, volume: Number(e.target.value) }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                    placeholder="50"
+                  />
+                </div>
+              )}
+              
+              {/* Urgência */}
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Nível de Urgência</label>
+                <select
+                  value={quickData.urgency}
+                  onChange={(e) => setQuickData(prev => ({ ...prev, urgency: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-bg-dark-tertiary text-gray-900 dark:text-gray-100"
+                >
+                  <option value="low">Baixa (-10%)</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">Alta (+20%)</option>
+                </select>
+              </div>
+              
+              {/* Resultado */}
+              <div className="p-4 bg-gray-50 dark:bg-bg-dark-tertiary rounded border">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Estimativa Rápida</h4>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  R$ {quickCalculation().toLocaleString('pt-BR')}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Baseado em parâmetros padrão do mercado
+                </div>
+              </div>
+              
+              {/* Ações */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    // Aplicar dados ao formulário principal
+                    setValues({
+                      cif: quickData.cifValue,
+                      import_volume: quickData.volume,
+                      service_level: 'start',
+                      hours: quickData.cifValue
+                    });
+                    setQuickMode(false);
+                  }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold"
+                >
+                  Usar no Formulário Completo
+                </button>
+                <button
+                  onClick={() => setQuickMode(false)}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -547,6 +1393,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                   <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex gap-2 mt-4">
+                  <button onClick={() => setShowPdfPreview(true)} className="flex-1 bg-slate-500 hover:bg-slate-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFilePdf /> Preview PDF</button>
                   <button onClick={exportToPDF} className="flex-1 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFilePdf /> PDF</button>
                   <button onClick={exportToExcel} className="flex-1 bg-accent-light hover:bg-accent-light-hover transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFileExcel /> XLSX</button>
                 </div>
