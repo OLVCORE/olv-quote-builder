@@ -95,15 +95,9 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   };
 
   const updateExtra = (id: string, key: keyof ExtraCost, value: any) => {
-    // Validate discount permissions
-    if (key === 'discount' && value > 5 && !admin) {
-      const pwd = prompt('Desconto acima de 5% requer aprovação. Senha do gerente:');
-      if (pwd === 'olvadmin') {
-        enableAdmin();
-      } else {
-        alert('Senha incorreta');
-        return;
-      }
+    // Permitir desconto acima de 5% para qualquer usuário, apenas exibir aviso
+    if (key === 'discount' && value > 5) {
+      alert('Atenção: descontos acima de 5% devem ser usados com critério.');
     }
     setExtras((prev) => prev.map((l) => (l.id === id ? { ...l, [key]: value } : l)));
   };
@@ -113,13 +107,9 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   const [globalDiscount, setGlobalDiscount] = useState<number>(0);
 
   const handleGlobalDiscount = (val: number) => {
-    if (!admin && val > 5) {
-      const pwd = prompt('Desconto acima de 5% requer aprovação. Senha do gerente:');
-      if (pwd === 'olvadmin') {
-        enableAdmin();
-      } else {
-        alert('Senha incorreta');
-      }
+    // Permitir desconto global acima de 5% para qualquer usuário, apenas exibir aviso
+    if (val > 5) {
+      alert('Atenção: descontos acima de 5% devem ser usados com critério.');
     }
     setGlobalDiscount(val);
   };
