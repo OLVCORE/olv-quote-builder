@@ -44,13 +44,13 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
   };
 
   return (
-    <div className="mb-2">
-      <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-1 flex items-center gap-2">
+    <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+      <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
         <span className="text-ourovelho"><FaPlus size={14} /></span> Serviços Adicionais
       </h3>
       <table className="w-full text-sm mb-2">
         <thead>
-          <tr className="bg-ourovelho/20">
+          <tr className="bg-ourovelho/10 dark:bg-olvblue/20">
             <th className="p-2 text-left">Descrição <span title='Descreva o serviço adicional. Exemplo: "Despacho aduaneiro".' className='text-xs text-ourovelho'>🛈</span></th>
             <th className="p-2 text-left">Valor (BRL) <span title='Informe o valor do serviço adicional em reais.' className='text-xs text-ourovelho'>🛈</span></th>
             <th className="p-2"></th>
@@ -58,13 +58,13 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
         </thead>
         <tbody>
           {linhas.map((linha, idx) => (
-            <tr key={idx} className="even:bg-olvblue/80 dark:even:bg-bg-dark-tertiary">
+            <tr key={idx} className="even:bg-olvblue/10 dark:even:bg-bg-dark-tertiary">
               <td className="p-2">
                 <input
                   type="text"
                   value={linha.descricao}
                   onChange={e => atualizarLinha(idx, 'descricao', e.target.value)}
-                  className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  className="w-full px-2 py-1 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
                   placeholder="Descrição do serviço"
                   title="Descreva o serviço adicional. Exemplo: 'Despacho aduaneiro'."
                 />
@@ -74,7 +74,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   type="number"
                   value={linha.valor}
                   onChange={e => atualizarLinha(idx, 'valor', e.target.value)}
-                  className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  className="w-full px-2 py-1 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
                   placeholder="0,00"
                   min={0}
                   title="Informe o valor do serviço adicional em reais."

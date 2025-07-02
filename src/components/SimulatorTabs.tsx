@@ -142,7 +142,7 @@ function TabsWithAdmin() {
             <ServiceForm config={allServices[6]} currency={currency} customRate={customRate} />
           </Collapsible>
         </Tabs.Content>
-        <Tabs.Content value="servicos-adicionais" className="pt-4">
+        <Tabs.Content value="servicos-adicionais" className="pt-4" style={{display: selectedTab === 'servicos-adicionais' ? 'block' : 'none'}}>
           {allServices[7].inputs && allServices[7].inputs.length > 0 ? (
             <Collapsible title="2. Serviços Adicionais">
               <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />

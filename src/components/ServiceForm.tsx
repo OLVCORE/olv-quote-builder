@@ -139,7 +139,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
               type={input.type}
               value={values[input.key] || ''}
               onChange={(e) => handleChange(input, e.target.value)}
-              className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              className="w-full px-3 py-2 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
               placeholder={input.label}
             />
           </div>
@@ -153,8 +153,8 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     const breakdown = baseResult.breakdown || {};
     if (!breakdown || Object.keys(breakdown).length === 0) return null;
     return (
-      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Breakdown Detalhado</h3>
+      <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+        <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Breakdown Detalhado</h3>
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-ourovelho/20">
@@ -178,15 +178,15 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   // Tabela de tarifas (quando aplicável)
   const tabela = getTabelaTarifas(config.slug);
   const renderTabelaTarifas = () => (
-    tabela && <div className="mb-6">
+    tabela && <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
       <TabelaTarifas tabela={tabela} currency={currency} customRate={customRate} />
     </div>
   );
 
   // Seção Serviços Principais
   const renderServicosPrincipais = () => (
-    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Serviços Principais</h3>
+    <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+      <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Serviços Principais</h3>
       {renderInputs()}
     </div>
   );
@@ -199,8 +199,8 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   const adicionarImposto = () => setImpostos(imps => [...imps, { nome: '', valor: '' }]);
   const removerImposto = (idx: number) => setImpostos(imps => imps.filter((_, i) => i !== idx));
   const renderImpostos = () => (
-    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">
+    <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+      <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">
         Impostos <span className="text-xs text-ourovelho" title="Impostos são calculados em cascata: cada imposto incide sobre o subtotal anterior, conforme legislação brasileira.">🛈</span>
       </h3>
       <table className="w-full text-sm mb-2">
@@ -219,7 +219,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                   type="text"
                   value={imp.nome}
                   onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
-                  className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  className="w-full px-2 py-1 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
                   placeholder="Nome do imposto"
                   title="Nome do imposto (ex: ISS, ICMS, PIS, COFINS)"
                 />
@@ -229,7 +229,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                   type="number"
                   value={imp.valor}
                   onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: e.target.value } : i))}
-                  className="w-24 px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  className="w-24 px-2 py-1 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
                   placeholder="0,00"
                   min={0}
                   max={100}
@@ -266,12 +266,12 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   // Seção Observações Gerais
   const [observacoes, setObservacoes] = useState('');
   const renderObservacoes = () => (
-    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Observações Gerais</h3>
+    <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+      <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Observações Gerais</h3>
       <textarea
         value={observacoes}
         onChange={e => setObservacoes(e.target.value)}
-        className="w-full min-h-[60px] px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+        className="w-full min-h-[60px] px-3 py-2 rounded border border-olvblue dark:border-ourovelho bg-white dark:bg-[#232a3d] text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-olvblue dark:focus:ring-ourovelho"
         placeholder="Digite observações, condições ou notas gerais da proposta..."
       />
     </div>
@@ -328,8 +328,8 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     }
 
     return (
-      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6 overflow-x-auto">
-        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Resultado Detalhado</h3>
+      <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+        <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Resultado Detalhado</h3>
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-ourovelho/20">
