@@ -203,8 +203,9 @@ export const services: ServiceConfig[] = [
       const treinamento = (v.treinamento || 0) * 350;
       const software = (v.software || 0) * 1200;
       const seguro = (v.seguro || 0) * 0.008;
-      const total = iso + treinamento + software + seguro;
-      return { total, breakdown: { iso, treinamento, software, seguro } };
+      const adicionais = (v.linhasAdicionais || []).reduce((sum: number, linha: any) => sum + (Number(linha.valor) || 0), 0);
+      const total = iso + treinamento + software + seguro + adicionais;
+      return { total, breakdown: { iso, treinamento, software, seguro, adicionais } };
     },
   },
 ];

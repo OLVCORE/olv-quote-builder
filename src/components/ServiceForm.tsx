@@ -7,6 +7,7 @@ import { FaFilePdf, FaFileExcel, FaSync } from 'react-icons/fa';
 import { addSyncRecordToHistory } from './CRMSyncHistory';
 import TabelaTarifas from './TabelaTarifas';
 import { getTabelaTarifas } from '@/lib/tarifas';
+import ServicosAdicionaisTable from './ServicosAdicionaisTable';
 
 interface Props {
   config: ServiceConfig;
@@ -120,24 +121,31 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   };
 
   // Renderização dos campos dinâmicos
-  const renderInputs = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      {config.inputs.map((input) => (
-        <div key={input.key} className="space-y-2">
-          <label className="block text-sm font-semibold text-white dark:text-ourovelho">
-            {input.label}
-          </label>
-          <input
-            type={input.type}
-            value={values[input.key] || ''}
-            onChange={(e) => handleChange(input, e.target.value)}
-            className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
-            placeholder={input.label}
-          />
-        </div>
-      ))}
-    </div>
-  );
+  const renderInputs = () => {
+    // Se for Serviços Adicionais, renderiza tabela dinâmica
+    if (config.slug === 'servicos-adicionais') {
+      return <ServicosAdicionaisTable values={values} setValues={setValues} />;
+    }
+    // Caso contrário, renderiza inputs padrão
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        {config.inputs.map((input) => (
+          <div key={input.key} className="space-y-2">
+            <label className="block text-sm font-semibold text-white dark:text-ourovelho">
+              {input.label}
+            </label>
+            <input
+              type={input.type}
+              value={values[input.key] || ''}
+              onChange={(e) => handleChange(input, e.target.value)}
+              className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+              placeholder={input.label}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   // Breakdown detalhado
   const renderBreakdown = () => (
@@ -157,26 +165,105 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     </div>
   );
 
-  // Resultado e totais
-  const renderTotais = () => (
+  // Seção Serviços Principais
+  const renderServicosPrincipais = () => (
     <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Resultado</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Total (BRL):</span>
-          <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
-            R$ {baseResult.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </div>
-        </div>
-        {currency !== 'BRL' && (
+      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Serviços Principais</h3>
+      {renderInputs()}
+    </div>
+  );
+
+  // Seção Impostos
+  const [impostos, setImpostos] = useState([
+    { nome: 'ISS', valor: 0 },
+    { nome: 'IR', valor: 0 },
+  ]);
+  const renderImpostos = () => (
+    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
+      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Impostos</h3>
+      <table className="w-full text-sm mb-2">
+        <thead>
+          <tr className="bg-ourovelho/20">
+            <th className="p-2 text-left">Imposto</th>
+            <th className="p-2 text-left">Valor (BRL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {impostos.map((imp, idx) => (
+            <tr key={idx}>
+              <td className="p-2">{imp.nome}</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  value={imp.valor}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: val } : i));
+                  }}
+                  className="w-24 px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  min={0}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // Seção Observações Gerais
+  const [observacoes, setObservacoes] = useState('');
+  const renderObservacoes = () => (
+    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
+      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Observações Gerais</h3>
+      <textarea
+        value={observacoes}
+        onChange={e => setObservacoes(e.target.value)}
+        className="w-full min-h-[60px] px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+        placeholder="Digite observações, condições ou notas gerais da proposta..."
+      />
+    </div>
+  );
+
+  // Seção Resultados detalhados
+  const renderResultados = () => {
+    const totalImpostos = impostos.reduce((sum, i) => sum + Number(i.valor), 0);
+    return (
+      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Resultado</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Total ({currency}):</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Total Serviços:</span>
             <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
-              {convertToForeign(baseResult.total)}
+              R$ {baseResult.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
-        )}
+          <div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Total Impostos:</span>
+            <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
+              R$ {totalImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+          <div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Total Geral:</span>
+            <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
+              R$ {(baseResult.total + totalImpostos).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        </div>
       </div>
+    );
+  };
+
+  // Botões de ação avançados
+  const renderAcoesAvancadas = () => (
+    <div className="flex flex-wrap gap-2 mb-6">
+      <button className="bg-gray-700 text-white px-3 py-2 rounded font-bold" title="Salvar como Template">Salvar como Template</button>
+      <button className="bg-blue-700 text-white px-3 py-2 rounded font-bold" title="Salvar Versão">💾 Salvar Versão</button>
+      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Histórico">📋 Histórico (0)</button>
+      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Comentários">💬 Comentários (0)</button>
+      <button className="bg-yellow-600 text-white px-3 py-2 rounded font-bold" title="Personalizar">🎨 Personalizar</button>
+      <button className="bg-pink-600 text-white px-3 py-2 rounded font-bold" title="Modo Expresso">⚡ Modo Expresso</button>
     </div>
   );
 
@@ -197,15 +284,14 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
 
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
-      <div className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho p-4 sm:p-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-white dark:text-ourovelho mb-4">{config.name}</h2>
-        <p className="text-white/80 dark:text-ourovelho/80 mb-6">{config.description}</p>
-        {renderInputs()}
-        {renderBreakdown()}
-        {renderTabelaTarifas()}
-        {renderTotais()}
-        {renderAcoes()}
-      </div>
+      {renderAcoesAvancadas()}
+      {renderServicosPrincipais()}
+      {renderImpostos()}
+      {renderResultados()}
+      {renderBreakdown()}
+      {renderTabelaTarifas()}
+      {renderObservacoes()}
+      {renderAcoes()}
     </div>
   );
 }
