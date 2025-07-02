@@ -193,19 +193,21 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
 
   // Seção Impostos (dinâmica)
   const [impostos, setImpostos] = useState([
-    { nome: 'ISS', valor: 0 },
-    { nome: 'IR', valor: 0 },
+    { nome: 'ISS', valor: '' },
+    { nome: 'IR', valor: '' },
   ]);
-  const adicionarImposto = () => setImpostos(imps => [...imps, { nome: '', valor: 0 }]);
+  const adicionarImposto = () => setImpostos(imps => [...imps, { nome: '', valor: '' }]);
   const removerImposto = (idx: number) => setImpostos(imps => imps.filter((_, i) => i !== idx));
   const renderImpostos = () => (
     <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Impostos</h3>
+      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">
+        Impostos <span className="text-xs text-ourovelho" title="Impostos são calculados em cascata: cada imposto incide sobre o subtotal anterior, conforme legislação brasileira.">🛈</span>
+      </h3>
       <table className="w-full text-sm mb-2">
         <thead>
           <tr className="bg-ourovelho/20">
-            <th className="p-2 text-left">Imposto</th>
-            <th className="p-2 text-left">Valor (BRL)</th>
+            <th className="p-2 text-left">Imposto <span className="text-xs text-ourovelho" title="Nome do imposto (ex: ISS, ICMS, PIS, COFINS)">🛈</span></th>
+            <th className="p-2 text-left">Percentual (%) <span className="text-xs text-ourovelho" title="Percentual do imposto sobre o subtotal anterior">🛈</span></th>
             <th className="p-2"></th>
           </tr>
         </thead>
@@ -219,15 +221,20 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                   onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
                   className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   placeholder="Nome do imposto"
+                  title="Nome do imposto (ex: ISS, ICMS, PIS, COFINS)"
                 />
               </td>
               <td className="p-2">
                 <input
                   type="number"
                   value={imp.valor}
-                  onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: Number(e.target.value) } : i))}
+                  onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: e.target.value } : i))}
                   className="w-24 px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  placeholder="0,00"
                   min={0}
+                  max={100}
+                  step={0.01}
+                  title="Percentual do imposto sobre o subtotal anterior"
                 />
               </td>
               <td className="p-2 text-center">
@@ -249,6 +256,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
         type="button"
         onClick={adicionarImposto}
         className="bg-ourovelho text-olvblue font-bold px-4 py-2 rounded hover:bg-yellow-400"
+        title="Adicionar novo imposto"
       >
         + Imposto
       </button>
@@ -271,30 +279,99 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
 
   // Seção Resultados detalhados
   const renderResultados = () => {
-    const totalImpostos = impostos.reduce((sum, i) => sum + Number(i.valor), 0);
+    // 1. Serviços principais e adicionais (breakdown)
+    const breakdown = baseResult.breakdown || {};
+    const linhasServicos = Object.entries(breakdown)
+      .filter(([k, v]) => Number(v) > 0)
+      .map(([k, v]) => ({
+        tipo: 'servico',
+        descricao: k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        valor: Number(v)
+      }));
+
+    // 2. Serviços adicionais customizados (linhasAdicionais)
+    const linhasAdicionais = (values.linhasAdicionais || [])
+      .filter((linha: any) => linha && linha.descricao && Number(linha.valor) > 0)
+      .map((linha: any) => ({
+        tipo: 'adicional',
+        descricao: linha.descricao,
+        valor: Number(linha.valor)
+      }));
+
+    // 3. Soma base para impostos
+    const subtotalServicos = [...linhasServicos, ...linhasAdicionais].reduce((sum, l) => sum + l.valor, 0);
+
+    // 4. Impostos em cascata
+    let subtotal = subtotalServicos;
+    const linhasImpostos = impostos
+      .filter(imp => imp.nome && imp.valor && Number(imp.valor) > 0)
+      .map((imp, idx) => {
+        const valor = subtotal * (Number(imp.valor) / 100);
+        subtotal += valor;
+        return {
+          tipo: 'imposto',
+          descricao: imp.nome,
+          valor,
+          percentual: Number(imp.valor)
+        };
+      });
+
+    // 5. Linhas finais para exibição
+    const linhas = [
+      ...linhasServicos,
+      ...linhasAdicionais,
+      ...linhasImpostos
+    ];
+    const totalGeral = subtotal;
+
+    // 6. Conversão de moeda
+    const { convertValue, formatCurrency } = require('@/lib/utils/currency');
+    const exchangeRates = { BRL: 1, [currency]: conversionRate };
+    
+    function formatCurrencyValue(val: number) {
+      if (currency === 'BRL') return `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      const converted = convertValue(val, 'BRL', currency as any, exchangeRates);
+      return formatCurrency(converted, currency as any);
+    }
+
     return (
-      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Resultado</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Total Serviços:</span>
-            <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
-              R$ {baseResult.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Total Impostos:</span>
-            <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
-              R$ {totalImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Total Geral:</span>
-            <div className="text-xl font-bold text-olvblue dark:text-ourovelho">
-              R$ {(baseResult.total + totalImpostos).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-        </div>
+      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6 overflow-x-auto">
+        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Resultado Detalhado</h3>
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-ourovelho/20">
+              <th className="p-2 text-left">Item</th>
+              <th className="p-2 text-right">Valor (BRL)</th>
+              <th className="p-2 text-right">{currency !== 'BRL' ? `Valor (${currency})` : ''}</th>
+              <th className="p-2 text-right">% sobre total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map((linha, idx) => (
+              <tr key={idx} className={linha.tipo === 'imposto' ? 'bg-olvblue/10 dark:bg-ourovelho/10' : 'even:bg-olvblue/5 dark:even:bg-bg-dark-tertiary'}>
+                <td className="p-2 font-medium capitalize">
+                  {linha.descricao}
+                  {linha.tipo === 'imposto' && (
+                    <span className="ml-1 text-xs text-ourovelho" title="Imposto calculado em cascata sobre o subtotal anterior.">🛈</span>
+                  )}
+                </td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">
+                  R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">
+                  {currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}
+                </td>
+                <td className="p-2 text-right">
+                  {((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%
+                </td>
+              </tr>
+            ))}
+            <tr className="bg-ourovelho/30 font-extrabold">
+              <td className="p-2 text-right" colSpan={3}>Total Geral</td>
+              <td className="p-2 text-right">{formatCurrencyValue(totalGeral)}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     );
   };

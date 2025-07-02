@@ -269,24 +269,25 @@ export const defaultTaxes: TaxConfig[] = [
   },
 ];
 
-// Calcula subtotal de impostos
+// Calcula subtotal de impostos em cascata (legislação brasileira)
 export function calculateTaxes(
   base: number,
   uf: UF,
   selected: SelectedTax[]
 ): ProposalTaxes {
-  let subtotal = 0;
+  let subtotal = base;
   const taxes = selected.map((tax) => {
     if (!tax.enabled) return { ...tax, value: 0 };
-    const value = base * (tax.rate / 100);
-    subtotal += value;
+    // Cada imposto incide sobre o subtotal anterior (cascata)
+    const value = subtotal * (tax.rate / 100);
+    subtotal += value; // Atualiza subtotal para próximo imposto
     return { ...tax, value };
   });
   return {
     uf,
     taxes,
-    subtotal,
-    total: subtotal,
+    subtotal: subtotal - base, // Apenas o valor dos impostos
+    total: subtotal, // Total final com impostos
   };
 }
 
