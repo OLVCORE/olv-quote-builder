@@ -73,6 +73,18 @@ function Tooltip({ text, children }: { text: string, children: React.ReactNode }
   );
 }
 
+// Utilitário para persistência de templates no localStorage
+function getTemplates(key = 'quote_templates'): any[] {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch {
+    return [];
+  }
+}
+function saveTemplates(templates: any[], key = 'quote_templates') {
+  localStorage.setItem(key, JSON.stringify(templates));
+}
+
 export default function ServiceForm({ config, currency, customRate }: Props) {
   const [values, setValues] = useState<Record<string, any>>(
     Object.fromEntries(config.inputs.map((i) => [i.key, i.default]))
@@ -238,8 +250,76 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     // Implementation of exportToExcel
   };
 
+  // Estado para templates
+  const [templates, setTemplates] = useState(() => getTemplates());
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [templateDesc, setTemplateDesc] = useState('');
+
+  // Salvar template
+  function handleSaveTemplate() {
+    const newTemplate = {
+      name: templateName,
+      desc: templateDesc,
+      values,
+      extras
+    };
+    const updated = [...templates, newTemplate];
+    setTemplates(updated);
+    saveTemplates(updated);
+    setShowTemplateModal(false);
+    setTemplateName('');
+    setTemplateDesc('');
+  }
+
+  // Aplicar template
+  function handleApplyTemplate(idx: number) {
+    const t = templates[idx];
+    if (t) {
+      setValues(t.values);
+      setExtras(t.extras);
+    }
+  }
+
+  // Remover template
+  function handleRemoveTemplate(idx: number) {
+    const updated = templates.filter((_: any, i: number) => i !== idx);
+    setTemplates(updated);
+    saveTemplates(updated);
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-2 sm:px-4 md:px-6">
+      {/* Barra de templates */}
+      <div className="flex flex-wrap items-center gap-4 mb-2">
+        <button onClick={() => setShowTemplateModal(true)} className="bg-accent-light dark:bg-accent-dark text-white px-4 py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">Salvar como Template</button>
+        {templates.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-white dark:text-ourovelho font-semibold">Templates:</span>
+            <select className="rounded px-2 py-1" onChange={e => handleApplyTemplate(Number(e.target.value))} defaultValue="">
+              <option value="" disabled>Escolha um template</option>
+              {templates.map((t: any, idx: number) => (
+                <option key={idx} value={idx}>{t.name}</option>
+              ))}
+            </select>
+            <button onClick={() => { setTemplates([]); saveTemplates([]); }} className="text-xs text-red-400 underline ml-2">Limpar todos</button>
+          </div>
+        )}
+      </div>
+      {/* Modal de salvar template */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho shadow-xl flex flex-col gap-4 min-w-[320px]">
+            <h3 className="text-lg font-bold text-white dark:text-ourovelho mb-2">Salvar como Template</h3>
+            <input type="text" className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" placeholder="Nome do template" value={templateName} onChange={e => setTemplateName(e.target.value)} />
+            <textarea className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" placeholder="Descrição (opcional)" value={templateDesc} onChange={e => setTemplateDesc(e.target.value)} />
+            <div className="flex gap-2 mt-2">
+              <button onClick={handleSaveTemplate} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-bold">Salvar</button>
+              <button onClick={() => setShowTemplateModal(false)} className="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 rounded font-bold">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Linha 1: Serviços Principais (esquerda) + Resultados (direita) */}
       <div className="flex flex-col lg:flex-row gap-8 w-full">
         <div className="flex-1 flex flex-col gap-8 min-w-0">
