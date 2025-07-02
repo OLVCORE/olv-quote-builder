@@ -413,10 +413,6 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
           </Tooltip>
         </h2>
-        <div className="flex justify-between items-center mb-2">
-          <span className="font-semibold text-white dark:text-ourovelho">Outros custos</span>
-          <button type="button" onClick={addExtra} className="text-sm text-emerald-600 underline">+ Adicionar linha</button>
-        </div>
         <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
           <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
             <tr>

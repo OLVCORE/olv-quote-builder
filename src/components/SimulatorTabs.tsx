@@ -3,17 +3,9 @@ import React, { useState } from 'react';
 import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
-import { AdminProvider, useAdmin } from './AdminContext';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
 
 function TabsWithAdmin() {
-  const { admin, enableAdmin } = useAdmin();
-  function handleClick() {
-    const pwd = prompt('Senha de gerente:');
-    if (pwd === 'olvadmin') enableAdmin();
-    else alert('Senha incorreta');
-  }
-
   // Lista de abas (garantir espaço para 8 serviços)
   const tabList = [
     { value: 'pme-comex', label: 'PME COMEX Ready' },
@@ -25,8 +17,6 @@ function TabsWithAdmin() {
     { value: 'consultoria', label: 'Consultoria Especializada' },
     { value: 'servicos-adicionais', label: 'Serviços Adicionais' },
   ];
-
-  // Estado para aba selecionada
   const [selectedTab, setSelectedTab] = useState(tabList[0].value);
   const selectedServiceIdx = tabList.findIndex(tab => tab.value === selectedTab);
   const selectedService = allServices[selectedServiceIdx];
@@ -34,19 +24,37 @@ function TabsWithAdmin() {
   // Estado global de moeda/cotação
   const [currency, setCurrency] = useState('BRL');
   const [customRate, setCustomRate] = useState('');
-  const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => setCurrency(e.target.value);
+  const [loadingRate, setLoadingRate] = useState(false);
+  const handleCurrencyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCurrency = e.target.value;
+    setCurrency(newCurrency);
+    setLoadingRate(true);
+    if (newCurrency !== 'BRL') {
+      try {
+        const res = await fetch(`https://api.exchangerate.host/latest?base=BRL&symbols=${newCurrency}`);
+        const data = await res.json();
+        setCustomRate(data.rates[newCurrency]?.toString() || '');
+      } catch {
+        setCustomRate('');
+      }
+    } else {
+      setCustomRate('');
+    }
+    setLoadingRate(false);
+  };
   const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => setCustomRate(e.target.value);
+
+  // Exportação PDF de toda a proposta
+  const exportToPDF = () => {
+    window.print();
+  };
+  // Exportação XLSX de toda a proposta (placeholder, implementar integração real se necessário)
+  const exportToExcel = () => {
+    alert('Exportação XLSX de toda a proposta ainda não implementada.');
+  };
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm text-slate-500">{admin ? 'Modo gerente ativo' : 'Usuário'}</span>
-        {!admin && (
-          <button onClick={handleClick} className="text-emerald-600 text-sm underline">
-            🔒 Admin
-          </button>
-        )}
-      </div>
       <Tabs.Root value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <Tabs.List className="flex flex-wrap gap-2 bg-slate-100 dark:bg-olvblue p-2 rounded-xl mb-6 shadow-inner">
           {tabList.map(tab => (
@@ -91,8 +99,9 @@ function TabsWithAdmin() {
               step={0.0001}
               disabled={currency === 'BRL'}
             />
-            <button className="ml-4" title="Visualizar/Imprimir PDF"><FaFilePdf size={20} color="#E53935" /></button>
-            <button className="ml-2" title="Exportar Excel"><FaFileExcel size={20} color="#43A047" /></button>
+            {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
+            <button className="ml-4" title="Visualizar Proposta" onClick={exportToPDF}><FaFilePdf size={20} color="#E53935" /></button>
+            <button className="ml-2" title="Exportar Excel" onClick={exportToExcel}><FaFileExcel size={20} color="#43A047" /></button>
           </div>
         </div>
         {/* Conteúdo das abas - exemplo para 8 abas, ajuste conforme necessário */}
@@ -127,8 +136,6 @@ function TabsWithAdmin() {
 
 export default function SimulatorTabs() {
   return (
-    <AdminProvider>
-      <TabsWithAdmin />
-    </AdminProvider>
+    <TabsWithAdmin />
   );
 } 

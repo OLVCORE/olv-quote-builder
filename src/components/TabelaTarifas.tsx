@@ -61,7 +61,7 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
               <th className="border border-ourovelho p-3 text-left font-semibold">Item</th>
               <th className="border border-ourovelho p-3 text-left font-semibold">Descrição</th>
               <th className="border border-ourovelho p-3 text-center font-semibold">Valor (BRL)</th>
-              <th className="border border-ourovelho p-3 text-center font-semibold">Valor ({currency}) <FaCoins className="inline ml-1 text-accent-light" /></th>
+              <th className="border border-ourovelho p-3 text-center font-semibold">Valor ({currency})</th>
               <th className="border border-ourovelho p-3 text-center font-semibold">Condições</th>
               <th className="border border-ourovelho p-3 text-left font-semibold">Observações</th>
             </tr>
@@ -74,7 +74,7 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
                   <td className="border border-ourovelho p-3 font-medium text-white dark:text-ourovelho">{item.item}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200">{item.descricao}</td>
                   <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{item.valor}</td>
-                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)} {currency !== 'BRL' && <FaCoins className="inline ml-1 text-accent-light" />}</td>
+                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)}</td>
                   <td className="border border-ourovelho p-3 text-center text-white dark:text-slate-200">{item.condicoes}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200 text-sm">{item.observacoes}</td>
                 </tr>
