@@ -591,47 +591,47 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-2 sm:px-4 md:px-6">
+    <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
       {/* Barra de templates */}
-      <div className="flex flex-wrap items-center gap-4 mb-2">
-        <button onClick={() => setShowTemplateModal(true)} className="bg-accent-light dark:bg-accent-dark text-white px-4 py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover">Salvar como Template</button>
-        <button onClick={saveVersion} className="bg-purple-600 dark:bg-purple-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-purple-700 dark:hover:bg-purple-800">💾 Salvar Versão</button>
-        <button onClick={() => setShowVersionsModal(true)} className="bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-indigo-700 dark:hover:bg-indigo-800">📋 Histórico ({versions.length})</button>
-        <button onClick={() => setShowCommentsModal(true)} className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-orange-700 dark:hover:bg-orange-800">💬 Comentários ({comments.length})</button>
-        <button onClick={() => setShowThemeModal(true)} className="bg-pink-600 dark:bg-pink-700 text-white px-4 py-2 rounded font-bold shadow hover:bg-pink-700 dark:hover:bg-pink-800">🎨 Personalizar</button>
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-4 mb-2">
+        <button onClick={() => setShowTemplateModal(true)} className="w-full sm:w-auto bg-accent-light dark:bg-accent-dark text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover text-sm sm:text-base">�� Template</button>
+        <button onClick={saveVersion} className="w-full sm:w-auto bg-purple-600 dark:bg-purple-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-purple-700 dark:hover:bg-purple-800 text-sm sm:text-base">💾 Versão</button>
+        <button onClick={() => setShowVersionsModal(true)} className="w-full sm:w-auto bg-indigo-600 dark:bg-indigo-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-indigo-700 dark:hover:bg-indigo-800 text-sm sm:text-base">📋 Histórico ({versions.length})</button>
+        <button onClick={() => setShowCommentsModal(true)} className="w-full sm:w-auto bg-orange-600 dark:bg-orange-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-orange-700 dark:hover:bg-orange-800 text-sm sm:text-base">💬 Comentários ({comments.length})</button>
+        <button onClick={() => setShowThemeModal(true)} className="w-full sm:w-auto bg-pink-600 dark:bg-pink-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-pink-700 dark:hover:bg-pink-800 text-sm sm:text-base">🎨 Personalizar</button>
         <button 
           onClick={() => setQuickMode(!quickMode)} 
-          className={`px-4 py-2 rounded font-bold shadow transition-colors ${
+          className={`w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow transition-colors text-sm sm:text-base ${
             quickMode 
               ? 'bg-green-600 hover:bg-green-700 text-white' 
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
-          {quickMode ? '⚡ Modo Expresso Ativo' : '⚡ Modo Expresso'}
+          {quickMode ? '⚡ Expresso Ativo' : '⚡ Expresso'}
         </button>
         {templates.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-white dark:text-ourovelho font-semibold">Templates:</span>
-            <select className="rounded px-2 py-1" onChange={e => handleApplyTemplate(Number(e.target.value))} defaultValue="">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+            <span className="text-white dark:text-ourovelho font-semibold text-sm sm:text-base">Templates:</span>
+            <select className="w-full sm:w-auto rounded px-2 py-1 text-sm" onChange={e => handleApplyTemplate(Number(e.target.value))} defaultValue="">
               <option value="" disabled>Escolha um template</option>
               {templates.map((t: any, idx: number) => (
                 <option key={idx} value={idx}>{t.name}</option>
               ))}
             </select>
-            <button onClick={() => { setTemplates([]); saveTemplates([]); }} className="text-xs text-red-400 underline ml-2">Limpar todos</button>
+            <button onClick={() => { setTemplates([]); saveTemplates([]); }} className="text-xs text-red-400 underline">Limpar todos</button>
           </div>
         )}
       </div>
       {/* Modal de salvar template */}
       {showTemplateModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho shadow-xl flex flex-col gap-4 min-w-[320px]">
-            <h3 className="text-lg font-bold text-white dark:text-ourovelho mb-2">Salvar como Template</h3>
-            <input type="text" className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" placeholder="Nome do template" value={templateName} onChange={e => setTemplateName(e.target.value)} />
-            <textarea className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho" placeholder="Descrição (opcional)" value={templateDesc} onChange={e => setTemplateDesc(e.target.value)} />
-            <div className="flex gap-2 mt-2">
-              <button onClick={handleSaveTemplate} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-bold">Salvar</button>
-              <button onClick={() => setShowTemplateModal(false)} className="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 rounded font-bold">Cancelar</button>
+          <div className="bg-olvblue dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl border border-ourovelho shadow-xl flex flex-col gap-4 w-[90vw] max-w-[400px] mx-4">
+            <h3 className="text-base sm:text-lg font-bold text-white dark:text-ourovelho mb-2">Salvar como Template</h3>
+            <input type="text" className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho text-sm" placeholder="Nome do template" value={templateName} onChange={e => setTemplateName(e.target.value)} />
+            <textarea className="w-full px-3 py-2 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho text-sm" placeholder="Descrição (opcional)" value={templateDesc} onChange={e => setTemplateDesc(e.target.value)} />
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+              <button onClick={handleSaveTemplate} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-bold text-sm">Salvar</button>
+              <button onClick={() => setShowTemplateModal(false)} className="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 rounded font-bold text-sm">Cancelar</button>
             </div>
           </div>
         </div>
@@ -639,12 +639,12 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Modal de preview do PDF */}
       {showPdfPreview && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-4 rounded-xl shadow-2xl max-w-4xl w-full h-[90vh] flex flex-col">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Prévia do PDF</h3>
+          <div className="bg-white dark:bg-bg-dark-secondary p-2 sm:p-4 rounded-xl shadow-2xl w-[95vw] max-w-4xl h-[95vh] flex flex-col mx-2">
+            <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-olvblue dark:text-ourovelho">Prévia do PDF</h3>
               <button onClick={() => setShowPdfPreview(false)} className="text-red-600 font-bold text-xl">✕</button>
             </div>
-            <div className="flex-1 overflow-auto border rounded bg-slate-100 dark:bg-bg-dark-tertiary p-2">
+            <div className="flex-1 overflow-auto border rounded bg-slate-100 dark:bg-bg-dark-tertiary p-1 sm:p-2">
               {/* Renderização do PDF em tela */}
               <PdfPreviewer 
                 calculations={{
@@ -685,9 +685,9 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                 }}
               />
             </div>
-            <div className="flex gap-2 mt-4">
-              <button onClick={exportToPDF} className="flex-1 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFilePdf /> Exportar PDF</button>
-              <button onClick={() => setShowEmailModal(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2">📧 Enviar E-mail</button>
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
+              <button onClick={exportToPDF} className="flex-1 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2 text-sm"><FaFilePdf /> Exportar PDF</button>
+              <button onClick={() => setShowEmailModal(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2 text-sm">📧 Enviar E-mail</button>
             </div>
           </div>
         </div>
@@ -695,7 +695,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Modal de envio por e-mail */}
       {showEmailModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-md w-full">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl shadow-2xl w-[90vw] max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Enviar Proposta por E-mail</h3>
               <button onClick={() => setShowEmailModal(false)} className="text-red-600 font-bold text-xl">✕</button>
@@ -747,17 +747,17 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                 <div className="text-center text-red-600 dark:text-red-400 font-semibold">✗ Erro ao enviar e-mail. Tente novamente.</div>
               )}
               
-              <div className="flex gap-2 mt-6">
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
                 <button
                   onClick={sendEmail}
                   disabled={emailStatus === 'sending'}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-colors text-white py-2 rounded font-bold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 transition-colors text-white py-2 rounded font-bold text-sm"
                 >
                   {emailStatus === 'sending' ? 'Enviando...' : 'Enviar E-mail'}
                 </button>
                 <button
                   onClick={() => setShowEmailModal(false)}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 transition-colors text-white py-2 rounded font-bold"
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 transition-colors text-white py-2 rounded font-bold text-sm"
                 >
                   Cancelar
                 </button>
@@ -769,7 +769,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Modal de histórico de versões */}
       {showVersionsModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl shadow-2xl w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto mx-2">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Histórico de Versões</h3>
               <button onClick={() => setShowVersionsModal(false)} className="text-red-600 font-bold text-xl">✕</button>
@@ -782,23 +782,23 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             ) : (
               <div className="space-y-3">
                 {versions.map((version) => (
-                  <div key={version.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-bg-dark-tertiary rounded border">
+                  <div key={version.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-gray-50 dark:bg-bg-dark-tertiary rounded border gap-2">
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-900 dark:text-gray-100">{version.name}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">{version.name}</div>
+                      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                         {new Date(version.timestamp).toLocaleString('pt-BR')}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button
                         onClick={() => restoreVersion(version)}
-                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+                        className="flex-1 sm:flex-none px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs sm:text-sm font-semibold"
                       >
                         Restaurar
                       </button>
                       <button
                         onClick={() => removeVersion(version.id)}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold"
+                        className="flex-1 sm:flex-none px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs sm:text-sm font-semibold"
                       >
                         Remover
                       </button>
@@ -811,7 +811,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setShowVersionsModal(false)}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold text-sm"
               >
                 Fechar
               </button>
@@ -1167,10 +1167,10 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
         </div>
       )}
       {/* Linha 1: Serviços Principais (esquerda) + Resultados (direita) */}
-      <div className="flex flex-col lg:flex-row gap-8 w-full">
-        <div className="flex-1 flex flex-col gap-8 min-w-0">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 w-full">
+        <div className="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0">
           {/* 1. Serviços Principais */}
-          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-3 sm:p-4 lg:p-6">
             <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
               1. Serviços Principais
               <Tooltip text="Preencha os dados essenciais do serviço principal selecionado. Cada campo impacta diretamente o cálculo da proposta.">
@@ -1222,9 +1222,9 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             })}
           </section>
         </div>
-        <div className="flex-1 flex flex-col gap-8 min-w-0">
+        <div className="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0">
           {/* 4. Resultados */}
-          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6">
+          <section className="bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-3 sm:p-4 lg:p-6">
             <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
               4. Resultados
               <Tooltip text="Veja o detalhamento do cálculo, totais, descontos e impostos da proposta.">
@@ -1233,7 +1233,8 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             </h2>
             <div className="mb-4">
               <h3 className="text-base font-semibold text-white dark:text-ourovelho mb-2">Memória de Cálculo</h3>
-              <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm border border-ourovelho dark:border-ourovelho rounded min-w-[600px]">
                 <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
                   <tr>
                     <th className="border p-2 text-white dark:text-ourovelho">Item</th>
@@ -1413,7 +1414,8 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
           </h2>
           <button type="button" onClick={addExtra} className="ml-4 px-3 py-1 rounded bg-accent-light dark:bg-accent-dark text-white font-bold text-lg hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover border border-ourovelho dark:border-ourovelho shadow transition-colors" title="Adicionar serviço adicional">+ Adicionar</button>
         </div>
-        <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm border border-ourovelho dark:border-ourovelho rounded min-w-[800px]">
           <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
             <tr>
               <th className="border p-2 text-white dark:text-ourovelho">Descrição</th>
@@ -1458,6 +1460,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             })}
           </tbody>
         </table>
+        </div>
       </section>
       {/* Linha 3: Impostos (vertical, à esquerda) */}
       <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col lg:w-1/2">
