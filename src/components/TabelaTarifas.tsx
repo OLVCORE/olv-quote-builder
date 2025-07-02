@@ -67,21 +67,21 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
   };
 
   return (
-    <div className="bg-olvblue dark:bg-bg-dark-secondary p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
-      <h3 className="text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
+    <div className="bg-olvblue dark:bg-bg-dark-secondary p-3 sm:p-4 lg:p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
+      <h3 className="text-lg sm:text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
       {tabela.subtitulo && (
-        <p className="text-sm text-white dark:text-slate-200 opacity-80 mb-2">{tabela.subtitulo}</p>
+        <p className="text-xs sm:text-sm text-white dark:text-slate-200 opacity-80 mb-2">{tabela.subtitulo}</p>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-xs sm:text-sm border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-accent-light dark:bg-accent-dark text-white">
-              <th className="border border-ourovelho p-3 text-left font-semibold">Item</th>
-              <th className="border border-ourovelho p-3 text-left font-semibold">Descrição</th>
-              <th className="border border-ourovelho p-3 text-center font-semibold">Valor (BRL)</th>
-              <th className="border border-ourovelho p-3 text-center font-semibold">Valor ({currency})</th>
-              <th className="border border-ourovelho p-3 text-center font-semibold">Condições</th>
-              <th className="border border-ourovelho p-3 text-left font-semibold">Observações</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Item</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Descrição</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Valor (BRL)</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Valor ({currency})</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Condições</th>
+              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Observações</th>
             </tr>
           </thead>
           <tbody>
@@ -89,12 +89,12 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
               const valorNum = parseValor(item.valor);
               return (
                 <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                  <td className="border border-ourovelho p-3 font-medium text-white dark:text-ourovelho">{item.item}</td>
-                  <td className="border border-ourovelho p-3 text-white dark:text-slate-200">{item.descricao}</td>
-                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{formatCurrencyUtil(valorNum, 'BRL')}</td>
-                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)}</td>
-                  <td className="border border-ourovelho p-3 text-center text-white dark:text-slate-200">{item.condicoes}</td>
-                  <td className="border border-ourovelho p-3 text-white dark:text-slate-200 text-sm">{item.observacoes}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 font-medium text-white dark:text-ourovelho text-xs sm:text-sm">{item.item}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 text-white dark:text-slate-200 text-xs sm:text-sm">{item.descricao}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-white dark:text-ourovelho text-xs sm:text-sm">{formatCurrencyUtil(valorNum, 'BRL')}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-white dark:text-ourovelho text-xs sm:text-sm">{convertToForeign(valorNum)}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 text-center text-white dark:text-slate-200 text-xs sm:text-sm">{item.condicoes}</td>
+                  <td className="border border-ourovelho p-2 sm:p-3 text-white dark:text-slate-200 text-xs sm:text-sm">{item.observacoes}</td>
                 </tr>
               );
             })}
@@ -102,11 +102,11 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
         </table>
       </div>
       {tabela.observacoesGerais && tabela.observacoesGerais.length > 0 && (
-        <div className="mt-6 p-4 bg-accent-light/10 dark:bg-accent-dark/10 rounded-lg border-l-4 border-accent-dark">
-          <h4 className="font-semibold text-white dark:text-ourovelho mb-2">Observações Gerais</h4>
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-accent-light/10 dark:bg-accent-dark/10 rounded-lg border-l-4 border-accent-dark">
+          <h4 className="font-semibold text-white dark:text-ourovelho mb-2 text-sm sm:text-base">Observações Gerais</h4>
           <ul className="space-y-1">
             {tabela.observacoesGerais.map((obs, idx) => (
-              <li key={idx} className="text-sm text-white dark:text-slate-200 flex items-start">
+              <li key={idx} className="text-xs sm:text-sm text-white dark:text-slate-200 flex items-start">
                 <span className="text-white dark:text-ourovelho mr-2">•</span>
                 {obs}
               </li>
