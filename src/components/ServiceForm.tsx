@@ -397,12 +397,15 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       </div>
       {/* Linha 2: Serviços Adicionais (paisagem, card horizontal largura total) */}
       <section className="w-full bg-olvblue dark:bg-bg-dark-secondary rounded-xl border border-ourovelho dark:border-ourovelho shadow p-4 sm:p-6 flex flex-col">
-        <h2 className="text-lg font-bold text-white dark:text-ourovelho mb-4 flex items-center gap-2">
-          2. Serviços Adicionais
-          <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
-            <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
-          </Tooltip>
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-bold text-white dark:text-ourovelho flex items-center gap-2">
+            2. Serviços Adicionais
+            <Tooltip text="Adicione custos extras, customizações ou serviços complementares à proposta.">
+              <svg className="w-4 h-4 text-white dark:text-ourovelho" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+            </Tooltip>
+          </h2>
+          <button type="button" onClick={addExtra} className="ml-4 px-3 py-1 rounded bg-accent-light dark:bg-accent-dark text-white font-bold text-lg hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover border border-ourovelho dark:border-ourovelho shadow transition-colors" title="Adicionar serviço adicional">+ Adicionar</button>
+        </div>
         <table className="w-full text-sm border border-ourovelho dark:border-ourovelho rounded overflow-hidden">
           <thead className="bg-olvblue/60 dark:bg-bg-dark-tertiary">
             <tr>
