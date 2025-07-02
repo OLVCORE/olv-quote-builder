@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaPlus, FaTrash } from 'react-icons/fa';
 
 interface LinhaAdicional {
   descricao: string;
@@ -44,18 +45,20 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Serviços Adicionais</h3>
+      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
+        <span className="text-ourovelho"><FaPlus /></span> Serviços Adicionais
+      </h3>
       <table className="w-full text-sm mb-2">
         <thead>
           <tr className="bg-ourovelho/20">
-            <th className="p-2 text-left">Descrição</th>
-            <th className="p-2 text-left">Valor (BRL)</th>
+            <th className="p-2 text-left">Descrição <span title='Descreva o serviço adicional' className='text-xs text-ourovelho'>🛈</span></th>
+            <th className="p-2 text-left">Valor (BRL) <span title='Valor do serviço adicional' className='text-xs text-ourovelho'>🛈</span></th>
             <th className="p-2"></th>
           </tr>
         </thead>
         <tbody>
           {linhas.map((linha, idx) => (
-            <tr key={idx}>
+            <tr key={idx} className="even:bg-olvblue/80 dark:even:bg-bg-dark-tertiary">
               <td className="p-2">
                 <input
                   type="text"
@@ -63,6 +66,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   onChange={e => atualizarLinha(idx, 'descricao', e.target.value)}
                   className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   placeholder="Descrição do serviço"
+                  title="Descreva o serviço adicional"
                 />
               </td>
               <td className="p-2">
@@ -73,6 +77,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   placeholder="0,00"
                   min={0}
+                  title="Valor do serviço adicional"
                 />
               </td>
               <td className="p-2 text-center">
@@ -83,7 +88,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   title="Remover linha"
                   disabled={linhas.length === 1}
                 >
-                  ×
+                  <FaTrash />
                 </button>
               </td>
             </tr>
@@ -93,9 +98,10 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
       <button
         type="button"
         onClick={adicionarLinha}
-        className="bg-ourovelho text-olvblue font-bold px-4 py-2 rounded hover:bg-yellow-400"
+        className="bg-ourovelho text-olvblue font-bold px-4 py-2 rounded hover:bg-yellow-400 flex items-center gap-2"
+        title="Adicionar novo serviço adicional"
       >
-        + Adicionar Serviço Adicional
+        <FaPlus /> Adicionar Serviço Adicional
       </button>
     </div>
   );

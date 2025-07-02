@@ -5,6 +5,7 @@ import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
 import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
 import { AdminProvider } from './AdminContext';
+import Collapsible from './UI/Collapsible';
 
 function TabsWithAdmin() {
   // Lista de abas (garantir espaço para 8 serviços)
@@ -107,28 +108,44 @@ function TabsWithAdmin() {
         </div>
         {/* Conteúdo das abas - exemplo para 8 abas, ajuste conforme necessário */}
         <Tabs.Content value="pme-comex" className="pt-4">
-          <ServiceForm config={allServices[0]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[0]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="comex-on-demand" className="pt-4">
-          <ServiceForm config={allServices[1]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[1]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="3pl-turnkey" className="pt-4">
-          <ServiceForm config={allServices[2]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[2]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="end-to-end" className="pt-4">
-          <ServiceForm config={allServices[3]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[3]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="in-house" className="pt-4">
-          <ServiceForm config={allServices[4]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[4]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="nova-rota-importacao" className="pt-4">
-          <ServiceForm config={allServices[5]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[5]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="consultoria" className="pt-4">
-          <ServiceForm config={allServices[6]} currency={currency} customRate={customRate} />
+          <Collapsible title="1. Serviço Principal">
+            <ServiceForm config={allServices[6]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="servicos-adicionais" className="pt-4">
-          <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />
+          <Collapsible title="2. Serviços Adicionais">
+            <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />
+          </Collapsible>
         </Tabs.Content>
       </Tabs.Root>
     </>

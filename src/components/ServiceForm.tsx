@@ -8,6 +8,7 @@ import { addSyncRecordToHistory } from './CRMSyncHistory';
 import TabelaTarifas from './TabelaTarifas';
 import { getTabelaTarifas } from '@/lib/tarifas';
 import ServicosAdicionaisTable from './ServicosAdicionaisTable';
+import Collapsible from './UI/Collapsible';
 
 interface Props {
   config: ServiceConfig;
@@ -147,15 +148,32 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     );
   };
 
-  // Breakdown detalhado
-  const renderBreakdown = () => (
-    <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Breakdown Detalhado</h3>
-      <pre className="text-xs text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 rounded p-2 overflow-x-auto">
-        {JSON.stringify(baseResult.breakdown, null, 2)}
-      </pre>
-    </div>
-  );
+  // Breakdown detalhado (visual premium)
+  const renderBreakdown = () => {
+    const breakdown = baseResult.breakdown || {};
+    if (!breakdown || Object.keys(breakdown).length === 0) return null;
+    return (
+      <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Breakdown Detalhado</h3>
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-ourovelho/20">
+              <th className="p-2 text-left">Item</th>
+              <th className="p-2 text-right">Valor (BRL)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(breakdown).map(([key, value]) => (
+              <tr key={key} className="even:bg-olvblue/80 dark:even:bg-bg-dark-tertiary">
+                <td className="p-2 font-medium capitalize">{key.replace(/_/g, ' ')}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">R$ {Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   // Tabela de tarifas (quando aplicável)
   const tabela = getTabelaTarifas(config.slug);
@@ -173,11 +191,13 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     </div>
   );
 
-  // Seção Impostos
+  // Seção Impostos (dinâmica)
   const [impostos, setImpostos] = useState([
     { nome: 'ISS', valor: 0 },
     { nome: 'IR', valor: 0 },
   ]);
+  const adicionarImposto = () => setImpostos(imps => [...imps, { nome: '', valor: 0 }]);
+  const removerImposto = (idx: number) => setImpostos(imps => imps.filter((_, i) => i !== idx));
   const renderImpostos = () => (
     <div className="bg-white dark:bg-bg-dark-tertiary rounded-lg p-4 mb-6">
       <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4">Impostos</h3>
@@ -186,28 +206,52 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
           <tr className="bg-ourovelho/20">
             <th className="p-2 text-left">Imposto</th>
             <th className="p-2 text-left">Valor (BRL)</th>
+            <th className="p-2"></th>
           </tr>
         </thead>
         <tbody>
           {impostos.map((imp, idx) => (
             <tr key={idx}>
-              <td className="p-2">{imp.nome}</td>
+              <td className="p-2">
+                <input
+                  type="text"
+                  value={imp.nome}
+                  onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
+                  className="w-full px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
+                  placeholder="Nome do imposto"
+                />
+              </td>
               <td className="p-2">
                 <input
                   type="number"
                   value={imp.valor}
-                  onChange={e => {
-                    const val = Number(e.target.value);
-                    setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: val } : i));
-                  }}
+                  onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: Number(e.target.value) } : i))}
                   className="w-24 px-2 py-1 rounded border border-ourovelho bg-olvblue/80 dark:bg-bg-dark-tertiary text-white dark:text-ourovelho"
                   min={0}
                 />
+              </td>
+              <td className="p-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => removerImposto(idx)}
+                  className="text-red-600 hover:text-red-800 font-bold text-lg"
+                  title="Remover imposto"
+                  disabled={impostos.length === 1}
+                >
+                  ×
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <button
+        type="button"
+        onClick={adicionarImposto}
+        className="bg-ourovelho text-olvblue font-bold px-4 py-2 rounded hover:bg-yellow-400"
+      >
+        + Imposto
+      </button>
     </div>
   );
 
@@ -285,12 +329,13 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
       {renderAcoesAvancadas()}
-      {renderServicosPrincipais()}
-      {renderImpostos()}
-      {renderResultados()}
-      {renderBreakdown()}
-      {renderTabelaTarifas()}
-      {renderObservacoes()}
+      <Collapsible title="1. Serviços Principais">{renderServicosPrincipais()}</Collapsible>
+      <Collapsible title="2. Serviços Adicionais"><ServicosAdicionaisTable values={values} setValues={setValues} /></Collapsible>
+      <Collapsible title="3. Impostos">{renderImpostos()}</Collapsible>
+      <Collapsible title="4. Resultado">{renderResultados()}</Collapsible>
+      <Collapsible title="5. Breakdown Detalhado">{renderBreakdown()}</Collapsible>
+      <Collapsible title="6. Tabela de Tarifas e Condições">{renderTabelaTarifas()}</Collapsible>
+      <Collapsible title="7. Observações Gerais">{renderObservacoes()}</Collapsible>
       {renderAcoes()}
     </div>
   );
