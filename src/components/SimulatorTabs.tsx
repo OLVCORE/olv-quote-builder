@@ -143,9 +143,11 @@ function TabsWithAdmin() {
           </Collapsible>
         </Tabs.Content>
         <Tabs.Content value="servicos-adicionais" className="pt-4">
-          <Collapsible title="2. Serviços Adicionais">
-            <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />
-          </Collapsible>
+          {allServices[7].inputs && allServices[7].inputs.length > 0 ? (
+            <Collapsible title="2. Serviços Adicionais">
+              <ServiceForm config={allServices[7]} currency={currency} customRate={customRate} />
+            </Collapsible>
+          ) : null}
         </Tabs.Content>
       </Tabs.Root>
     </>
