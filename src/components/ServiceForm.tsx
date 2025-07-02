@@ -299,10 +299,10 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       }));
 
     // 3. Soma base para impostos
-    const subtotalServicos = [...linhasServicos, ...linhasAdicionais].reduce((sum, l) => sum + l.valor, 0);
-
-    // 4. Impostos em cascata
-    let subtotal = subtotalServicos;
+    const subtotalServicos = linhasServicos.reduce((sum: number, l: any) => sum + l.valor, 0);
+    const subtotalAdicionais = linhasAdicionais.reduce((sum: number, l: any) => sum + l.valor, 0);
+    let subtotal = subtotalServicos + subtotalAdicionais;
+    let subtotalAntesImpostos = subtotal;
     const linhasImpostos = impostos
       .filter(imp => imp.nome && imp.valor && Number(imp.valor) > 0)
       .map((imp, idx) => {
@@ -315,23 +315,16 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
           percentual: Number(imp.valor)
         };
       });
-
-    // 5. Linhas finais para exibição
-    const linhas = [
-      ...linhasServicos,
-      ...linhasAdicionais,
-      ...linhasImpostos
-    ];
+    const subtotalImpostos = linhasImpostos.reduce((sum: number, l: any) => sum + l.valor, 0);
     const totalGeral = subtotal;
 
-    // 6. Conversão de moeda
+    // 4. Conversão de moeda
     const { convertValue, formatCurrency } = require('@/lib/utils/currency');
     const exchangeRates = { BRL: 1, [currency]: conversionRate };
-    
     function formatCurrencyValue(val: number) {
       if (currency === 'BRL') return `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-      const converted = convertValue(val, 'BRL', currency as any, exchangeRates);
-      return formatCurrency(converted, currency as any);
+      const converted = convertValue(val, 'BRL', currency, exchangeRates);
+      return formatCurrency(converted, currency);
     }
 
     return (
@@ -347,25 +340,42 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             </tr>
           </thead>
           <tbody>
-            {linhas.map((linha, idx) => (
-              <tr key={idx} className={linha.tipo === 'imposto' ? 'bg-olvblue/10 dark:bg-ourovelho/10' : 'even:bg-olvblue/5 dark:even:bg-bg-dark-tertiary'}>
-                <td className="p-2 font-medium capitalize">
-                  {linha.descricao}
-                  {linha.tipo === 'imposto' && (
-                    <span className="ml-1 text-xs text-ourovelho" title="Imposto calculado em cascata sobre o subtotal anterior.">🛈</span>
-                  )}
-                </td>
-                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">
-                  R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </td>
-                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">
-                  {currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}
-                </td>
-                <td className="p-2 text-right">
-                  {((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%
-                </td>
+            {linhasServicos.map((linha: any, idx: number) => (
+              <tr key={idx} className="even:bg-olvblue/5 dark:even:bg-bg-dark-tertiary">
+                <td className="p-2 font-medium capitalize">{linha.descricao}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                <td className="p-2 text-right">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
               </tr>
             ))}
+            <tr className="bg-ourovelho/10 font-semibold">
+              <td className="p-2 text-right" colSpan={3}>Subtotal Serviços <span title="Soma dos serviços principais.">🛈</span></td>
+              <td className="p-2 text-right">{formatCurrencyValue(subtotalServicos)}</td>
+            </tr>
+            {linhasAdicionais.map((linha: any, idx: number) => (
+              <tr key={idx} className="even:bg-olvblue/5 dark:even:bg-bg-dark-tertiary">
+                <td className="p-2 font-medium capitalize">{linha.descricao}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                <td className="p-2 text-right">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
+              </tr>
+            ))}
+            <tr className="bg-ourovelho/10 font-semibold">
+              <td className="p-2 text-right" colSpan={3}>Subtotal Adicionais <span title="Soma dos serviços adicionais.">🛈</span></td>
+              <td className="p-2 text-right">{formatCurrencyValue(subtotalAdicionais)}</td>
+            </tr>
+            {linhasImpostos.map((linha: any, idx: number) => (
+              <tr key={idx} className="bg-olvblue/10 dark:bg-ourovelho/10">
+                <td className="p-2 font-medium capitalize">{linha.descricao} <span className="ml-1 text-xs text-ourovelho" title="Imposto calculado em cascata sobre o subtotal anterior.">🛈</span></td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                <td className="p-2 text-right">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
+              </tr>
+            ))}
+            <tr className="bg-ourovelho/10 font-semibold">
+              <td className="p-2 text-right" colSpan={3}>Subtotal Impostos <span title="Soma dos impostos em cascata.">🛈</span></td>
+              <td className="p-2 text-right">{formatCurrencyValue(subtotalImpostos)}</td>
+            </tr>
             <tr className="bg-ourovelho/30 font-extrabold">
               <td className="p-2 text-right" colSpan={3}>Total Geral</td>
               <td className="p-2 text-right">{formatCurrencyValue(totalGeral)}</td>
@@ -379,12 +389,12 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   // Botões de ação avançados
   const renderAcoesAvancadas = () => (
     <div className="flex flex-wrap gap-2 mb-6">
-      <button className="bg-gray-700 text-white px-3 py-2 rounded font-bold" title="Salvar como Template">Salvar como Template</button>
-      <button className="bg-blue-700 text-white px-3 py-2 rounded font-bold" title="Salvar Versão">💾 Salvar Versão</button>
-      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Histórico">📋 Histórico (0)</button>
-      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Comentários">💬 Comentários (0)</button>
-      <button className="bg-yellow-600 text-white px-3 py-2 rounded font-bold" title="Personalizar">🎨 Personalizar</button>
-      <button className="bg-pink-600 text-white px-3 py-2 rounded font-bold" title="Modo Expresso">⚡ Modo Expresso</button>
+      <button className="bg-gray-700 text-white px-3 py-2 rounded font-bold" title="Salvar como Template" onClick={() => alert('Funcionalidade de salvar como template em desenvolvimento.')}>Salvar como Template</button>
+      <button className="bg-blue-700 text-white px-3 py-2 rounded font-bold" title="Salvar Versão" onClick={() => alert('Funcionalidade de salvar versão em desenvolvimento.')}>💾 Salvar Versão</button>
+      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Histórico" onClick={() => alert('Funcionalidade de histórico em desenvolvimento.')}>📋 Histórico (0)</button>
+      <button className="bg-gray-600 text-white px-3 py-2 rounded font-bold" title="Comentários" onClick={() => alert('Funcionalidade de comentários em desenvolvimento.')}>💬 Comentários (0)</button>
+      <button className="bg-yellow-600 text-white px-3 py-2 rounded font-bold" title="Personalizar" onClick={() => alert('Funcionalidade de personalização em desenvolvimento.')}>🎨 Personalizar</button>
+      <button className="bg-pink-600 text-white px-3 py-2 rounded font-bold" title="Modo Expresso" onClick={() => alert('Funcionalidade de modo expresso em desenvolvimento.')}>⚡ Modo Expresso</button>
     </div>
   );
 

@@ -44,8 +44,8 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
   };
 
   return (
-    <div className="mb-6">
-      <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-2 flex items-center gap-2">
+    <div className="mb-2">
+      <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-1 flex items-center gap-2">
         <span className="text-ourovelho"><FaPlus size={14} /></span> Serviços Adicionais
       </h3>
       <table className="w-full text-sm mb-2">
