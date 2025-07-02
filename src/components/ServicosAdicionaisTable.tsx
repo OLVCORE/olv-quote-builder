@@ -13,9 +13,9 @@ interface Props {
 
 export default function ServicosAdicionaisTable({ values, setValues }: Props) {
   // Inicializa linhas adicionais se não existir
-  const linhas: LinhaAdicional[] = values.linhasAdicionais || [
-    { descricao: '', valor: '' }
-  ];
+  const linhas: LinhaAdicional[] = values.linhasAdicionais && values.linhasAdicionais.length > 0
+    ? values.linhasAdicionais
+    : [];
 
   // Adiciona nova linha
   const adicionarLinha = () => {
@@ -45,8 +45,8 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho mb-4 flex items-center gap-2">
-        <span className="text-ourovelho"><FaPlus /></span> Serviços Adicionais
+      <h3 className="text-base font-semibold text-olvblue dark:text-ourovelho mb-2 flex items-center gap-2">
+        <span className="text-ourovelho"><FaPlus size={14} /></span> Serviços Adicionais
       </h3>
       <table className="w-full text-sm mb-2">
         <thead>
