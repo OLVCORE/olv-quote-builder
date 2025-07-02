@@ -210,11 +210,31 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     // This function is now empty as the currency is managed by the props
   };
 
-  const loadingRate = false;
+  // Validação de extras
+  function validateExtra(l: ExtraCost) {
+    const errors: Record<string, string> = {};
+    if (!l.description || l.description.trim().length < 2) errors.description = 'Descrição obrigatória';
+    if (!l.qty || l.qty <= 0) errors.qty = 'Qtd obrigatória';
+    if (!l.unit || l.unit <= 0) errors.unit = 'Unitário obrigatório';
+    if (l.discount < 0 || l.discount > 100) errors.discount = 'Desconto inválido';
+    return errors;
+  }
+
+  // Impedir exportação se houver erro em algum extra
+  const hasExtraErrors = extras.some(l => Object.keys(validateExtra(l)).length > 0);
+
   const exportToPDF = () => {
+    if (hasExtraErrors) {
+      alert('Corrija os erros nos Serviços Adicionais antes de exportar.');
+      return;
+    }
     // Implementation of exportToPDF
   };
   const exportToExcel = () => {
+    if (hasExtraErrors) {
+      alert('Corrija os erros nos Serviços Adicionais antes de exportar.');
+      return;
+    }
     // Implementation of exportToExcel
   };
 
@@ -329,13 +349,30 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                   {/* Serviços adicionais */}
                   {extras.map((l) => {
                     const subtotal = l.qty * l.unit * (1 - l.discount / 100);
-                    const perc = finalTotal ? (subtotal / finalTotal) * 100 : 0;
+                    const errors = validateExtra(l);
                     return (
                       <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                        <td className="border p-1 text-white dark:text-ourovelho">{l.description || 'Outro custo'}</td>
-                        <td className="border p-1 text-right text-white dark:text-ourovelho">R$ {(subtotal).toLocaleString('pt-BR')}</td>
-                        <td className="border p-1 text-right text-white dark:text-ourovelho">{convertToForeign(subtotal)}</td>
-                        <td className="border p-1 text-xs text-white dark:text-ourovelho">{perc.toFixed(1)}%</td>
+                        <td className="border p-1">
+                          <input type="text" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.description ? 'border border-red-500' : ''}`} value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} />
+                          {errors.description && <div className="text-xs text-red-400 mt-1">{errors.description}</div>}
+                        </td>
+                        <td className="border p-1">
+                          <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.qty ? 'border border-red-500' : ''}`} value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} />
+                          {errors.qty && <div className="text-xs text-red-400 mt-1">{errors.qty}</div>}
+                        </td>
+                        <td className="border p-1">
+                          <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.unit ? 'border border-red-500' : ''}`} value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} />
+                          {errors.unit && <div className="text-xs text-red-400 mt-1">{errors.unit}</div>}
+                        </td>
+                        <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
+                        <td className="border p-1">
+                          <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${l.discount > 20 ? 'border border-yellow-400 bg-yellow-100 text-yellow-900' : ''} ${errors.discount ? 'border border-red-500' : ''}`} value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} />
+                          {l.discount > 20 && <div className="text-xs text-yellow-400 mt-1">Desconto alto! Confirme a política.</div>}
+                          {errors.discount && <div className="text-xs text-red-400 mt-1">{errors.discount}</div>}
+                        </td>
+                        <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
+                        <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
+                        <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
                       </tr>
                     );
                   })}
@@ -391,7 +428,50 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                 <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
-            <button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold">Visualizar PDF</button>
+            {/* Resumo Fixo do Orçamento */}
+            <div className="sticky top-8 z-30">
+              <div className="bg-ourovelho/90 dark:bg-ourovelho/80 rounded-xl shadow-lg p-6 border-2 border-ourovelho flex flex-col gap-2 min-w-[260px]">
+                <h3 className="text-lg font-bold text-olvblue dark:text-bg-dark-secondary mb-2">Resumo do Orçamento</h3>
+                <div className="flex justify-between text-sm font-semibold text-olvblue dark:text-bg-dark-secondary">
+                  <span>Subtotal</span>
+                  <span>R$ {subtotal.toLocaleString('pt-BR')}</span>
+                </div>
+                {currency !== 'BRL' && (
+                  <div className="flex justify-between text-sm text-olvblue dark:text-bg-dark-secondary">
+                    <span>Subtotal ({currency})</span>
+                    <span>{convertToForeign(subtotal)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm text-olvblue dark:text-bg-dark-secondary">
+                  <span>Descontos</span>
+                  <span>- R$ {discountAmount.toLocaleString('pt-BR')}</span>
+                </div>
+                {currency !== 'BRL' && (
+                  <div className="flex justify-between text-sm text-olvblue dark:text-bg-dark-secondary">
+                    <span>Descontos ({currency})</span>
+                    <span>- {convertToForeign(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm text-yellow-900 dark:text-yellow-800 font-semibold">
+                  <span>Impostos</span>
+                  <span>+ R$ {taxesTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                </div>
+                {currency !== 'BRL' && (
+                  <div className="flex justify-between text-sm text-yellow-900 dark:text-yellow-800">
+                    <span>Impostos ({currency})</span>
+                    <span>+ {convertToForeign(taxesTotal)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2 text-olvblue dark:text-bg-dark-secondary">
+                  <span>Total Final</span>
+                  <span>{currency === 'BRL' ? 'R$' : currency + ' '}{convertedTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={exportToPDF} className="flex-1 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFilePdf /> PDF</button>
+                  <button onClick={exportToExcel} className="flex-1 bg-accent-light hover:bg-accent-light-hover transition-colors text-white py-2 rounded font-bold flex items-center justify-center gap-2"><FaFileExcel /> XLSX</button>
+                </div>
+              </div>
+            </div>
           </section>
         </div>
       </div>
@@ -422,13 +502,27 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
           <tbody>
             {extras.map((l) => {
               const subtotal = l.qty * l.unit * (1 - l.discount / 100);
+              const errors = validateExtra(l);
               return (
                 <tr key={l.id} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                  <td className="border p-1"><input type="text" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} /></td>
-                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} /></td>
-                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} /></td>
+                  <td className="border p-1">
+                    <input type="text" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.description ? 'border border-red-500' : ''}`} value={l.description} onChange={(e) => updateExtra(l.id, 'description', e.target.value)} />
+                    {errors.description && <div className="text-xs text-red-400 mt-1">{errors.description}</div>}
+                  </td>
+                  <td className="border p-1">
+                    <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.qty ? 'border border-red-500' : ''}`} value={l.qty === 0 ? '' : l.qty} min={0} onChange={(e) => updateExtra(l.id, 'qty', Number(e.target.value))} />
+                    {errors.qty && <div className="text-xs text-red-400 mt-1">{errors.qty}</div>}
+                  </td>
+                  <td className="border p-1">
+                    <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${errors.unit ? 'border border-red-500' : ''}`} value={l.unit === 0 ? '' : l.unit} min={0} step={0.01} onChange={(e) => updateExtra(l.id, 'unit', Number(e.target.value))} />
+                    {errors.unit && <div className="text-xs text-red-400 mt-1">{errors.unit}</div>}
+                  </td>
                   <td className="border p-1 text-right">{convertToForeign(l.unit)}</td>
-                  <td className="border p-1"><input type="number" className="w-full px-1 bg-transparent text-white dark:text-ourovelho" value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} /></td>
+                  <td className="border p-1">
+                    <input type="number" className={`w-full px-1 bg-transparent text-white dark:text-ourovelho ${l.discount > 20 ? 'border border-yellow-400 bg-yellow-100 text-yellow-900' : ''} ${errors.discount ? 'border border-red-500' : ''}`} value={l.discount === 0 ? '' : l.discount} min={0} max={100} onChange={(e) => updateExtra(l.id, 'discount', Number(e.target.value))} />
+                    {l.discount > 20 && <div className="text-xs text-yellow-400 mt-1">Desconto alto! Confirme a política.</div>}
+                    {errors.discount && <div className="text-xs text-red-400 mt-1">{errors.discount}</div>}
+                  </td>
                   <td className="border p-1 text-right">{isNaN(subtotal) ? '-' : `R$ ${subtotal.toLocaleString('pt-BR')}`}</td>
                   <td className="border p-1 text-right">{convertToForeign(subtotal)}</td>
                   <td className="border p-1 text-center"><button type="button" onClick={() => removeExtra(l.id)} className="text-xs text-red-600">✕</button></td>
@@ -499,7 +593,6 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             step={0.0001}
             disabled={currency === 'BRL'}
           />
-          {loadingRate && <span className="ml-2 text-xs text-white">Buscando...</span>}
           <button onClick={exportToPDF} className="ml-4 text-ourovelho hover:text-accent-light" title="Visualizar/Imprimir PDF"><FaFilePdf size={20} /></button>
           <button onClick={exportToExcel} className="ml-2 text-ourovelho hover:text-accent-light" title="Exportar Excel"><FaFileExcel size={20} /></button>
         </div>
