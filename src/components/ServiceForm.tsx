@@ -594,7 +594,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
       {/* Barra de templates */}
       <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-4 mb-2">
-        <button onClick={() => setShowTemplateModal(true)} className="w-full sm:w-auto bg-accent-light dark:bg-accent-dark text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover text-sm sm:text-base">�� Template</button>
+        <button onClick={() => setShowTemplateModal(true)} className="w-full sm:w-auto bg-accent-light dark:bg-accent-dark text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-accent-light-hover dark:hover:bg-accent-dark-hover text-sm sm:text-base">Template</button>
         <button onClick={saveVersion} className="w-full sm:w-auto bg-purple-600 dark:bg-purple-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-purple-700 dark:hover:bg-purple-800 text-sm sm:text-base">💾 Versão</button>
         <button onClick={() => setShowVersionsModal(true)} className="w-full sm:w-auto bg-indigo-600 dark:bg-indigo-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-indigo-700 dark:hover:bg-indigo-800 text-sm sm:text-base">📋 Histórico ({versions.length})</button>
         <button onClick={() => setShowCommentsModal(true)} className="w-full sm:w-auto bg-orange-600 dark:bg-orange-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded font-bold shadow hover:bg-orange-700 dark:hover:bg-orange-800 text-sm sm:text-base">💬 Comentários ({comments.length})</button>
