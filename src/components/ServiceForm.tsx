@@ -822,7 +822,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Modal de comentários internos */}
       {showCommentsModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl shadow-2xl w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto mx-2">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Comentários Internos</h3>
               <button onClick={() => setShowCommentsModal(false)} className="text-red-600 font-bold text-xl">✕</button>
@@ -879,7 +879,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setShowCommentsModal(false)}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold text-sm"
               >
                 Fechar
               </button>
@@ -890,7 +890,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Modal de personalização visual */}
       {showThemeModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl shadow-2xl w-[95vw] max-w-4xl max-h-[95vh] overflow-y-auto mx-2">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">Personalização Visual</h3>
               <button onClick={() => setShowThemeModal(false)} className="text-red-600 font-bold text-xl">✕</button>
@@ -1062,7 +1062,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
       {/* Interface de simulação rápida */}
       {quickMode && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-bg-dark-secondary p-6 rounded-xl shadow-2xl max-w-2xl w-full">
+          <div className="bg-white dark:bg-bg-dark-secondary p-4 sm:p-6 rounded-xl shadow-2xl w-[95vw] max-w-2xl mx-2">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-olvblue dark:text-ourovelho">⚡ Simulação Rápida</h3>
               <button onClick={() => setQuickMode(false)} className="text-red-600 font-bold text-xl">✕</button>
@@ -1139,7 +1139,7 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
               </div>
               
               {/* Ações */}
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={() => {
                     // Aplicar dados ao formulário principal
@@ -1151,13 +1151,13 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
                     });
                     setQuickMode(false);
                   }}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold text-sm"
                 >
                   Usar no Formulário Completo
                 </button>
                 <button
                   onClick={() => setQuickMode(false)}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold"
+                  className="flex-1 sm:flex-none px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold text-sm"
                 >
                   Fechar
                 </button>
