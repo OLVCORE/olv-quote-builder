@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from 'react';
 import { TabelaTarifas } from '@/lib/tarifas';
-import { useRates, Currency } from '@/lib/useRates';
+import { useRates } from '@/lib/useRates';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { FaFilePdf, FaFileExcel, FaCoins } from 'react-icons/fa';
+import { convertValue, formatCurrency as formatCurrencyUtil } from '@/lib/utils/currency';
+import { Currency as CurrencyType, ExchangeRates } from '@/lib/types/simulator';
 
 interface Props {
   tabela: TabelaTarifas;
@@ -15,13 +17,29 @@ interface Props {
 
 export default function TabelaTarifasComponent({ tabela, currency, customRate }: Props) {
   const { rates } = useRates('BRL');
-  const defaultRate = currency === 'BRL' ? 1 : rates[currency] || 1;
+  const defaultRate = currency === 'BRL' ? 1 : rates[currency as keyof ExchangeRates] || 1;
   const conversionRate = customRate ? Number(customRate) : defaultRate;
+
+  // Garante que rates sempre tem as quatro moedas
+  const safeRates: ExchangeRates = {
+    BRL: 1,
+    USD: rates.USD || 0.18,
+    EUR: rates.EUR || 0.17,
+    CNY: rates.CNY || 1.3
+  };
+  if (currency !== 'BRL') safeRates[currency as keyof ExchangeRates] = conversionRate;
+
+  function parseValor(valor: string | number): number {
+    if (typeof valor === 'number') return valor;
+    const match = valor.replace(/\./g, '').replace(/,/g, '.').match(/\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : 0;
+  }
 
   function convertToForeign(val: number) {
     if (currency === 'BRL') return '-';
     if (!conversionRate || conversionRate === 0) return '-';
-    return (val / conversionRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    const converted = convertValue(val, 'BRL', currency as CurrencyType, safeRates);
+    return formatCurrencyUtil(converted, currency as CurrencyType);
   }
 
   // Exportação PDF (print preview)
@@ -68,12 +86,12 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
           </thead>
           <tbody>
             {tabela.items.map((item, idx) => {
-              const valorNum = typeof item.valor === 'string' ? Number(item.valor.replace(/[^\d,\.]/g, '').replace(',', '.')) : item.valor;
+              const valorNum = parseValor(item.valor);
               return (
                 <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
                   <td className="border border-ourovelho p-3 font-medium text-white dark:text-ourovelho">{item.item}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200">{item.descricao}</td>
-                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{item.valor}</td>
+                  <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{formatCurrencyUtil(valorNum, 'BRL')}</td>
                   <td className="border border-ourovelho p-3 text-center font-semibold text-white dark:text-ourovelho">{convertToForeign(valorNum)}</td>
                   <td className="border border-ourovelho p-3 text-center text-white dark:text-slate-200">{item.condicoes}</td>
                   <td className="border border-ourovelho p-3 text-white dark:text-slate-200 text-sm">{item.observacoes}</td>
