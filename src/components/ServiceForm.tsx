@@ -424,12 +424,14 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   );
 
   // Restaurar tabela de Serviços Adicionais (nº 2) no corpo da cotação
-  const renderServicosAdicionais = () => (
-    <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
-      <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Serviços Adicionais</h3>
-      <ServicosAdicionaisTable values={values} setValues={setValues} currency={currencyTyped} exchangeRates={exchangeRates} />
-    </div>
-  );
+  const renderServicosAdicionais = () => {
+    return (
+      <div className="bg-white dark:bg-[#181f33] border border-olvblue dark:border-ourovelho rounded-xl p-6 mb-8 shadow-md">
+        <h3 className="text-xl font-bold text-olvblue dark:text-ourovelho mb-6">Serviços Adicionais</h3>
+        <ServicosAdicionaisTable values={values} setValues={setValues} currency={currencyTyped} exchangeRates={exchangeRates} />
+      </div>
+    );
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
