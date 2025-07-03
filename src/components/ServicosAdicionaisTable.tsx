@@ -9,9 +9,11 @@ interface LinhaAdicional {
 interface Props {
   values: Record<string, any>;
   setValues: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  currency?: string;
+  exchangeRates?: Record<string, number>;
 }
 
-export default function ServicosAdicionaisTable({ values, setValues }: Props) {
+export default function ServicosAdicionaisTable({ values, setValues, currency = 'BRL', exchangeRates = { BRL: 1, USD: 1 } }: Props) {
   // Inicializa linhas adicionais se não existir
   const linhas: LinhaAdicional[] = values.linhasAdicionais && values.linhasAdicionais.length > 0
     ? values.linhasAdicionais
@@ -53,6 +55,7 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
           <tr className="bg-ourovelho/10 dark:bg-olvblue/20">
             <th className="p-2 text-left">Descrição <span title='Descreva o serviço adicional. Exemplo: "Despacho aduaneiro".' className='text-xs text-ourovelho'>🛈</span></th>
             <th className="p-2 text-left">Valor (BRL) <span title='Informe o valor do serviço adicional em reais.' className='text-xs text-ourovelho'>🛈</span></th>
+            <th className="p-2 text-left">Valor (USD)</th>
             <th className="p-2"></th>
           </tr>
         </thead>
@@ -79,6 +82,15 @@ export default function ServicosAdicionaisTable({ values, setValues }: Props) {
                   min={0}
                   title="Informe o valor do serviço adicional em reais."
                 />
+              </td>
+              <td className="p-2 text-right font-bold text-olvblue dark:text-ourovelho">
+                {(() => {
+                  const val = Number(linha.valor);
+                  if (!val || !exchangeRates.USD) return '-';
+                  // Conversão BRL -> USD
+                  const usd = currency === 'USD' ? val : (val / exchangeRates.USD);
+                  return usd.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+                })()}
               </td>
               <td className="p-2 text-center">
                 <button
