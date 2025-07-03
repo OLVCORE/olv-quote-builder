@@ -9,6 +9,9 @@ import TabelaTarifas from './TabelaTarifas';
 import { getTabelaTarifas } from '@/lib/tarifas';
 import ServicosAdicionaisTable from './ServicosAdicionaisTable';
 import Collapsible from './UI/Collapsible';
+import { calculateTaxes } from '@/lib/utils/calculations';
+import { convertValue, formatCurrency } from '@/lib/utils/currency';
+import { Currency, ExchangeRates } from '@/lib/types/simulator';
 
 interface Props {
   config: ServiceConfig;
@@ -301,30 +304,36 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     // 3. Soma base para impostos
     const subtotalServicos = linhasServicos.reduce((sum: number, l: any) => sum + l.valor, 0);
     const subtotalAdicionais = linhasAdicionais.reduce((sum: number, l: any) => sum + l.valor, 0);
-    let subtotal = subtotalServicos + subtotalAdicionais;
-    let subtotalAntesImpostos = subtotal;
-    const linhasImpostos = impostos
-      .filter(imp => imp.nome && imp.valor && Number(imp.valor) > 0)
-      .map((imp, idx) => {
-        const valor = subtotal * (Number(imp.valor) / 100);
-        subtotal += valor;
-        return {
-          tipo: 'imposto',
-          descricao: imp.nome,
-          valor,
-          percentual: Number(imp.valor)
-        };
-      });
+    const subtotalBase = subtotalServicos + subtotalAdicionais;
+    const currencyTyped = currency as Currency;
+    const impostosSelecionados = impostos.filter(imp => imp.nome && imp.valor && Number(imp.valor) > 0).map(imp => ({
+      name: imp.nome,
+      code: imp.nome.toUpperCase().replace(/\s/g, '_'),
+      rate: Number(imp.valor),
+      enabled: true
+    }));
+    const impostosCalculados = calculateTaxes(subtotalBase, 'SP', impostosSelecionados); // UF pode ser dinâmico
+    const exchangeRates: ExchangeRates = {
+      BRL: 1,
+      USD: rates.USD || 1,
+      EUR: rates.EUR || 1,
+      CNY: rates.CNY || 1,
+      [currencyTyped]: conversionRate || rates[currencyTyped] || 1
+    };
+    const linhasImpostos = impostosCalculados.taxes.map(tax => ({
+      tipo: 'imposto',
+      descricao: tax.code,
+      valor: (tax as any)['value'] ?? 0,
+      percentual: tax.rate
+    }));
     const subtotalImpostos = linhasImpostos.reduce((sum: number, l: any) => sum + l.valor, 0);
-    const totalGeral = subtotal;
+    const totalGeral = subtotalBase + subtotalImpostos;
 
     // 4. Conversão de moeda
-    const { convertValue, formatCurrency } = require('@/lib/utils/currency');
-    const exchangeRates = { BRL: 1, [currency]: conversionRate };
     function formatCurrencyValue(val: number) {
-      if (currency === 'BRL') return `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-      const converted = convertValue(val, 'BRL', currency, exchangeRates);
-      return formatCurrency(converted, currency);
+      if (currencyTyped === 'BRL') return `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      const converted = convertValue(val, 'BRL', currencyTyped, exchangeRates);
+      return formatCurrency(converted, currencyTyped);
     }
 
     return (
@@ -417,7 +426,9 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
       {renderAcoesAvancadas()}
       <Collapsible title="1. Serviços Principais">{renderServicosPrincipais()}</Collapsible>
-      <Collapsible title="2. Serviços Adicionais"><ServicosAdicionaisTable values={values} setValues={setValues} /></Collapsible>
+      {(values.linhasAdicionais && values.linhasAdicionais.length > 0) ? (
+        <Collapsible title="2. Serviços Adicionais"><ServicosAdicionaisTable values={values} setValues={setValues} /></Collapsible>
+      ) : null}
       <Collapsible title="3. Impostos">{renderImpostos()}</Collapsible>
       <Collapsible title="4. Resultado">{renderResultados()}</Collapsible>
       <Collapsible title="5. Breakdown Detalhado">{renderBreakdown()}</Collapsible>
