@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Props {
   title: string;
   children: React.ReactNode;
+  expanded?: boolean;
 }
 
-export default function Collapsible({ title, children }: Props) {
-  const [open, setOpen] = useState(true);
+export default function Collapsible({ title, children, expanded }: Props) {
+  const [open, setOpen] = useState(expanded ?? false);
+  useEffect(() => {
+    if (expanded !== undefined) setOpen(expanded);
+  }, [expanded]);
   return (
     <div className="mb-6 border border-ourovelho rounded-xl bg-olvblue dark:bg-bg-dark-secondary shadow-lg">
       <button

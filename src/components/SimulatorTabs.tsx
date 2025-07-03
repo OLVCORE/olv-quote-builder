@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
-import { FaFilePdf, FaFileExcel } from 'react-icons/fa';
+import { FaFilePdf, FaFileExcel, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { AdminProvider } from './AdminContext';
 import Collapsible from './UI/Collapsible';
 
@@ -55,20 +55,31 @@ function TabsWithAdmin() {
     alert('Exportação XLSX de toda a proposta ainda não implementada.');
   };
 
+  const [expandAll, setExpandAll] = useState(true);
+
   return (
     <>
       <Tabs.Root value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <Tabs.List className="flex flex-wrap gap-1 sm:gap-2 bg-slate-100 dark:bg-olvblue p-2 rounded-xl mb-4 sm:mb-6 shadow-inner">
-          {tabList.map(tab => (
-            <Tabs.Trigger
-              key={tab.value}
-              value={tab.value}
-              className="flex-1 min-w-[100px] sm:min-w-[120px] px-2 sm:px-4 py-2 text-xs sm:text-base font-semibold rounded-lg shadow-md border border-ourovelho-dark bg-white dark:bg-[#181f33] text-slate-700 dark:text-slate-200 transition-all duration-200 data-[state=active]:bg-olvblue data-[state=active]:text-ourovelho data-[state=active]:shadow-lg data-[state=active]:border-ourovelho-dark data-[state=active]:scale-105 hover:bg-ourovelho/10 dark:hover:bg-ourovelho/20 cursor-pointer"
-            >
-              {tab.label}
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
+        <div className="flex flex-wrap gap-1 sm:gap-2 bg-slate-100 dark:bg-olvblue p-2 rounded-xl mb-4 sm:mb-6 shadow-inner items-center">
+          <Tabs.List className="flex-1 flex flex-wrap gap-1 sm:gap-2">
+            {tabList.map(tab => (
+              <Tabs.Trigger
+                key={tab.value}
+                value={tab.value}
+                className="flex-1 min-w-[100px] sm:min-w-[120px] px-2 sm:px-4 py-2 text-xs sm:text-base font-semibold rounded-lg shadow-md border border-ourovelho-dark bg-white dark:bg-[#181f33] text-slate-700 dark:text-slate-200 transition-all duration-200 data-[state=active]:bg-olvblue data-[state=active]:text-ourovelho data-[state=active]:shadow-lg data-[state=active]:border-ourovelho-dark data-[state=active]:scale-105 hover:bg-ourovelho/10 dark:hover:bg-ourovelho/20 cursor-pointer"
+              >
+                {tab.label}
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
+          <button
+            className="ml-2 flex items-center gap-1 px-3 py-2 rounded-lg border border-ourovelho bg-white dark:bg-[#181f33] text-olvblue dark:text-ourovelho font-bold shadow hover:bg-ourovelho/10 dark:hover:bg-ourovelho/20"
+            title={expandAll ? 'Recolher todas as seções' : 'Expandir todas as seções'}
+            onClick={() => setExpandAll(e => !e)}
+          >
+            {expandAll ? <FaChevronUp /> : <FaChevronDown />} {expandAll ? 'Recolher Tudo' : 'Expandir Tudo'}
+          </button>
+        </div>
         {/* Bloco global de câmbio/ícones ao lado do nome do serviço */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           {selectedService && (

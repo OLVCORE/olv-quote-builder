@@ -17,9 +17,10 @@ interface Props {
   config: ServiceConfig;
   currency: string;
   customRate: string;
+  expandAll?: boolean;
 }
 
-export default function ServiceForm({ config, currency, customRate }: Props) {
+export default function ServiceForm({ config, currency, customRate, expandAll }: Props) {
   const [values, setValues] = useState<Record<string, any>>(
     Object.fromEntries(config.inputs.map((i) => [i.key, i.default]))
   );
@@ -425,15 +426,15 @@ export default function ServiceForm({ config, currency, customRate }: Props) {
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-4 md:px-6">
       {renderAcoesAvancadas()}
-      <Collapsible title="1. Serviços Principais">{renderServicosPrincipais()}</Collapsible>
+      <Collapsible title="1. Serviços Principais" expanded={expandAll}>{renderServicosPrincipais()}</Collapsible>
       {(values.linhasAdicionais && values.linhasAdicionais.length > 0) ? (
-        <Collapsible title="2. Serviços Adicionais"><ServicosAdicionaisTable values={values} setValues={setValues} /></Collapsible>
+        <Collapsible title="2. Serviços Adicionais" expanded={expandAll}><ServicosAdicionaisTable values={values} setValues={setValues} /></Collapsible>
       ) : null}
-      <Collapsible title="3. Impostos">{renderImpostos()}</Collapsible>
-      <Collapsible title="4. Resultado">{renderResultados()}</Collapsible>
-      <Collapsible title="5. Breakdown Detalhado">{renderBreakdown()}</Collapsible>
-      <Collapsible title="6. Tabela de Tarifas e Condições">{renderTabelaTarifas()}</Collapsible>
-      <Collapsible title="7. Observações Gerais">{renderObservacoes()}</Collapsible>
+      <Collapsible title="3. Impostos" expanded={expandAll}>{renderImpostos()}</Collapsible>
+      <Collapsible title="4. Resultado" expanded={expandAll}>{renderResultados()}</Collapsible>
+      <Collapsible title="5. Breakdown Detalhado" expanded={expandAll}>{renderBreakdown()}</Collapsible>
+      <Collapsible title="6. Tabela de Tarifas e Condições" expanded={expandAll}>{renderTabelaTarifas()}</Collapsible>
+      <Collapsible title="7. Observações Gerais" expanded={expandAll}>{renderObservacoes()}</Collapsible>
       {renderAcoes()}
     </div>
   );
