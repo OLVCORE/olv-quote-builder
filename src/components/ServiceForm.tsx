@@ -162,27 +162,27 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     if (!breakdown || Object.keys(breakdown).length === 0) return null;
     return (
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-        <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-green-200 dark:border-green-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+        <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
               <FaChartBar className="text-2xl text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-green-700 dark:text-green-400">Breakdown Detalhado</h3>
+            <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Breakdown Detalhado</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50">
-                  <th className="p-4 text-left font-bold text-green-800 dark:text-green-300">Item</th>
-                  <th className="p-4 text-right font-bold text-green-800 dark:text-green-300">Valor (BRL)</th>
+                <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
+                  <th className="p-4 text-left font-bold text-blue-800 dark:text-blue-300">Item</th>
+                  <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">Valor (BRL)</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(breakdown).map(([key, value], index) => (
-                  <tr key={key} className={`${index % 2 === 0 ? 'bg-white/50' : 'bg-green-50/50'} dark:${index % 2 === 0 ? 'bg-slate-700/50' : 'bg-green-900/20'} hover:bg-green-100/50 dark:hover:bg-green-800/20 transition-colors duration-200`}>
+                  <tr key={key} className={`${index % 2 === 0 ? 'bg-white/50' : 'bg-blue-50/50'} dark:${index % 2 === 0 ? 'bg-slate-700/50' : 'bg-blue-900/20'} hover:bg-blue-100/50 dark:hover:bg-blue-800/20 transition-colors duration-200`}>
                     <td className="p-4 font-semibold capitalize text-slate-700 dark:text-slate-200">{key.replace(/_/g, ' ')}</td>
-                    <td className="p-4 text-right font-bold text-green-600 dark:text-green-400">R$ {Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">R$ {Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                   </tr>
                 ))}
               </tbody>
@@ -215,13 +215,13 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   // Seção Serviços Principais com visual premium
   const renderServicosPrincipais = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-purple-200 dark:border-purple-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl">
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaCalculator className="text-2xl text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-purple-700 dark:text-purple-400">Serviços Principais</h3>
+          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Serviços Principais</h3>
         </div>
         {renderInputs()}
       </div>
@@ -237,17 +237,17 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   const removerImposto = (idx: number) => setImpostos(imps => imps.filter((_, i) => i !== idx));
   const renderImpostos = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-red-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-orange-200 dark:border-orange-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl">
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaReceipt className="text-2xl text-white" />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-orange-700 dark:text-orange-400">
+            <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">
               Impostos
             </h3>
-            <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
+            <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
               Impostos são calculados em cascata conforme legislação brasileira
             </p>
           </div>
@@ -256,21 +256,21 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         <div className="overflow-x-auto">
           <table className="w-full text-sm mb-4">
             <thead>
-              <tr className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50">
-                <th className="p-3 text-left font-bold text-orange-800 dark:text-orange-300">Imposto</th>
-                <th className="p-3 text-left font-bold text-orange-800 dark:text-orange-300">Percentual (%)</th>
-                <th className="p-3 text-center font-bold text-orange-800 dark:text-orange-300">Ações</th>
+              <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
+                <th className="p-3 text-left font-bold text-blue-800 dark:text-blue-300">Imposto</th>
+                <th className="p-3 text-left font-bold text-blue-800 dark:text-blue-300">Percentual (%)</th>
+                <th className="p-3 text-center font-bold text-blue-800 dark:text-blue-300">Ações</th>
               </tr>
             </thead>
             <tbody>
               {impostos.map((imp, idx) => (
-                <tr key={idx} className="hover:bg-orange-50/50 dark:hover:bg-orange-900/20 transition-colors duration-200">
+                <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-200">
                   <td className="p-3">
                     <input
                       type="text"
                       value={imp.nome}
                       onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
-                      className="w-full px-3 py-2 rounded-lg border-2 border-orange-200 dark:border-orange-600 bg-white/90 dark:bg-slate-700/90 text-orange-700 dark:text-orange-300 placeholder:text-orange-400 dark:placeholder:text-orange-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-inner"
+                      className="w-full px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
                       placeholder="Nome do imposto"
                     />
                   </td>
@@ -279,7 +279,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
                       type="number"
                       value={imp.valor}
                       onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: e.target.value } : i))}
-                      className="w-32 px-3 py-2 rounded-lg border-2 border-orange-200 dark:border-orange-600 bg-white/90 dark:bg-slate-700/90 text-orange-700 dark:text-orange-300 placeholder:text-orange-400 dark:placeholder:text-orange-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-inner"
+                      className="w-32 px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
                       placeholder="0,00"
                       min={0}
                       max={100}
@@ -306,7 +306,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         <button
           type="button"
           onClick={adicionarImposto}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold px-6 py-3 rounded-xl hover:from-orange-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold px-6 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           title="Adicionar novo imposto"
         >
           <FaPlus size={16} />
@@ -320,18 +320,18 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   const [observacoes, setObservacoes] = useState('');
   const renderObservacoes = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-teal-200 dark:border-teal-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl">
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaComments className="text-2xl text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-teal-700 dark:text-teal-400">Observações Gerais</h3>
+          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Observações Gerais</h3>
         </div>
         <textarea
           value={observacoes}
           onChange={e => setObservacoes(e.target.value)}
-          className="w-full min-h-[120px] px-4 py-3 rounded-xl border-2 border-teal-200 dark:border-teal-600 bg-white/90 dark:bg-slate-700/90 text-teal-700 dark:text-teal-300 placeholder:text-teal-400 dark:placeholder:text-teal-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-inner resize-none"
+          className="w-full min-h-[120px] px-4 py-3 rounded-xl border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner resize-none"
           placeholder="Digite observações, condições ou notas gerais da proposta..."
         />
       </div>
@@ -396,73 +396,66 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
 
     return (
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-        <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-indigo-200 dark:border-indigo-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+        <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
               <FaChartBar className="text-2xl text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-indigo-700 dark:text-indigo-400">Resultado Detalhado</h3>
+            <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Resultado Detalhado</h3>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50">
-                  <th className="p-4 text-left font-bold text-indigo-800 dark:text-indigo-300">Item</th>
-                  <th className="p-4 text-right font-bold text-indigo-800 dark:text-indigo-300">Valor (BRL)</th>
-                  <th className="p-4 text-right font-bold text-indigo-800 dark:text-indigo-300">{currency !== 'BRL' ? `Valor (${currency})` : ''}</th>
-                  <th className="p-4 text-right font-bold text-indigo-800 dark:text-indigo-300">% sobre total</th>
+                <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
+                  <th className="p-4 text-left font-bold text-blue-800 dark:text-blue-300">Item</th>
+                  <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">Valor (BRL)</th>
+                  <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">{currency !== 'BRL' ? `Valor (${currency})` : ''}</th>
+                  <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">% sobre total</th>
                 </tr>
               </thead>
               <tbody>
                 {linhasServicos.map((linha: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors duration-200">
+                  <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-200">
                     <td className="p-4 font-semibold capitalize text-slate-700 dark:text-slate-200">{linha.descricao}</td>
-                    <td className="p-4 text-right font-bold text-indigo-600 dark:text-indigo-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-right font-bold text-indigo-600 dark:text-indigo-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
                     <td className="p-4 text-right text-slate-600 dark:text-slate-300">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
                   </tr>
                 ))}
-                <tr className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 font-bold">
-                  <td className="p-4 text-right text-green-800 dark:text-green-300" colSpan={3}>
+                <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 font-bold">
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300" colSpan={3}>
                     Subtotal Serviços
-                    <FaInfoCircle className="inline ml-2 text-green-600 dark:text-green-400" title="Soma dos serviços principais." />
+                    <FaInfoCircle className="inline ml-2 text-blue-600 dark:text-blue-400" title="Soma dos serviços principais." />
                   </td>
-                  <td className="p-4 text-right text-green-800 dark:text-green-300">{formatCurrencyValue(subtotalServicos)}</td>
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300">{formatCurrencyValue(subtotalServicos)}</td>
                 </tr>
                 {linhasAdicionais.map((linha: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors duration-200">
+                  <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-200">
                     <td className="p-4 font-semibold capitalize text-slate-700 dark:text-slate-200">{linha.descricao}</td>
-                    <td className="p-4 text-right font-bold text-indigo-600 dark:text-indigo-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-right font-bold text-indigo-600 dark:text-indigo-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
                     <td className="p-4 text-right text-slate-600 dark:text-slate-300">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
                   </tr>
                 ))}
-                <tr className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 font-bold">
-                  <td className="p-4 text-right text-blue-800 dark:text-blue-300" colSpan={3}>
-                    Subtotal Adicionais
-                    <FaInfoCircle className="inline ml-2 text-blue-600 dark:text-blue-400" title="Soma dos serviços adicionais." />
-                  </td>
-                  <td className="p-4 text-right text-blue-800 dark:text-blue-300">{formatCurrencyValue(subtotalAdicionais)}</td>
-                </tr>
                 {linhasImpostos.map((linha: any, idx: number) => (
-                  <tr key={idx} className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 hover:from-orange-100 hover:to-red-100 dark:hover:from-orange-800/30 dark:hover:to-red-800/30 transition-colors duration-200">
-                    <td className="p-4 font-semibold capitalize text-orange-700 dark:text-orange-300">
+                  <tr key={idx} className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-colors duration-200">
+                    <td className="p-4 font-semibold capitalize text-blue-700 dark:text-blue-300">
                       {linha.descricao}
-                      <FaInfoCircle className="inline ml-2 text-orange-600 dark:text-orange-400" title="Imposto calculado em cascata sobre o subtotal anterior." />
+                      <FaInfoCircle className="inline ml-2 text-blue-600 dark:text-blue-400" title="Imposto calculado em cascata sobre o subtotal anterior." />
                     </td>
-                    <td className="p-4 text-right font-bold text-orange-600 dark:text-orange-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-right font-bold text-orange-600 dark:text-orange-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
-                    <td className="p-4 text-right text-orange-600 dark:text-orange-400">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
+                    <td className="p-4 text-right text-slate-600 dark:text-slate-300">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
                   </tr>
                 ))}
-                <tr className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 font-bold">
-                  <td className="p-4 text-right text-orange-800 dark:text-orange-300" colSpan={3}>
+                <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 font-bold">
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300" colSpan={3}>
                     Subtotal Impostos
-                    <FaInfoCircle className="inline ml-2 text-orange-600 dark:text-orange-400" title="Soma dos impostos em cascata." />
+                    <FaInfoCircle className="inline ml-2 text-blue-600 dark:text-blue-400" title="Soma dos impostos em cascata." />
                   </td>
-                  <td className="p-4 text-right text-orange-800 dark:text-orange-300">{formatCurrencyValue(subtotalImpostos)}</td>
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300">{formatCurrencyValue(subtotalImpostos)}</td>
                 </tr>
                 <tr className="bg-gradient-to-r from-ourovelho/20 to-ourovelho-dark/20 dark:from-ourovelho/30 dark:to-ourovelho-dark/30 font-extrabold text-lg">
                   <td className="p-4 text-right text-ourovelho-dark dark:text-ourovelho" colSpan={3}>Total Geral</td>
@@ -557,13 +550,13 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   // Seção Serviços Adicionais com visual premium
   const renderServicosAdicionais = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-pink-200 dark:border-pink-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-pink-500 to-rose-600 rounded-xl">
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaPlus className="text-2xl text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-pink-700 dark:text-pink-400">Serviços Adicionais</h3>
+          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Serviços Adicionais</h3>
         </div>
         <ServicosAdicionaisTable values={values} setValues={setValues} />
       </div>
@@ -576,7 +569,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="1. Serviços Principais" 
         expanded={expandAll} 
         icon={<FaCalculator className="text-white" />}
-        color="purple"
+        color="blue"
       >
         {renderServicosPrincipais()}
       </Collapsible>
@@ -594,7 +587,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="3. Breakdown Detalhado" 
         expanded={expandAll} 
         icon={<FaChartBar className="text-white" />}
-        color="green"
+        color="blue"
       >
         {renderBreakdown()}
       </Collapsible>
@@ -603,7 +596,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="4. Serviços Adicionais" 
         expanded={expandAll} 
         icon={<FaPlus className="text-white" />}
-        color="pink"
+        color="blue"
       >
         {renderServicosAdicionais()}
       </Collapsible>
@@ -612,7 +605,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="5. Impostos" 
         expanded={expandAll} 
         icon={<FaReceipt className="text-white" />}
-        color="orange"
+        color="blue"
       >
         {renderImpostos()}
       </Collapsible>
@@ -621,7 +614,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="6. Observações Gerais" 
         expanded={expandAll} 
         icon={<FaComments className="text-white" />}
-        color="teal"
+        color="blue"
       >
         {renderObservacoes()}
       </Collapsible>
@@ -630,7 +623,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         title="7. Resultado Detalhado" 
         expanded={expandAll} 
         icon={<FaChartBar className="text-white" />}
-        color="indigo"
+        color="blue"
       >
         {renderResultados()}
       </Collapsible>
