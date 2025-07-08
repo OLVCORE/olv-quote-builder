@@ -136,4 +136,53 @@ export interface ProposalTaxes {
 export interface ProposalUniversal {
   items: UniversalItem[];
   subtotal: number;
+}
+
+export type TipoSimulacao = 'servico' | 'produto';
+
+export type RegimeTributario = 'simples' | 'presumido' | 'real';
+
+export interface ItemSimulacao {
+  id: string;
+  nome: string;
+  tipo: 'produto' | 'servico';
+  quantidade: number;
+  custoUnitario: number;
+  precoUnitario: number;
+  unidade?: string;
+}
+
+export interface ImpostoSimulacao {
+  id: string;
+  nome: string;
+  percentual: number;
+  valor: number;
+  tipo: 'federal' | 'estadual' | 'municipal';
+  codigo?: string; // NCM, CNAE, etc
+}
+
+export interface DespesaSimulacao {
+  id: string;
+  nome: string;
+  valor: number;
+  tipo: 'fixa' | 'variavel';
+}
+
+export interface Simulacao {
+  id: string;
+  tipo: TipoSimulacao;
+  nome: string;
+  descricao?: string;
+  itens: ItemSimulacao[];
+  impostos: ImpostoSimulacao[];
+  despesas: DespesaSimulacao[];
+  markup: number;
+  precoCusto: number;
+  precoVenda: number;
+  margemBruta: number;
+  margemLiquida: number;
+  regimeTributario: RegimeTributario;
+  ncmOuCnae?: string;
+  criadoEm: string;
+  atualizadoEm: string;
 } 

@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { allServices } from '@/lib/services';
 import ServiceForm from '@/components/ServiceForm';
 import * as Tabs from '@radix-ui/react-tabs';
-import { FaFilePdf, FaFileExcel, FaChevronDown, FaChevronUp, FaIndustry, FaShip, FaTruck, FaRoute, FaBuilding, FaGlobe, FaUsers, FaPlus } from 'react-icons/fa';
+import { FaFilePdf, FaFileExcel, FaChevronDown, FaChevronUp, FaIndustry, FaShip, FaTruck, FaRoute, FaBuilding, FaGlobe, FaUsers, FaPlus, FaCogs, FaBoxOpen } from 'react-icons/fa';
 import { AdminProvider } from './AdminContext';
 import Collapsible from './UI/Collapsible';
 import * as XLSX from 'xlsx';
+import { TipoSimulacao } from '@/lib/types/simulator';
 
 function TabsWithAdmin() {
   // Lista de abas com ícones - PADRONIZADO para azul/ouro oficial
@@ -296,6 +297,32 @@ function TabsWithAdmin() {
 }
 
 export default function SimulatorTabs() {
+  const [tipoSimulacao, setTipoSimulacao] = useState<TipoSimulacao | null>(null);
+
+  if (!tipoSimulacao) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border-2 border-blue-100 dark:border-blue-700">
+        <h2 className="text-2xl font-bold mb-6 text-blue-800 dark:text-blue-300">O que você deseja simular?</h2>
+        <div className="flex gap-8">
+          <button
+            onClick={() => setTipoSimulacao('servico')}
+            className="flex flex-col items-center gap-2 px-8 py-6 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 border-2 border-blue-200 dark:border-blue-600"
+          >
+            <FaCogs className="text-3xl mb-2" />
+            <span className="text-lg font-semibold">Simular Serviço</span>
+          </button>
+          <button
+            onClick={() => setTipoSimulacao('produto')}
+            className="flex flex-col items-center gap-2 px-8 py-6 bg-gradient-to-br from-ourovelho to-ourovelho-dark text-white rounded-xl shadow-lg hover:scale-105 hover:from-ourovelho-dark hover:to-ourovelho transition-all duration-300 border-2 border-ourovelho dark:border-ourovelho-dark"
+          >
+            <FaBoxOpen className="text-3xl mb-2" />
+            <span className="text-lg font-semibold">Simular Produto</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AdminProvider>
       <TabsWithAdmin />
