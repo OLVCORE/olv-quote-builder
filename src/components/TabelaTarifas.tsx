@@ -5,7 +5,7 @@ import { useRates } from '@/lib/useRates';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
-import { FaFilePdf, FaFileExcel, FaCoins } from 'react-icons/fa';
+import { FaFilePdf, FaFileExcel, FaCoins, FaInfoCircle } from 'react-icons/fa';
 import { convertValue, formatCurrency as formatCurrencyUtil } from '@/lib/utils/currency';
 import { Currency as CurrencyType, ExchangeRates } from '@/lib/types/simulator';
 
@@ -67,53 +67,129 @@ export default function TabelaTarifasComponent({ tabela, currency, customRate }:
   };
 
   return (
-    <div className="bg-olvblue dark:bg-bg-dark-secondary p-3 sm:p-4 lg:p-6 rounded-xl border border-ourovelho dark:border-ourovelho shadow-lg">
-      <h3 className="text-lg sm:text-xl font-bold text-white dark:text-ourovelho mb-2">{tabela.titulo}</h3>
-      {tabela.subtitulo && (
-        <p className="text-xs sm:text-sm text-white dark:text-slate-200 opacity-80 mb-2">{tabela.subtitulo}</p>
-      )}
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs sm:text-sm border-collapse min-w-[800px]">
-          <thead>
-            <tr className="bg-accent-light dark:bg-accent-dark text-white">
-              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Item</th>
-              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Descrição</th>
-              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Valor (BRL)</th>
-              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Valor ({currency})</th>
-              <th className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-xs sm:text-sm">Condições</th>
-              <th className="border border-ourovelho p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm">Observações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tabela.items.map((item, idx) => {
-              const valorNum = parseValor(item.valor);
-              return (
-                <tr key={idx} className="odd:bg-olvblue/80 dark:odd:bg-bg-dark-tertiary even:bg-olvblue dark:even:bg-bg-dark-secondary">
-                  <td className="border border-ourovelho p-2 sm:p-3 font-medium text-white dark:text-ourovelho text-xs sm:text-sm">{item.item}</td>
-                  <td className="border border-ourovelho p-2 sm:p-3 text-white dark:text-slate-200 text-xs sm:text-sm">{item.descricao}</td>
-                  <td className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-white dark:text-ourovelho text-xs sm:text-sm">{formatCurrencyUtil(valorNum, 'BRL')}</td>
-                  <td className="border border-ourovelho p-2 sm:p-3 text-center font-semibold text-white dark:text-ourovelho text-xs sm:text-sm">{convertToForeign(valorNum)}</td>
-                  <td className="border border-ourovelho p-2 sm:p-3 text-center text-white dark:text-slate-200 text-xs sm:text-sm">{item.condicoes}</td>
-                  <td className="border border-ourovelho p-2 sm:p-3 text-white dark:text-slate-200 text-xs sm:text-sm">{item.observacoes}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {tabela.observacoesGerais && tabela.observacoesGerais.length > 0 && (
-        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-accent-light/10 dark:bg-accent-dark/10 rounded-lg border-l-4 border-accent-dark">
-          <h4 className="font-semibold text-white dark:text-ourovelho mb-2 text-sm sm:text-base">Observações Gerais</h4>
-          <ul className="space-y-1">
-            {tabela.observacoesGerais.map((obs, idx) => (
-              <li key={idx} className="text-xs sm:text-sm text-white dark:text-slate-200 flex items-start">
-                <span className="text-white dark:text-ourovelho mr-2">•</span>
-                {obs}
-              </li>
-            ))}
-          </ul>
+    <div className="relative">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl blur-xl"></div>
+      
+      {/* Main container */}
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+              <FaCoins className="text-2xl text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">{tabela.titulo}</h3>
+              {tabela.subtitulo && (
+                <p className="text-sm text-blue-600 dark:text-blue-300 opacity-80 mt-1">{tabela.subtitulo}</p>
+              )}
+            </div>
+          </div>
+          
+          {/* Export buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportToPDF}
+              className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+              title="Exportar PDF"
+            >
+              <FaFilePdf size={16} />
+            </button>
+            <button
+              onClick={exportToExcel}
+              className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+              title="Exportar Excel"
+            >
+              <FaFileExcel size={16} />
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden shadow-xl rounded-xl border-2 border-blue-200 dark:border-blue-700">
+              <table className="min-w-full divide-y divide-blue-200 dark:divide-blue-700">
+                <thead className="bg-gradient-to-r from-blue-500 to-indigo-600">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Item
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Descrição
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                      Valor (BRL)
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                      Valor ({currency})
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                      Condições
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Observações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-slate-800 divide-y divide-blue-100 dark:divide-blue-700">
+                  {tabela.items.map((item, idx) => {
+                    const valorNum = parseValor(item.valor);
+                    return (
+                      <tr 
+                        key={idx} 
+                        className={`hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 ${
+                          idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-blue-50/50 dark:bg-blue-900/10'
+                        }`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-700 dark:text-blue-300">
+                          {item.item}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-200">
+                          {item.descricao}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-blue-600 dark:text-blue-400">
+                          {formatCurrencyUtil(valorNum, 'BRL')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-blue-600 dark:text-blue-400">
+                          {convertToForeign(valorNum)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-600 dark:text-slate-300">
+                          {item.condicoes}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                          {item.observacoes}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Observações Gerais */}
+        {tabela.observacoesGerais && tabela.observacoesGerais.length > 0 && (
+          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg">
+                <FaInfoCircle className="text-white" />
+              </div>
+              <h4 className="text-lg font-bold text-blue-700 dark:text-blue-400">Observações Gerais</h4>
+            </div>
+            <ul className="space-y-2">
+              {tabela.observacoesGerais.map((obs, idx) => (
+                <li key={idx} className="text-sm text-slate-700 dark:text-slate-200 flex items-start">
+                  <span className="text-blue-500 dark:text-blue-400 mr-3 mt-1">•</span>
+                  <span>{obs}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 } 
