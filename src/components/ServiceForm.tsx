@@ -24,11 +24,35 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   const [values, setValues] = useState<Record<string, any>>(
     Object.fromEntries(config.inputs.map((i) => [i.key, i.default]))
   );
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { admin, enableAdmin } = useAdmin();
 
   function handleChange(field: InputField, val: any) {
     setValues((prev) => ({ ...prev, [field.key]: val }));
+    
+    // Validação em tempo real
+    validateField(field, val);
   }
+
+  // Validação de campos
+  const validateField = (field: InputField, value: any) => {
+    const newErrors = { ...errors };
+    
+    if (field.type === 'number') {
+      const numValue = Number(value);
+      if (field.min !== undefined && numValue < field.min) {
+        newErrors[field.key] = `Valor mínimo: ${field.min}`;
+      } else if (field.max !== undefined && numValue > field.max) {
+        newErrors[field.key] = `Valor máximo: ${field.max}`;
+      } else if (isNaN(numValue)) {
+        newErrors[field.key] = 'Valor inválido';
+      } else {
+        delete newErrors[field.key];
+      }
+    }
+    
+    setErrors(newErrors);
+  };
 
   // Cálculo principal do serviço
   const baseResult = useMemo(() => config.calculate(values), [values, config]);
@@ -125,7 +149,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     }
   };
 
-  // Renderização dos campos dinâmicos com visual premium
+  // Renderização dos campos dinâmicos com visual premium - PADRONIZADO AZUL/OURO
   const renderInputs = () => {
     // Se for Serviços Adicionais, renderiza tabela dinâmica
     if (config.slug === 'servicos-adicionais') {
@@ -136,19 +160,28 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {config.inputs.map((input, index) => (
           <div key={input.key} className="group relative">
+            {/* PADRONIZADO: Azul oficial */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/50 dark:to-slate-600/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative space-y-3">
-              <label className="block text-sm font-bold text-olvblue dark:text-ourovelho flex items-center gap-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-ourovelho to-ourovelho-dark rounded-full"></div>
+              {/* PADRONIZADO: Azul oficial */}
+              <label className="block text-sm font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
                 {input.label}
               </label>
               <input
                 type={input.type}
                 value={values[input.key] || ''}
                 onChange={(e) => handleChange(input, e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 text-olvblue dark:text-ourovelho placeholder:text-slate-400 dark:placeholder:text-ourovelho/60 focus:ring-2 focus:ring-ourovelho focus:border-ourovelho shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                className={`w-full px-4 py-3 rounded-xl border-2 ${
+                  errors[input.key] 
+                    ? 'border-red-300 dark:border-red-600' 
+                    : 'border-blue-200 dark:border-blue-600'
+                } bg-white/90 dark:bg-slate-800/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}
                 placeholder={input.label}
               />
+              {errors[input.key] && (
+                <p className="text-sm text-red-600 dark:text-red-400">{errors[input.key]}</p>
+              )}
             </div>
           </div>
         ))}
@@ -156,23 +189,27 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     );
   };
 
-  // Breakdown detalhado (visual premium)
+  // Breakdown detalhado (visual premium) - PADRONIZADO AZUL/OURO
   const renderBreakdown = () => {
     const breakdown = baseResult.breakdown || {};
     if (!breakdown || Object.keys(breakdown).length === 0) return null;
     return (
       <div className="relative mb-8">
+        {/* PADRONIZADO: Azul oficial */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
         <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-6">
+            {/* PADRONIZADO: Azul oficial */}
             <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
               <FaChartBar className="text-2xl text-white" />
             </div>
+            {/* PADRONIZADO: Azul oficial */}
             <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Breakdown Detalhado</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
+                {/* PADRONIZADO: Azul oficial */}
                 <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
                   <th className="p-4 text-left font-bold text-blue-800 dark:text-blue-300">Item</th>
                   <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">Valor (BRL)</th>
@@ -193,17 +230,20 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     );
   };
 
-  // Tabela de tarifas (quando aplicável) com visual premium
+  // Tabela de tarifas (quando aplicável) com visual premium - PADRONIZADO AZUL/OURO
   const tabela = getTabelaTarifas(config.slug);
   const renderTabelaTarifas = () => (
     tabela && (
       <div className="relative mb-8">
+        {/* PADRONIZADO: Azul oficial */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
         <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-6">
+            {/* PADRONIZADO: Azul oficial */}
             <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
               <FaReceipt className="text-2xl text-white" />
             </div>
+            {/* PADRONIZADO: Azul oficial */}
             <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Tabela de Tarifas</h3>
           </div>
           <TabelaTarifas tabela={tabela} currency={currency} customRate={customRate} />
@@ -212,15 +252,18 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     )
   );
 
-  // Seção Serviços Principais com visual premium
+  // Seção Serviços Principais com visual premium - PADRONIZADO AZUL/OURO
   const renderServicosPrincipais = () => (
     <div className="relative mb-8">
+      {/* PADRONIZADO: Azul oficial */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
       <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
+          {/* PADRONIZADO: Azul oficial */}
           <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaCalculator className="text-2xl text-white" />
           </div>
+          {/* PADRONIZADO: Azul oficial */}
           <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Serviços Principais</h3>
         </div>
         {renderInputs()}
@@ -228,7 +271,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     </div>
   );
 
-  // Seção Impostos (dinâmica) com visual premium
+  // Seção Impostos (dinâmica) com visual premium - PADRONIZADO AZUL/OURO
   const [impostos, setImpostos] = useState([
     { nome: 'ISS', valor: '' },
     { nome: 'IR', valor: '' },
@@ -237,16 +280,20 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
   const removerImposto = (idx: number) => setImpostos(imps => imps.filter((_, i) => i !== idx));
   const renderImpostos = () => (
     <div className="relative mb-8">
+      {/* PADRONIZADO: Azul oficial */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
       <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
+          {/* PADRONIZADO: Azul oficial */}
           <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaReceipt className="text-2xl text-white" />
           </div>
           <div>
+            {/* PADRONIZADO: Azul oficial */}
             <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">
               Impostos
             </h3>
+            {/* PADRONIZADO: Azul oficial */}
             <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
               Impostos são calculados em cascata conforme legislação brasileira
             </p>
@@ -256,53 +303,55 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
         <div className="overflow-x-auto">
           <table className="w-full text-sm mb-4">
             <thead>
+              {/* PADRONIZADO: Azul oficial */}
               <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
                 <th className="p-3 text-left font-bold text-blue-800 dark:text-blue-300">Imposto</th>
                 <th className="p-3 text-left font-bold text-blue-800 dark:text-blue-300">Percentual (%)</th>
                 <th className="p-3 text-center font-bold text-blue-800 dark:text-blue-300">Ações</th>
               </tr>
             </thead>
-            <tbody>
-              {impostos.map((imp, idx) => (
-                <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-200">
-                  <td className="p-3">
-                    <input
-                      type="text"
-                      value={imp.nome}
-                      onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
-                      className="w-full px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
-                      placeholder="Nome do imposto"
-                    />
-                  </td>
-                  <td className="p-3">
-                    <input
-                      type="number"
-                      value={imp.valor}
-                      onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: e.target.value } : i))}
-                      className="w-32 px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
-                      placeholder="0,00"
-                      min={0}
-                      max={100}
-                      step={0.01}
-                    />
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      type="button"
-                      onClick={() => removerImposto(idx)}
-                      className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Remover imposto"
-                      disabled={impostos.length === 1}
-                    >
-                      <FaTrash size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                          <tbody>
+                {impostos.map((imp, idx) => (
+                  <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors duration-200">
+                    <td className="p-3">
+                      <input
+                        type="text"
+                        value={imp.nome}
+                        onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, nome: e.target.value } : i))}
+                        className="w-full px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
+                        placeholder="Nome do imposto"
+                      />
+                    </td>
+                    <td className="p-3">
+                      <input
+                        type="number"
+                        value={imp.valor}
+                        onChange={e => setImpostos(imps => imps.map((i, j) => j === idx ? { ...i, valor: e.target.value } : i))}
+                        className="w-32 px-3 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
+                        placeholder="0,00"
+                        min={0}
+                        max={100}
+                        step={0.01}
+                      />
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => removerImposto(idx)}
+                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Remover imposto"
+                        disabled={impostos.length === 1}
+                      >
+                        <FaTrash size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
           </table>
         </div>
         
+        {/* PADRONIZADO: Azul oficial */}
         <button
           type="button"
           onClick={adicionarImposto}
@@ -316,18 +365,22 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     </div>
   );
 
-  // Seção Observações Gerais com visual premium
+  // Seção Observações Gerais com visual premium - PADRONIZADO AZUL/OURO
   const [observacoes, setObservacoes] = useState('');
   const renderObservacoes = () => (
     <div className="relative mb-8">
+      {/* PADRONIZADO: Azul oficial */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
       <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
+          {/* PADRONIZADO: Azul oficial */}
           <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaComments className="text-2xl text-white" />
           </div>
+          {/* PADRONIZADO: Azul oficial */}
           <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Observações Gerais</h3>
         </div>
+        {/* PADRONIZADO: Azul oficial */}
         <textarea
           value={observacoes}
           onChange={e => setObservacoes(e.target.value)}
@@ -338,7 +391,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     </div>
   );
 
-  // Seção Resultados detalhados com visual premium
+  // Seção Resultados detalhados com visual premium - PADRONIZADO AZUL/OURO
   const renderResultados = () => {
     // 1. Serviços principais e adicionais (breakdown)
     const breakdown = baseResult.breakdown || {};
@@ -396,18 +449,22 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
 
     return (
       <div className="relative mb-8">
+        {/* PADRONIZADO: Azul oficial */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
         <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-6">
+            {/* PADRONIZADO: Azul oficial */}
             <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
               <FaChartBar className="text-2xl text-white" />
             </div>
+            {/* PADRONIZADO: Azul oficial */}
             <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Resultado Detalhado</h3>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
+                {/* PADRONIZADO: Azul oficial */}
                 <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50">
                   <th className="p-4 text-left font-bold text-blue-800 dark:text-blue-300">Item</th>
                   <th className="p-4 text-right font-bold text-blue-800 dark:text-blue-300">Valor (BRL)</th>
@@ -439,6 +496,13 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
                     <td className="p-4 text-right text-slate-600 dark:text-slate-300">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
                   </tr>
                 ))}
+                <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 font-bold">
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300" colSpan={3}>
+                    Subtotal Adicionais
+                    <FaInfoCircle className="inline ml-2 text-blue-600 dark:text-blue-400" title="Soma dos serviços adicionais." />
+                  </td>
+                  <td className="p-4 text-right text-blue-800 dark:text-blue-300">{formatCurrencyValue(subtotalAdicionais)}</td>
+                </tr>
                 {linhasImpostos.map((linha: any, idx: number) => (
                   <tr key={idx} className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-colors duration-200">
                     <td className="p-4 font-semibold capitalize text-blue-700 dark:text-blue-300">
@@ -447,7 +511,7 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
                     </td>
                     <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">R$ {linha.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                     <td className="p-4 text-right font-bold text-blue-600 dark:text-blue-400">{currency !== 'BRL' ? formatCurrencyValue(linha.valor) : ''}</td>
-                    <td className="p-4 text-right text-slate-600 dark:text-slate-300">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
+                    <td className="p-4 text-right text-blue-600 dark:text-blue-400">{((linha.valor / totalGeral) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%</td>
                   </tr>
                 ))}
                 <tr className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 font-bold">
@@ -469,16 +533,19 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     );
   };
 
-  // Botões de ação avançados com visual premium
+  // Botões de ação avançados com visual premium - PADRONIZADO AZUL/OURO
   const renderAcoesAvancadas = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-slate-200 dark:border-slate-600 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      {/* PADRONIZADO: Azul oficial */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-xl">
+          {/* PADRONIZADO: Azul oficial */}
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaCog className="text-2xl text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-300">Ações Avançadas</h3>
+          {/* PADRONIZADO: Azul oficial */}
+          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Ações Avançadas</h3>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -508,16 +575,19 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     </div>
   );
 
-  // Botões de ação básicos com visual premium
+  // Botões de ação básicos com visual premium - PADRONIZADO AZUL/OURO
   const renderAcoes = () => (
     <div className="relative mb-8">
-      <div className="absolute inset-0 bg-gradient-to-r from-ourovelho/20 to-ourovelho-dark/20 dark:from-ourovelho/30 dark:to-ourovelho-dark/30 rounded-2xl blur-xl"></div>
-      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-ourovelho/30 dark:border-ourovelho/50 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+      {/* PADRONIZADO: Azul oficial */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-r from-ourovelho to-ourovelho-dark rounded-xl">
+          {/* PADRONIZADO: Azul oficial */}
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaCalculator className="text-2xl text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-ourovelho-dark dark:text-ourovelho">Ações Rápidas</h3>
+          {/* PADRONIZADO: Azul oficial */}
+          <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Ações Rápidas</h3>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -547,15 +617,18 @@ export default function ServiceForm({ config, currency, customRate, expandAll }:
     </div>
   );
 
-  // Seção Serviços Adicionais com visual premium
+  // Seção Serviços Adicionais com visual premium - PADRONIZADO AZUL/OURO
   const renderServicosAdicionais = () => (
     <div className="relative mb-8">
+      {/* PADRONIZADO: Azul oficial */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
       <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-6">
+          {/* PADRONIZADO: Azul oficial */}
           <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
             <FaPlus className="text-2xl text-white" />
           </div>
+          {/* PADRONIZADO: Azul oficial */}
           <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Serviços Adicionais</h3>
         </div>
         <ServicosAdicionaisTable values={values} setValues={setValues} />

@@ -6,18 +6,19 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { FaFilePdf, FaFileExcel, FaChevronDown, FaChevronUp, FaIndustry, FaShip, FaTruck, FaRoute, FaBuilding, FaGlobe, FaUsers, FaPlus } from 'react-icons/fa';
 import { AdminProvider } from './AdminContext';
 import Collapsible from './UI/Collapsible';
+import * as XLSX from 'xlsx';
 
 function TabsWithAdmin() {
-  // Lista de abas com ícones
+  // Lista de abas com ícones - PADRONIZADO para azul/ouro oficial
   const tabList = [
-    { value: 'pme-comex', label: 'PME COMEX Ready', icon: FaIndustry, color: 'from-blue-500 to-blue-600' },
-    { value: 'comex-on-demand', label: 'COMEX On-Demand', icon: FaShip, color: 'from-green-500 to-green-600' },
-    { value: '3pl-turnkey', label: '3PL Turnkey', icon: FaTruck, color: 'from-purple-500 to-purple-600' },
-    { value: 'end-to-end', label: 'End-to-End', icon: FaRoute, color: 'from-orange-500 to-orange-600' },
-    { value: 'in-house', label: 'In-House', icon: FaBuilding, color: 'from-red-500 to-red-600' },
-    { value: 'nova-rota-importacao', label: 'Nova Rota de Importação', icon: FaGlobe, color: 'from-teal-500 to-teal-600' },
-    { value: 'consultoria', label: 'Consultoria Especializada', icon: FaUsers, color: 'from-indigo-500 to-indigo-600' },
-    { value: 'servicos-adicionais', label: 'Serviços Adicionais', icon: FaPlus, color: 'from-pink-500 to-pink-600' },
+    { value: 'pme-comex', label: 'PME COMEX Ready', icon: FaIndustry, color: 'from-blue-500 to-indigo-600' },
+    { value: 'comex-on-demand', label: 'COMEX On-Demand', icon: FaShip, color: 'from-blue-500 to-indigo-600' },
+    { value: '3pl-turnkey', label: '3PL Turnkey', icon: FaTruck, color: 'from-blue-500 to-indigo-600' },
+    { value: 'end-to-end', label: 'End-to-End', icon: FaRoute, color: 'from-blue-500 to-indigo-600' },
+    { value: 'in-house', label: 'In-House', icon: FaBuilding, color: 'from-blue-500 to-indigo-600' },
+    { value: 'nova-rota-importacao', label: 'Nova Rota de Importação', icon: FaGlobe, color: 'from-blue-500 to-indigo-600' },
+    { value: 'consultoria', label: 'Consultoria Especializada', icon: FaUsers, color: 'from-blue-500 to-indigo-600' },
+    { value: 'servicos-adicionais', label: 'Serviços Adicionais', icon: FaPlus, color: 'from-blue-500 to-indigo-600' },
   ];
   const [selectedTab, setSelectedTab] = useState(tabList[0].value);
   const selectedServiceIdx = tabList.findIndex(tab => tab.value === selectedTab);
@@ -27,6 +28,8 @@ function TabsWithAdmin() {
   const [currency, setCurrency] = useState('BRL');
   const [customRate, setCustomRate] = useState('');
   const [loadingRate, setLoadingRate] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  
   const handleCurrencyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCurrency = e.target.value;
     setCurrency(newCurrency);
@@ -50,9 +53,80 @@ function TabsWithAdmin() {
   const exportToPDF = () => {
     window.print();
   };
-  // Exportação XLSX de toda a proposta (placeholder, implementar integração real se necessário)
+  
+  // Exportação XLSX funcional
   const exportToExcel = () => {
-    alert('Exportação XLSX de toda a proposta ainda não implementada.');
+    if (!selectedService) return;
+    
+    setExporting(true);
+    
+    try {
+      // Criar dados da proposta
+      const proposalData = [
+        ['PROPOSTA OLV INTERNACIONAL'],
+        [''],
+        ['Serviço:', selectedService.name],
+        ['Descrição:', selectedService.description],
+        ['Moeda:', currency],
+        ['Cotação:', customRate || '1.00'],
+        ['Data:', new Date().toLocaleDateString('pt-BR')],
+        [''],
+        ['DETALHAMENTO DOS CUSTOS'],
+        ['Item', 'Descrição', `Valor (${currency})`, 'Observações']
+      ];
+
+      // Adicionar campos do serviço
+      selectedService.inputs.forEach(input => {
+        proposalData.push([
+          input.key,
+          input.label,
+          '', // Valor será preenchido pelo usuário
+          input.type === 'checkbox' ? 'Sim/Não' : 'Valor numérico'
+        ]);
+      });
+
+      // Adicionar seções de cálculo
+      proposalData.push(['', '', '', '']);
+      proposalData.push(['SUBTOTAIS']);
+      proposalData.push(['Serviços Principais', '', '', '']);
+      proposalData.push(['Serviços Adicionais', '', '', '']);
+      proposalData.push(['Impostos', '', '', '']);
+      proposalData.push(['TOTAL GERAL', '', '', '']);
+
+      // Criar planilha
+      const worksheet = XLSX.utils.aoa_to_sheet(proposalData);
+      
+      // Ajustar larguras das colunas
+      worksheet['!cols'] = [
+        { width: 25 },
+        { width: 40 },
+        { width: 15 },
+        { width: 30 }
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Proposta OLV');
+      
+      // Salvar arquivo
+      const fileName = `proposta_olv_${selectedService.slug}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+      
+      // Feedback visual
+      setTimeout(() => {
+        setExporting(false);
+        // Mostrar notificação de sucesso
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-up';
+        notification.textContent = '✅ Proposta exportada com sucesso!';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+      }, 500);
+      
+    } catch (error) {
+      console.error('Erro na exportação:', error);
+      setExporting(false);
+      alert('Erro ao exportar proposta. Tente novamente.');
+    }
   };
 
   const [expandAll, setExpandAll] = useState(true);
@@ -167,11 +241,16 @@ function TabsWithAdmin() {
                     <FaFilePdf size={18} color="white" />
                   </button>
                   <button 
-                    className="p-2 bg-green-500 hover:bg-green-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110" 
-                    title="Exportar Excel" 
+                    className={`p-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${exporting ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}
+                    title={exporting ? 'Exportando...' : 'Exportar Excel'} 
                     onClick={exportToExcel}
+                    disabled={exporting}
                   >
-                    <FaFileExcel size={18} color="white" />
+                    {exporting ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <FaFileExcel size={18} color="white" />
+                    )}
                   </button>
                 </div>
               </div>

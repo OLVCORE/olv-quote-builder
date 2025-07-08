@@ -47,21 +47,21 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
 
   return (
     <div className="relative">
-      {/* CORREÇÃO: Azul oficial */}
+      {/* PADRONIZADO: Azul oficial */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl blur-xl"></div>
       
       {/* Main container */}
       <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          {/* CORREÇÃO: Azul oficial */}
+          {/* PADRONIZADO: Azul oficial */}
           <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
             <FaEdit className="text-2xl text-white" />
           </div>
           <div>
-            {/* CORREÇÃO: Azul oficial */}
+            {/* PADRONIZADO: Azul oficial */}
             <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Serviços Adicionais</h3>
-            {/* CORREÇÃO: Azul oficial */}
+            {/* PADRONIZADO: Azul oficial */}
             <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
               Adicione serviços extras personalizados para sua proposta
             </p>
@@ -71,20 +71,20 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
         {/* Table */}
         <div className="overflow-x-auto mb-6">
           <div className="inline-block min-w-full align-middle">
-            {/* CORREÇÃO: Azul oficial */}
+            {/* PADRONIZADO: Azul oficial */}
             <div className="overflow-hidden shadow-xl rounded-xl border-2 border-blue-200 dark:border-blue-700">
               <table className="min-w-full divide-y divide-blue-200 dark:divide-blue-700">
                 <thead className="bg-gradient-to-r from-blue-500 to-indigo-600">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                       <div className="flex items-center gap-2">
-                        <FaInfoCircle className="text-pink-200" />
+                        <FaInfoCircle className="text-blue-200" />
                         Descrição
                       </div>
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                       <div className="flex items-center gap-2">
-                        <FaInfoCircle className="text-pink-200" />
+                        <FaInfoCircle className="text-blue-200" />
                         Valor (BRL)
                       </div>
                     </th>
@@ -100,8 +100,8 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
                   {linhas.map((linha, idx) => (
                     <tr 
                       key={idx} 
-                      className={`hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors duration-200 ${
-                        idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-pink-50/50 dark:bg-pink-900/10'
+                      className={`hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 ${
+                        idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-blue-50/50 dark:bg-blue-900/10'
                       }`}
                     >
                       <td className="px-6 py-4">
@@ -109,7 +109,7 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
                           type="text"
                           value={linha.descricao}
                           onChange={e => atualizarLinha(idx, 'descricao', e.target.value)}
-                          className="w-full px-4 py-2 rounded-lg border-2 border-pink-200 dark:border-pink-600 bg-white/90 dark:bg-slate-700/90 text-pink-700 dark:text-pink-300 placeholder:text-pink-400 dark:placeholder:text-pink-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 shadow-inner"
+                          className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
                           placeholder="Descrição do serviço"
                           title="Descreva o serviço adicional. Exemplo: 'Despacho aduaneiro'."
                         />
@@ -119,14 +119,14 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
                           type="number"
                           value={linha.valor}
                           onChange={e => atualizarLinha(idx, 'valor', e.target.value)}
-                          className="w-full px-4 py-2 rounded-lg border-2 border-pink-200 dark:border-pink-600 bg-white/90 dark:bg-slate-700/90 text-pink-700 dark:text-pink-300 placeholder:text-pink-400 dark:placeholder:text-pink-500 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 shadow-inner"
+                          className="w-full px-4 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-600 bg-white/90 dark:bg-slate-700/90 text-blue-700 dark:text-blue-300 placeholder:text-blue-400 dark:placeholder:text-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-inner"
                           placeholder="0,00"
                           min={0}
                           title="Informe o valor do serviço adicional em reais."
                         />
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="text-sm font-bold text-pink-600 dark:text-pink-400">
+                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                           {(() => {
                             const val = Number(linha.valor);
                             if (!val || !exchangeRates.USD) return '-';
@@ -155,7 +155,7 @@ export default function ServicosAdicionaisTable({ values, setValues, currency = 
           </div>
         </div>
 
-        {/* CORREÇÃO: Azul oficial */}
+        {/* PADRONIZADO: Azul oficial */}
         <button
           type="button"
           onClick={adicionarLinha}

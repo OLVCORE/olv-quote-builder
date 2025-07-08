@@ -1,71 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+"use client";
+import React, { useState } from 'react';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-interface Props {
+interface CollapsibleProps {
   title: string;
   children: React.ReactNode;
   expanded?: boolean;
   icon?: React.ReactNode;
-  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'pink' | 'indigo';
+  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'indigo' | 'pink';
 }
 
-const colorClasses = {
-  blue: {
-    bg: 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20',
+export default function Collapsible({ title, children, expanded = false, icon, color = 'blue' }: CollapsibleProps) {
+  const [isOpen, setIsOpen] = useState(expanded);
+
+  // PADRONIZADO: Sempre usar azul oficial OLV
+  const colorClasses = {
+    bg: 'bg-gradient-to-r from-blue-500 to-indigo-600',
     border: 'border-blue-200 dark:border-blue-700',
-    header: 'from-blue-500 to-indigo-600',
-    text: 'text-blue-700 dark:text-blue-400'
-  },
-};
-
-export default function Collapsible({ title, children, expanded, icon, color = 'blue' }: Props) {
-  const [open, setOpen] = useState(expanded ?? false);
-  
-  useEffect(() => {
-    if (expanded !== undefined) setOpen(expanded);
-  }, [expanded]);
-
-  const classes = colorClasses.blue;
+    text: 'text-blue-700 dark:text-blue-400',
+    hover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/20',
+    iconBg: 'bg-gradient-to-r from-blue-500 to-indigo-600'
+  };
 
   return (
-    <div className={`relative mb-6 overflow-hidden rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl`}>
-      {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-r ${classes.bg} opacity-80`}></div>
-      
-      {/* Main container */}
-      <div className={`relative border-2 ${classes.border} bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm`}>
+    <div className="relative mb-6">
+      {/* PADRONIZADO: Azul oficial */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/30 dark:to-slate-600/30 rounded-2xl blur-xl"></div>
+      <div className="relative bg-white/95 dark:bg-slate-800/95 border-2 border-blue-200 dark:border-blue-700 rounded-2xl shadow-2xl backdrop-blur-sm overflow-hidden">
         {/* Header */}
         <button
-          type="button"
-          className={`w-full flex items-center justify-between px-6 py-4 text-xl font-bold ${classes.text} focus:outline-none focus:ring-2 focus:ring-ourovelho focus:ring-offset-2 transition-all duration-300 hover:bg-gradient-to-r ${classes.bg}`}
-          onClick={() => setOpen(o => !o)}
-          aria-expanded={open}
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-full flex items-center justify-between p-6 text-left transition-all duration-300 ${colorClasses.hover}`}
         >
-          <div className="flex items-center gap-3">
-            {icon && (
-              <div className={`p-2 bg-gradient-to-r ${classes.header} rounded-lg shadow-lg`}>
-                {icon}
-              </div>
-            )}
-            <span className="drop-shadow-sm">{title}</span>
+          <div className="flex items-center gap-4">
+            {/* PADRONIZADO: Azul oficial */}
+            <div className={`p-3 ${colorClasses.iconBg} rounded-xl shadow-lg`}>
+              {icon || <div className="w-6 h-6 text-white" />}
+            </div>
+            {/* PADRONIZADO: Azul oficial */}
+            <h3 className={`text-2xl font-bold ${colorClasses.text}`}>
+              {title}
+            </h3>
           </div>
-          
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r ${classes.header} shadow-lg transition-all duration-300 hover:scale-110`}>
-            {open ? (
-              <FaChevronDown className="text-white text-sm transition-transform duration-300" />
+          {/* PADRONIZADO: Azul oficial */}
+          <div className={`p-2 ${colorClasses.iconBg} rounded-lg shadow-lg transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+            {isOpen ? (
+              <FaChevronUp className="text-white text-lg" />
             ) : (
-              <FaChevronRight className="text-white text-sm transition-transform duration-300" />
+              <FaChevronDown className="text-white text-lg" />
             )}
           </div>
         </button>
-        
+
         {/* Content */}
-        <div 
-          className={`overflow-hidden transition-all duration-500 ease-in-out ${
-            open ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="px-6 pb-6 pt-2">
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}>
+          <div className="p-6 pt-0">
             {children}
           </div>
         </div>
