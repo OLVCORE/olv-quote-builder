@@ -1,4 +1,4 @@
-import { InputField, ServiceConfig } from './services';
+import { InputField, ServiceConfig } from './types/services';
 
 const makeNumber = (key: string, label: string, def: number, min = 0): InputField => ({
   key,

@@ -1,6 +1,6 @@
 ﻿"use client";
 import React, { useState, useMemo } from 'react';
-import { ServiceConfig, InputField } from '@/lib/services';
+import { ServiceConfig, InputField } from '@/lib/types/services';
 import { useAdmin } from './AdminContext';
 import { useRates } from '@/lib/useRates';
 import { FaFilePdf, FaFileExcel, FaSync, FaCalculator, FaReceipt, FaEdit, FaCog, FaComments, FaChartBar, FaPlus, FaTrash, FaInfoCircle } from 'react-icons/fa';

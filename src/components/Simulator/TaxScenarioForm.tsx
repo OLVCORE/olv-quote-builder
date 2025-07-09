@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { calcularBaseICMSST, calcularDIFAL } from "@/lib/utils/taxCalculator";
+import { 
+  calcularBaseICMSST, 
+  calcularDIFAL, 
+  calcularIPI, 
+  calcularPISCOFINS, 
+  calcularISS, 
+  calcularFCP 
+} from "@/lib/utils/taxCalculator";
 import { TaxScenario } from "@/lib/types/simulator";
 import { sugerirCFOP } from "@/lib/utils/cfopSuggester";
 import { sugerirCST } from "@/lib/utils/cstSuggester";
@@ -51,9 +58,7 @@ export function TaxScenarioForm() {
     aliquotaPIS: scenario.pis || 0.65,
     aliquotaCOFINS: scenario.cofins || 3,
   });
-  const valorISS = scenario.tipoOperacao === "Serviço"
-    ? calcularISS({ baseCalculo: scenario.valorProduto, aliquotaISS: scenario.iss || 5 })
-    : 0;
+  const valorISS = 0; // ISS não se aplica a produtos, apenas serviços
   const valorFCP = scenario.fcp
     ? calcularFCP({ baseCalculo: scenario.valorProduto, aliquotaFCP: scenario.fcp })
     : 0;
@@ -144,13 +149,7 @@ export function TaxScenarioForm() {
         <span className="ml-2 font-bold">{cofins.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
         <span className="ml-2 text-xs text-gray-500">(Lei 10.833/2003)</span>
       </div>
-      {scenario.tipoOperacao === "Serviço" && (
-        <div>
-          <label>Valor ISS:</label>
-          <span className="ml-2 font-bold">{valorISS.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-          <span className="ml-2 text-xs text-gray-500">(LC 116/2003)</span>
-        </div>
-      )}
+      {/* ISS não se aplica a produtos, apenas serviços */}
       {scenario.fcp && (
         <div>
           <label>Valor FCP:</label>
