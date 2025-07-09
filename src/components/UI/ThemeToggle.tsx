@@ -1,55 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useTheme } from '../Layout/ThemeContext';
 
 export const ThemeToggle: React.FC = () => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    // Verificar tema inicial
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-    setIsDark(initialDark);
-    document.body.classList.remove('theme-light', 'theme-dark');
-    document.body.classList.add(initialDark ? 'theme-dark' : 'theme-light');
-  }, []);
-
-  useEffect(() => {
-    // Aplicar tema ao documento
-    document.body.classList.remove('theme-light', 'theme-dark');
-    if (isDark) {
-      document.body.classList.add('theme-dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.add('theme-light');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
-
-  const toggleTheme = () => {
-    setIsDark((prev) => !prev);
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
       className="relative w-12 h-6 bg-olvblue rounded-full transition-colors duration-300 hover:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent-dark focus:ring-offset-2 focus:ring-offset-bg-dark"
-      aria-label={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+      aria-label={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
     >
-      {/* Slider */}
       <div
         className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ease-in-out shadow-md ${
-          isDark ? 'translate-x-6' : 'translate-x-1'
+          theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
         }`}
       />
-      
-      {/* Ícones */}
       <div className="absolute inset-0 flex items-center justify-between px-1.5">
-        {/* Sol */}
         <svg
           className={`w-3 h-3 transition-opacity duration-300 ${
-            isDark ? 'opacity-0' : 'opacity-100'
+            theme === 'dark' ? 'opacity-0' : 'opacity-100'
           }`}
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -60,11 +31,9 @@ export const ThemeToggle: React.FC = () => {
             clipRule="evenodd"
           />
         </svg>
-        
-        {/* Lua */}
         <svg
           className={`w-3 h-3 transition-opacity duration-300 ${
-            isDark ? 'opacity-100' : 'opacity-0'
+            theme === 'dark' ? 'opacity-100' : 'opacity-0'
           }`}
           fill="currentColor"
           viewBox="0 0 20 20"

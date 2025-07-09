@@ -185,4 +185,32 @@ export interface Simulacao {
   ncmOuCnae?: string;
   criadoEm: string;
   atualizadoEm: string;
+}
+
+export interface TaxScenario {
+  regimeTributario: "Simples Nacional" | "Lucro Presumido" | "Lucro Real" | "MEI";
+  ufOrigem: string;
+  ufDestino: string;
+  ncm: string;
+  cfop?: string;
+  cst?: string;
+  csosn?: string;
+  tipoOperacao: "Compra" | "Venda" | "Industrialização" | "Revenda";
+  produtoSujeitoST: boolean;
+  cest?: string;
+  aliquotaInterna: number;
+  aliquotaInterestadual: number;
+  mva?: number;
+  ipi?: number;
+  pis?: number;
+  cofins?: number;
+  iss?: number;
+  fcp?: number;
+  tipoCliente: "Pessoa Física" | "Pessoa Jurídica";
+  contribuinte: boolean;
+  operacao: "Interna" | "Interestadual";
+  valorProduto: number;
+  frete?: number;
+  seguro?: number;
+  despesas?: number;
 } 
