@@ -5,7 +5,7 @@ import React from 'react';
 import { ThemeProvider } from 'next-themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
-import Header from '@/components/layout/header';
+import Header from '@/components/Layout/header';
 
 const inter = Inter({ 
   subsets: ['latin'],
