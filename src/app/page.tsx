@@ -1,185 +1,304 @@
-"use client";
-import Link from "next/link";
-import { FaCalculator, FaChartLine, FaGlobe, FaBoxOpen, FaHistory, FaFilePdf, FaFileExcel, FaShieldAlt, FaRocket, FaLightbulb, FaArrowRight } from "react-icons/fa";
+'use client'
 
-export default function Home() {
-  const quickActions = [
-    {
-      title: "Simular Produto",
-      description: "Precificação completa com impostos brasileiros",
-      icon: FaBoxOpen,
-      href: "/admin/simulator?type=produto",
-      color: "from-blue-500 to-indigo-600",
-      features: ["ICMS, IPI, PIS/COFINS", "Markup dinâmico", "Breakdown detalhado"]
-    },
-    {
-      title: "Simular Serviço",
-      description: "Serviços COMEX e logística",
-      icon: FaGlobe,
-      href: "/admin/simulator?type=servico",
-      color: "from-green-500 to-emerald-600",
-      features: ["ISS, ICMS-ST", "8 serviços OLV", "Exportação PDF/Excel"]
-    },
-    {
-      title: "Cenários Fiscais",
-      description: "Comparar diferentes regimes tributários",
-      icon: FaChartLine,
-      href: "/admin/simulator?type=fiscal",
-      color: "from-purple-500 to-violet-600",
-      features: ["Simples vs Presumido", "DIFAL, ICMS-ST", "Otimização fiscal"]
-    },
-    {
-      title: "Histórico",
-      description: "Visualizar simulações anteriores",
-      icon: FaHistory,
-      href: "/admin/quote-incompany/history",
-      color: "from-orange-500 to-red-600",
-      features: ["Comparação temporal", "Exportação em lote", "Análise de tendências"]
-    }
-  ];
+import React from 'react'
+import { motion } from 'framer-motion'
+import { 
+  Calculator, 
+  TrendingUp, 
+  Globe, 
+  Shield, 
+  Zap, 
+  BarChart3,
+  ArrowRight,
+  CheckCircle,
+  Star,
+  Users,
+  Award,
+  Target
+} from 'lucide-react'
 
+export default function HomePage() {
   const features = [
     {
-      icon: FaShieldAlt,
-      title: "Compliance Fiscal",
-      description: "Cálculos baseados na legislação brasileira vigente, incluindo ICMS, IPI, PIS/COFINS, ISS, DIFAL e ICMS-ST."
+      icon: <Calculator className="w-6 h-6" />,
+      title: "Cálculo Fiscal Inteligente",
+      description: "Motor de cálculo avançado com todos os regimes fiscais brasileiros (Simples, Presumido, Real, MEI)",
+      color: "from-blue-500 to-cyan-500"
     },
     {
-      icon: FaLightbulb,
-      title: "Inteligência de Preços",
-      description: "Algoritmos avançados para otimização de markup, margens e competitividade de preços."
+      icon: <Globe className="w-6 h-6" />,
+      title: "Multi-Moeda",
+      description: "Conversão automática em tempo real para USD, EUR, CNY e outras moedas",
+      color: "from-green-500 to-emerald-500"
     },
     {
-      icon: FaRocket,
-      title: "Simulação Avançada",
-      description: "Compare múltiplos cenários, regimes tributários e estratégias de precificação em tempo real."
+      icon: <Shield className="w-6 h-6" />,
+      title: "Compliance Total",
+      description: "100% em conformidade com a legislação fiscal brasileira atualizada",
+      color: "from-purple-500 to-pink-500"
     },
     {
-      icon: FaFilePdf,
-      title: "Relatórios Profissionais",
-      description: "Exportação em PDF e Excel com breakdown detalhado, justificativas legais e recomendações."
+      icon: <Zap className="w-6 h-6" />,
+      title: "Performance Ultra",
+      description: "Interface otimizada com animações fluidas e carregamento instantâneo",
+      color: "from-orange-500 to-red-500"
+    },
+    {
+      icon: <BarChart3 className="w-6 h-6" />,
+      title: "Análise Avançada",
+      description: "Relatórios detalhados com gráficos interativos e insights inteligentes",
+      color: "from-indigo-500 to-blue-500"
+    },
+    {
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "Simulação Comparativa",
+      description: "Compare diferentes cenários fiscais e encontre a melhor estratégia",
+      color: "from-teal-500 to-cyan-500"
     }
-  ];
+  ]
 
   const stats = [
-    { label: "Regimes Tributários", value: "4", description: "Simples, Presumido, Real, MEI" },
-    { label: "Impostos Cobertos", value: "12+", description: "ICMS, IPI, PIS, COFINS, ISS, DIFAL" },
-    { label: "Serviços OLV", value: "8", description: "COMEX, Logística, Consultoria" },
-    { label: "Estados Brasileiros", value: "27", description: "Alíquotas e regras específicas" }
-  ];
+    { label: "Cotações Geradas", value: "50K+", icon: <Calculator className="w-5 h-5" /> },
+    { label: "Clientes Atendidos", value: "1K+", icon: <Users className="w-5 h-5" /> },
+    { label: "Precisão Fiscal", value: "99.9%", icon: <CheckCircle className="w-5 h-5" /> },
+    { label: "Avaliação", value: "4.9/5", icon: <Star className="w-5 h-5" /> }
+  ]
+
+  const benefits = [
+    "Cálculos fiscais 100% precisos e atualizados",
+    "Interface moderna e intuitiva",
+    "Suporte a todos os regimes fiscais",
+    "Relatórios profissionais em PDF",
+    "Integração com sistemas externos",
+    "Suporte técnico especializado"
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Header Premium */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-olvblue via-blue-800 to-olvblue opacity-95"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="text-center">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-              <div className="p-3 sm:p-4 bg-ourovelho/20 rounded-2xl">
-                <FaCalculator className="text-3xl sm:text-4xl text-ourovelho" />
-              </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white mb-2 drop-shadow-lg">
-                  OLV Quote Builder
-                </h1>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-ourovelho">
-                  Precificação Inteligente & Compliance Fiscal
-                </h2>
-              </div>
-            </div>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed mb-6 sm:mb-8">
-              Plataforma avançada de precificação com engine fiscal brasileiro completo.
-              Simule produtos e serviços com cálculo automático de impostos, markup dinâmico
-              e relatórios profissionais para sua empresa.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10" />
+        <div className="container mx-auto px-4 py-20 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6"
+            >
+              <Target className="w-4 h-4 mr-2" />
+              <span className="text-sm font-medium">OLV Quote Builder 2.0</span>
+            </motion.div>
             
-            {/* Stats - Responsivo */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
-                  <div className="text-xl sm:text-2xl font-bold text-ourovelho">{stat.value}</div>
-                  <div className="text-white font-semibold text-xs sm:text-sm">{stat.label}</div>
-                  <div className="text-white/70 text-xs hidden sm:block">{stat.description}</div>
-                </div>
-              ))}
-            </div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6"
+            >
+              Revolução na
+              <span className="block text-gradient"> Cotação Fiscal</span>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+            >
+              Plataforma avançada de cotação e simulação fiscal brasileira com IA integrada. 
+              Precisão absoluta, performance ultra e compliance total.
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <button className="btn-primary btn-lg group">
+                Começar Agora
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="btn-outline btn-lg">
+                Ver Demonstração
+              </button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
-            {/* CTA Principal */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/admin/simulator" 
-                className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-ourovelho to-ourovelho-dark text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+      {/* Stats Section */}
+      <section className="py-16 bg-card/50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center"
               >
-                <FaRocket className="text-lg sm:text-xl" />
-                Começar Simulação
-                <FaArrowRight className="text-sm sm:text-base" />
-              </Link>
-            </div>
-          </div>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mx-auto mb-4">
+                  {stat.icon}
+                </div>
+                <div className="text-3xl font-bold text-foreground mb-2">{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* Quick Actions - Responsivo */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white mb-6 sm:mb-8 text-center">
-          Ações Rápidas
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {quickActions.map((action, idx) => {
-            const IconComponent = action.icon;
-            return (
-              <Link key={idx} href={action.href} className="group">
-                <div className={`relative overflow-hidden bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-700 h-full`}>
-                  <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                  <div className="relative p-4 sm:p-6 h-full flex flex-col">
-                    <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                      <div className={`p-2 sm:p-3 bg-gradient-to-br ${action.color} rounded-xl text-white flex-shrink-0`}>
-                        <IconComponent className="text-xl sm:text-2xl" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-1">{action.title}</h3>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm">{action.description}</p>
-                      </div>
+      {/* Features Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-4">Recursos Revolucionários</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Tecnologia de ponta combinada com expertise fiscal brasileira
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group"
+              >
+                <div className="card hover-lift h-full">
+                  <div className="card-header">
+                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
+                      {feature.icon}
                     </div>
-                    <ul className="space-y-1 mt-auto">
-                      {action.features.map((feature, featureIdx) => (
-                        <li key={featureIdx} className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          <span className="line-clamp-1">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <h3 className="card-title text-xl">{feature.title}</h3>
+                    <p className="card-description">{feature.description}</p>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Features - Responsivo */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white mb-6 sm:mb-8 text-center">
-            Recursos Avançados
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            {features.map((feature, idx) => {
-              const IconComponent = feature.icon;
-              return (
-                <div key={idx} className="flex gap-3 sm:gap-4">
-                  <div className="flex-shrink-0 p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
-                    <IconComponent className="text-xl sm:text-2xl" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-2">{feature.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm sm:text-base">{feature.description}</p>
-                  </div>
-                </div>
-              );
-            })}
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl font-bold mb-6">Por que escolher o OLV Quote Builder?</h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Nossa plataforma combina a mais avançada tecnologia com anos de experiência 
+                no mercado fiscal brasileiro, oferecendo uma solução completa e confiável.
+              </p>
+              <div className="space-y-4">
+                {benefits.map((benefit, index) => (
+                  <motion.div
+                    key={benefit}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="flex items-center"
+                  >
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span>{benefit}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="card p-8">
+                <div className="text-center mb-6">
+                  <Award className="w-16 h-16 text-primary mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2">Certificação de Qualidade</h3>
+                  <p className="text-muted-foreground">
+                    Aprovado pelos principais especialistas fiscais do Brasil
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <span>Precisão Fiscal</span>
+                    <span className="font-bold text-green-600">99.9%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <span>Tempo de Resposta</span>
+                    <span className="font-bold text-blue-600">&lt; 1s</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <span>Uptime</span>
+                    <span className="font-bold text-purple-600">99.99%</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-4xl font-bold mb-6">
+              Pronto para revolucionar suas cotações?
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Junte-se a milhares de profissionais que já confiam no OLV Quote Builder
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="btn-primary btn-lg group">
+                Começar Gratuitamente
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="btn-outline btn-lg">
+                Falar com Especialista
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
-  );
+  )
 } 
